@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { helpCommand } from "../../../src/bot/commands/help-command.js";
 import { getLocalizedBotCommands } from "../../../src/bot/commands/definitions.js";
 import { defined } from "../../helpers/defined.js";

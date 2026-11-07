@@ -65,7 +65,7 @@ export const tr: I18nDictionary = {
   "common.unknown_error": "bilinmeyen hata",
 
   "start.welcome":
-    "👋 OpenCode Telegram Bot'a hoş geldiniz!\n\nKomutları kullanın:\n/projects — proje seç\n/sessions — oturum listesi\n/new — yeni oturum\n/commands — özel komutlar\n/skills — yetenek kataloğu\n/task — zamanlanmış görev\n/tasklist — zamanlanmış görevler\n/status — durum\n/help — yardım\n\nAjanı, modeli ve varyantı seçmek için alttaki düğmeleri kullanın.",
+    "👋 OpenCode MAX Bot'a hoş geldiniz!\n\nKomutları kullanın:\n/projects — proje seç\n/sessions — oturum listesi\n/new — yeni oturum\n/commands — özel komutlar\n/skills — yetenek kataloğu\n/task — zamanlanmış görev\n/tasklist — zamanlanmış görevler\n/status — durum\n/help — yardım\n\nAjanı, modeli ve varyantı seçmek için alttaki düğmeleri kullanın.",
   "help.keyboard_hint":
     "💡 Ajan, model, varyant ve bağlam işlemleri için alttaki klavye düğmelerini kullanın.",
   "help.text":
@@ -103,7 +103,7 @@ export const tr: I18nDictionary = {
   "bot.assistant_reply_undelivered":
     "⚠️ The last assistant reply could not be delivered. Send your message again if you still need it.",
   "bot.stale_messages_skipped":
-    "⚠️ Some messages were skipped while Telegram was unreachable. Please send them again.",
+    "⚠️ Some messages were skipped while MAX was unreachable. Please send them again.",
   "bot.session_retry":
     "🔁 {message}\n\nSağlayıcı tekrarlanan denemelerde aynı hatayı döndürmeye devam ediyor. Durdurmak için /abort kullanın.",
   "bot.external_user_input": "Harici kullanıcı girdisi",
@@ -406,8 +406,8 @@ export const tr: I18nDictionary = {
   "permission.outcome.once": "✅ Allowed once",
   "permission.outcome.always": "🔓 Allowed always",
   "permission.outcome.reject": "❌ Rejected",
-  "permission.outcome.outside_suffix": " · answered outside Telegram",
-  "permission.outcome.settled_outside": "☑️ Answered outside Telegram",
+  "permission.outcome.outside_suffix": " · answered outside MAX",
+  "permission.outcome.settled_outside": "☑️ Answered outside MAX",
   "permission.outcome.not_answered": "⏹ Not answered",
   "permission.delivery_failed": "⚠️ The answer did not reach OpenCode — tap again",
   "permission.name.bash": "Bash",
@@ -428,8 +428,8 @@ export const tr: I18nDictionary = {
   "question.select_one_required_callback": "En az bir seçenek seçin",
   "question.enter_custom_callback": "Özel yanıtınızı mesaj olarak gönderin",
   "question.cancelled": "❌ Anket iptal edildi",
-  "question.settled_outside.answered": "☑️ Answered outside Telegram",
-  "question.settled_outside.cancelled": "❌ Cancelled outside Telegram",
+  "question.settled_outside.answered": "☑️ Answered outside MAX",
+  "question.settled_outside.cancelled": "❌ Cancelled outside MAX",
   "question.not_answered": "⏹ Not answered",
   "question.answer_already_received": "Yanıt zaten alındı, lütfen bekleyin...",
   "question.completed_no_answers": "✅ Anket tamamlandı (yanıt yok)",
@@ -495,7 +495,7 @@ export const tr: I18nDictionary = {
   "tool.file_header.edit":
     "Dosya/Yol düzenle: {path}\n============================================================\n\n",
 
-  "runtime.wizard.ask_token": "Telegram bot token'ını girin (@BotFather'dan alabilirsiniz).\n> ",
+  "runtime.wizard.ask_token": "MAX bot token'ını girin (MAX Business'dan alabilirsiniz).\n> ",
   "runtime.wizard.ask_language":
     "Arayüz dilini seçin.\nListeden dil numarasını veya yerel ayar kodunu girin.\nVarsayılan dili korumak için Enter'a basın: {defaultLocale}\n{options}\n> ",
   "runtime.wizard.language_invalid":
@@ -505,7 +505,7 @@ export const tr: I18nDictionary = {
   "runtime.wizard.token_invalid":
     "Token geçersiz görünüyor (beklenen biçim <id>:<secret>). Lütfen tekrar deneyin.\n",
   "runtime.wizard.ask_user_id":
-    "Telegram Kullanıcı ID'nizi girin (@userinfobot'tan alabilirsiniz).\n> ",
+    "MAX Kullanıcı ID'nizi girin (MAX profile'tan alabilirsiniz).\n> ",
   "runtime.wizard.user_id_invalid": "Pozitif bir tam sayı girin (> 0).\n",
   "runtime.wizard.ask_api_url":
     "OpenCode API URL'sini girin (isteğe bağlı).\nVarsayılanı kullanmak için Enter'a basın: {defaultUrl}\n> ",
@@ -524,12 +524,12 @@ export const tr: I18nDictionary = {
     "Enter OpenCode server password.\nPress Enter to keep the saved password.\n> ",
   "runtime.wizard.api_url_invalid":
     "Geçerli bir URL (http/https) girin veya varsayılan için Enter'a basın.\n",
-  "runtime.wizard.start": "OpenCode Telegram Bot kurulumu.\n",
+  "runtime.wizard.start": "OpenCode MAX Bot kurulumu.\n",
   "runtime.wizard.saved": "Yapılandırma kaydedildi:\n- {envPath}\n",
   "runtime.wizard.not_configured_starting":
     "Uygulama henüz yapılandırılmadı. Sihirbaz başlatılıyor...\n",
   "runtime.wizard.tty_required":
-    "Etkileşimli sihirbaz bir TTY terminali gerektirir. `opencode-telegram config` komutunu etkileşimli bir kabukta çalıştırın.",
+    "Etkileşimli sihirbaz bir TTY terminali gerektirir. `opencode-max config` komutunu etkileşimli bir kabukta çalıştırın.",
   "runtime.container.command_unavailable": "⚠️ Bu komut Docker imajında kullanılamaz.",
 
   "rename.no_session": "⚠️ Etkin oturum yok. Önce bir oturum oluşturun veya seçin.",

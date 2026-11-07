@@ -55,7 +55,7 @@ function findViolations(): Violation[] {
 /**
  * Rule 5: a handler that answered the callback must return `true`. Returning
  * `false` makes the router treat the callback as unhandled and answer a second
- * time, which Telegram rejects with a 400.
+ * time, which MAX rejects with a 400.
  */
 describe("callback answer contract", () => {
   it("never returns false right after answering a callback", () => {

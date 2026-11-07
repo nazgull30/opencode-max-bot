@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ToolInfo } from "../../../src/app/managers/summary-aggregation-manager.js";
-import type { SessionTargetPolicy } from "../../../src/bot/events/telegram-event-delivery.js";
+import type { SessionTargetPolicy } from "../../../src/bot/events/max-event-delivery.js";
 
 vi.mock("../../../src/app/services/busy-reconciliation-service.js", () => ({
   setResponseStreamerForReconciliation: vi.fn(),
@@ -19,8 +19,8 @@ const SESSIONS = ["session-1", "session-2"] as const;
 
 function createRuntime(): SessionRuntimeState {
   const api = {
-    sendMessage: vi.fn().mockResolvedValue({ message_id: 10 }),
-    sendRichMessage: vi.fn().mockResolvedValue({ message_id: 11 }),
+    sendMessage: vi.fn().mockResolvedValue({ message_id: "10" }),
+    sendRichMessage: vi.fn().mockResolvedValue({ message_id: "11" }),
     sendMessageDraft: vi.fn().mockResolvedValue(true),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(true),
@@ -48,7 +48,7 @@ function toolInfo(sessionId: string): ToolInfo {
 /** Puts one of everything the runtime keeps into a session. */
 function fillSession(runtime: SessionRuntimeState, sessionId: string): void {
   runtime.enqueueAssistantResponse(sessionId, "message-1", {
-    parts: [{ blocks: [], fallbackText: "partial", source: "plain" }],
+    parts: [{ html: "", fallbackText: "partial", source: "plain" }],
   });
   runtime.setThinkingSections(sessionId, "message-1", []);
   runtime.setRunningToolInfo(toolInfo(sessionId));
@@ -215,7 +215,7 @@ describe("bot/events/session-runtime-state text sent early", () => {
   function streamText(messageId: string, text: string): void {
     runtime.recordAssistantText("session-1", messageId, text);
     runtime.enqueueAssistantResponse("session-1", messageId, {
-      parts: [{ blocks: [], fallbackText: text, source: "plain" }],
+      parts: [{ html: "", fallbackText: text, source: "plain" }],
     });
   }
 
@@ -320,7 +320,7 @@ describe("bot/events/session-runtime-state text sent early", () => {
       vi.useRealTimers();
       streamingMode.value = "edit";
       const api = {
-        sendMessage: vi.fn().mockResolvedValue({ message_id: 10 }),
+        sendMessage: vi.fn().mockResolvedValue({ message_id: "10" }),
         sendRichMessage: vi
           .fn()
           .mockRejectedValue(Object.assign(new Error("Bad Request: rich"), { error_code: 400 })),
@@ -336,20 +336,20 @@ describe("bot/events/session-runtime-state text sent early", () => {
       api.sendMessage.mockImplementationOnce(
         () =>
           new Promise((resolve) => {
-            releaseOlderLine = () => resolve({ message_id: 9 });
+            releaseOlderLine = () => resolve({ message_id: "9" });
           }),
       );
 
       runtime.toolCallStreamer.append("session-1", "older tool line");
       runtime.enqueueAssistantResponse("session-1", "reply-1", {
-        parts: [{ blocks: [], fallbackText: "first reply", source: "plain" }],
+        parts: [{ html: "", fallbackText: "first reply", source: "plain" }],
       });
       runtime.markReplyBegun("session-1", "reply-1");
       runtime.startReplyCut("session-1");
       const gate = runtime.takeReplyGate("session-1");
 
       runtime.enqueueAssistantResponse("session-1", "reply-2", {
-        parts: [{ blocks: [], fallbackText: "second reply", source: "plain" }],
+        parts: [{ html: "", fallbackText: "second reply", source: "plain" }],
       });
       runtime.markReplyBegun("session-1", "reply-2");
       const letOut = gate?.();

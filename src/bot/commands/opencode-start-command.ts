@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { config } from "../../config.js";
 import { opencodeClient, opencodeServerVersion } from "../../opencode/client.js";
@@ -8,7 +8,7 @@ import { explainFailedHealthCheck } from "../../opencode/server-health.js";
 import { logger } from "../../utils/logger.js";
 import { t } from "../../i18n/index.js";
 import { isContainerRuntime } from "../../runtime/container.js";
-import { editBotText } from "../messages/telegram-text.js";
+import { editBotText } from "../messages/max-text.js";
 
 const SERVER_READY_TIMEOUT_MS = 10_000;
 const SERVER_READY_POLL_INTERVAL_MS = 500;

@@ -12,7 +12,7 @@ import {
 
 interface CompactProgressState {
   sessionId: string;
-  messageId: number | null;
+  messageId: string | number | null;
   latestText: string;
   // Counted calls by id, so a call reported finished twice counts once.
   toolCalls: Map<string, ToolCallCounts>;
@@ -32,9 +32,9 @@ interface HeldStretch {
 
 export interface CompactProgressStreamerOptions {
   throttleMs: StreamThrottleMs;
-  sendText: (sessionId: string, text: string) => Promise<number>;
-  editText: (sessionId: string, messageId: number, text: string) => Promise<void>;
-  deleteText?: (sessionId: string, messageId: number) => Promise<void>;
+  sendText: (sessionId: string, text: string) => Promise<string | number>;
+  editText: (sessionId: string, messageId: string | number, text: string) => Promise<void>;
+  deleteText?: (sessionId: string, messageId: string | number) => Promise<void>;
   /** A card kept open past its close for the background operations it still shows. */
   onPark?: (sessionId: string, callIds: string[]) => void;
 }

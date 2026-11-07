@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { projectsCommand } from "../../../src/bot/commands/projects-command.js";
 import { t } from "../../../src/i18n/index.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
@@ -65,7 +65,7 @@ vi.mock("../../../src/bot/menus/inline-menu.js", () => ({
 function createContext(): Context {
   return {
     chat: { id: 321 },
-    reply: vi.fn().mockResolvedValue({ message_id: 1 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "1" }),
   } as unknown as Context;
 }
 

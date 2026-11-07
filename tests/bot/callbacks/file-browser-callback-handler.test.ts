@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { promptAttachment } from "../../../src/app/managers/prompt-attachment-manager.js";
 import { handleLsCallback } from "../../../src/bot/callbacks/file-browser-callback-handler.js";
 import { LS_CALLBACK_ATTACH_PREFIX } from "../../../src/bot/menus/file-browser-menu.js";
@@ -45,10 +45,10 @@ vi.mock("../../../src/app/stores/settings-store.js", async (importOriginal) => {
 
 function createContext(data: string): Context {
   return {
-    callbackQuery: { data, message: { message_id: 42 } },
+    callbackQuery: { data, message: { message_id: "42" } },
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
-    reply: vi.fn().mockResolvedValue({ message_id: 43 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "43" }),
     from: { id: 1 },
   } as unknown as Context;
 }
@@ -81,7 +81,7 @@ describe("bot/callbacks/file-browser-callback-handler - attach branch", () => {
     expect(promptAttachment.get()).toEqual({
       absolutePath: FILE_PATH,
       worktree: PROJECT_ROOT,
-      confirmationMessageId: 43,
+      confirmationMessageId: "43",
     });
     expect(mocked.clearActiveInlineMenuMock).toHaveBeenCalledWith("ls_attached", deps);
     expect(ctx.deleteMessage).toHaveBeenCalled();

@@ -60,7 +60,7 @@ export const zh: I18nDictionary = {
   "common.unknown_error": "未知错误",
 
   "start.welcome":
-    "👋 欢迎使用 OpenCode Telegram Bot！\n\n可用命令：\n/projects — 选择项目\n/sessions — 会话列表\n/new — 新建会话\n/commands — 自定义命令\n/skills — 技能目录\n/task — 定时任务\n/tasklist — 定时任务列表\n/status — 状态\n/help — 帮助\n\n请使用底部按钮选择 Agent、模型和变体。",
+    "👋 欢迎使用 OpenCode MAX Bot！\n\n可用命令：\n/projects — 选择项目\n/sessions — 会话列表\n/new — 新建会话\n/commands — 自定义命令\n/skills — 技能目录\n/task — 定时任务\n/tasklist — 定时任务列表\n/status — 状态\n/help — 帮助\n\n请使用底部按钮选择 Agent、模型和变体。",
   "help.keyboard_hint": "💡 Agent、模型、变体和上下文操作请使用底部键盘按钮。",
   "help.text":
     "📖 **帮助**\n\n/status - 查看服务器状态\n/sessions - 会话列表\n/new - 创建新会话\n/help - 帮助",
@@ -95,7 +95,7 @@ export const zh: I18nDictionary = {
   "bot.assistant_reply_undelivered":
     "⚠️ The last assistant reply could not be delivered. Send your message again if you still need it.",
   "bot.stale_messages_skipped":
-    "⚠️ Some messages were skipped while Telegram was unreachable. Please send them again.",
+    "⚠️ Some messages were skipped while MAX was unreachable. Please send them again.",
   "bot.session_retry": "🔁 {message}\n\n提供方在重复重试时持续返回同一错误。使用 /abort 可停止。",
   "bot.external_user_input": "外部用户输入",
   "background.session_fallback": "会话 {id}",
@@ -374,8 +374,8 @@ export const zh: I18nDictionary = {
   "permission.outcome.once": "✅ Allowed once",
   "permission.outcome.always": "🔓 Allowed always",
   "permission.outcome.reject": "❌ Rejected",
-  "permission.outcome.outside_suffix": " · answered outside Telegram",
-  "permission.outcome.settled_outside": "☑️ Answered outside Telegram",
+  "permission.outcome.outside_suffix": " · answered outside MAX",
+  "permission.outcome.settled_outside": "☑️ Answered outside MAX",
   "permission.outcome.not_answered": "⏹ Not answered",
   "permission.delivery_failed": "⚠️ The answer did not reach OpenCode — tap again",
   "permission.name.bash": "Bash",
@@ -396,8 +396,8 @@ export const zh: I18nDictionary = {
   "question.select_one_required_callback": "请至少选择一个选项",
   "question.enter_custom_callback": "请发送你的自定义回答",
   "question.cancelled": "❌ 投票已取消",
-  "question.settled_outside.answered": "☑️ Answered outside Telegram",
-  "question.settled_outside.cancelled": "❌ Cancelled outside Telegram",
+  "question.settled_outside.answered": "☑️ Answered outside MAX",
+  "question.settled_outside.cancelled": "❌ Cancelled outside MAX",
   "question.not_answered": "⏹ Not answered",
   "question.answer_already_received": "已收到答案，请稍候...",
   "question.completed_no_answers": "✅ 投票完成（无答案）",
@@ -460,14 +460,14 @@ export const zh: I18nDictionary = {
   "tool.file_header.edit":
     "编辑文件/路径: {path}\n============================================================\n\n",
 
-  "runtime.wizard.ask_token": "请输入 Telegram 机器人 token（从 @BotFather 获取）。\n> ",
+  "runtime.wizard.ask_token": "请输入 MAX 机器人 token（从 MAX Business 获取）。\n> ",
   "runtime.wizard.ask_language":
     "请选择界面语言。\n输入列表中的语言编号或 locale code。\n按 Enter 保持默认语言：{defaultLocale}\n{options}\n> ",
   "runtime.wizard.language_invalid": "请输入列表中的语言编号或受支持的 locale code。\n",
   "runtime.wizard.language_selected": "已选择语言：{language}\n",
   "runtime.wizard.token_required": "必须提供 token。请重试。\n",
   "runtime.wizard.token_invalid": "token 看起来无效（期望格式 <id>:<secret>）。请重试。\n",
-  "runtime.wizard.ask_user_id": "请输入你的 Telegram User ID（可从 @userinfobot 获取）。\n> ",
+  "runtime.wizard.ask_user_id": "请输入你的 MAX User ID（可从 MAX profile 获取）。\n> ",
   "runtime.wizard.user_id_invalid": "请输入一个正整数（> 0）。\n",
   "runtime.wizard.ask_api_url":
     "请输入 OpenCode API URL（可选）。\n按 Enter 使用默认值：{defaultUrl}\n> ",
@@ -485,11 +485,11 @@ export const zh: I18nDictionary = {
   "runtime.wizard.ask_server_password_keep":
     "Enter OpenCode server password.\nPress Enter to keep the saved password.\n> ",
   "runtime.wizard.api_url_invalid": "请输入有效 URL（http/https），或按 Enter 使用默认值。\n",
-  "runtime.wizard.start": "OpenCode Telegram Bot 设置。\n",
+  "runtime.wizard.start": "OpenCode MAX Bot 设置。\n",
   "runtime.wizard.saved": "配置已保存：\n- {envPath}\n",
   "runtime.wizard.not_configured_starting": "应用尚未配置。正在启动向导...\n",
   "runtime.wizard.tty_required":
-    "交互式向导需要 TTY 终端。请在交互式 shell 中运行 `opencode-telegram config`。",
+    "交互式向导需要 TTY 终端。请在交互式 shell 中运行 `opencode-max config`。",
   "runtime.container.command_unavailable":
     "⚠️ Docker 镜像中无法使用此命令。",
 

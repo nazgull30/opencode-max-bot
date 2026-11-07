@@ -1,8 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Api } from "grammy";
-import { Agent as HttpsAgent } from "https";
-import { HttpsProxyAgent } from "https-proxy-agent";
-import { SocksProxyAgent } from "socks-proxy-agent";
+import { describe, expect, it, vi } from "vitest";
+import type { Api } from "../../../src/max/compat.js";
 import {
   toDataUri,
   formatFileSize,
@@ -10,13 +7,6 @@ import {
   isTextFileName,
   isTextMimeType,
 } from "../../../src/app/services/file-download-service.js";
-import { defined } from "../../helpers/defined.js";
-
-const nodeFetchMock = vi.hoisted(() => vi.fn());
-
-vi.mock("node-fetch", () => ({
-  default: nodeFetchMock,
-}));
 
 describe("app/services/file-download-service", () => {
   describe("toDataUri", () => {
@@ -190,310 +180,44 @@ describe("app/services/file-download-service", () => {
   });
 });
 
-describe("downloadTelegramFile reverse-proxy wiring", () => {
-  beforeEach(() => {
-    vi.stubEnv("TELEGRAM_BOT_TOKEN", "bot-token-xyz");
-    vi.stubEnv("TELEGRAM_ALLOWED_USER_ID", "123456789");
-    vi.stubEnv("OPENCODE_MODEL_PROVIDER", "test-provider");
-    vi.stubEnv("OPENCODE_MODEL_ID", "test-model");
-    vi.stubEnv("TELEGRAM_PROXY_URL", "");
-    vi.stubEnv("TELEGRAM_API_ROOT", "");
-    vi.stubEnv("TELEGRAM_PROXY_SECRET", "");
-    vi.stubEnv("TELEGRAM_FORCE_IPV4", "");
-    nodeFetchMock.mockReset();
-  });
-
-  function makeApiStub(): Api {
-    return {
+describe("downloadMAXFile", () => {
+  it("downloads the URL returned by MAX getFile", async () => {
+    const { downloadMAXFile } = await import(
+      "../../../src/app/services/file-download-service.js"
+    );
+    const api = {
       getFile: vi.fn().mockResolvedValue({
-        file_path: "voice/sample.ogg",
-        file_size: 100,
+        file_id: "fid",
+        file_path: "https://cdn.example/voice.ogg",
       }),
     } as unknown as Api;
-  }
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response(Buffer.from("voice-bytes"), { status: 200 })),
+    );
 
-  function makeFetchStub(): ReturnType<typeof vi.fn> {
-    return nodeFetchMock.mockResolvedValue({
-      ok: true,
-      headers: { get: () => null },
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
-    });
-  }
+    const result = await downloadMAXFile(api, "fid");
 
-  async function loadDownloadModule() {
-    vi.resetModules();
-    return import("../../../src/app/services/file-download-service.js");
-  }
-
-  it("uses api.telegram.org as the file URL base when TELEGRAM_API_ROOT is unset", async () => {
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [url] = call;
-    expect(url).toBe("https://api.telegram.org/file/botbot-token-xyz/voice/sample.ogg");
+    expect(result.buffer.toString()).toBe("voice-bytes");
+    expect(result.filePath).toBe("https://cdn.example/voice.ogg");
+    expect(fetch).toHaveBeenCalledWith("https://cdn.example/voice.ogg");
   });
 
-  it("uses TELEGRAM_API_ROOT as the file URL base when set", async () => {
-    vi.stubEnv("TELEGRAM_API_ROOT", "https://tg-proxy.example.com");
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [url] = call;
-    expect(url).toBe("https://tg-proxy.example.com/file/botbot-token-xyz/voice/sample.ogg");
-  });
-
-  it("normalizes a trailing slash so the URL has no double slash", async () => {
-    vi.stubEnv("TELEGRAM_API_ROOT", "https://tg-proxy.example.com/");
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [url] = call;
-    expect(url).toBe("https://tg-proxy.example.com/file/botbot-token-xyz/voice/sample.ogg");
-  });
-
-  it("does not send X-Proxy-Secret when TELEGRAM_PROXY_SECRET is unset", async () => {
-    vi.stubEnv("TELEGRAM_API_ROOT", "https://tg-proxy.example.com");
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [, init] = call;
-    const headers = (init as { headers?: Record<string, string> } | undefined)?.headers;
-    expect(headers?.["X-Proxy-Secret"]).toBeUndefined();
-  });
-
-  it("sends X-Proxy-Secret on the file fetch when TELEGRAM_PROXY_SECRET is set", async () => {
-    vi.stubEnv("TELEGRAM_API_ROOT", "https://tg-proxy.example.com");
-    vi.stubEnv("TELEGRAM_PROXY_SECRET", "secret-abc");
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [, init] = call;
-    const headers = (init as { headers?: Record<string, string> } | undefined)?.headers;
-    expect(headers?.["X-Proxy-Secret"]).toBe("secret-abc");
-  });
-
-  it("does not configure a fetch agent for direct downloads by default", async () => {
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [, init] = call;
-    expect((init as { agent?: unknown } | undefined)?.agent).toBeUndefined();
-  });
-
-  it("uses an IPv4 HTTPS agent for direct downloads when TELEGRAM_FORCE_IPV4 is enabled", async () => {
-    vi.stubEnv("TELEGRAM_FORCE_IPV4", "true");
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [, init] = call;
-    const agent = (init as { agent?: unknown } | undefined)?.agent;
-    expect(agent).toBeInstanceOf(HttpsAgent);
-    expect((agent as HttpsAgent).options.family).toBe(4);
-  });
-
-  async function downloadAgent(proxyUrl: string, forceIpv4 = false): Promise<unknown> {
-    vi.stubEnv("TELEGRAM_PROXY_URL", proxyUrl);
-    if (forceIpv4) {
-      vi.stubEnv("TELEGRAM_FORCE_IPV4", "true");
-    }
-    const fetchMock = makeFetchStub();
-    vi.stubGlobal("fetch", fetchMock);
-
-    const { downloadTelegramFile } = await loadDownloadModule();
-    await downloadTelegramFile(makeApiStub(), "fid");
-
-    const call = defined(fetchMock.mock.calls[0]);
-    const [, init] = call;
-    return (init as { agent?: unknown } | undefined)?.agent;
-  }
-
-  it("uses a SOCKS agent for a socks5h proxy URL", async () => {
-    const agent = await downloadAgent("socks5h://127.0.0.1:1080");
-
-    expect(agent).toBeInstanceOf(SocksProxyAgent);
-    expect(agent).not.toBeInstanceOf(HttpsProxyAgent);
-  });
-
-  it("uses a SOCKS agent for socks4 and socks5 proxy URLs", async () => {
-    const socks4 = await downloadAgent("socks4://127.0.0.1:1080");
-    const socks5 = await downloadAgent("socks5://127.0.0.1:1080");
-
-    expect(socks4).toBeInstanceOf(SocksProxyAgent);
-    expect(socks5).toBeInstanceOf(SocksProxyAgent);
-    expect(socks4).not.toBeInstanceOf(HttpsProxyAgent);
-    expect(socks5).not.toBeInstanceOf(HttpsProxyAgent);
-  });
-
-  it("keeps an HTTP proxy agent for http and https proxy URLs", async () => {
-    const httpAgent = await downloadAgent("http://proxy.example.com:8080");
-    const httpsAgent = await downloadAgent("https://proxy.example.com:8443");
-
-    expect(httpAgent).toBeInstanceOf(HttpsProxyAgent);
-    expect(httpsAgent).toBeInstanceOf(HttpsProxyAgent);
-    expect(httpAgent).not.toBeInstanceOf(SocksProxyAgent);
-    expect(httpsAgent).not.toBeInstanceOf(SocksProxyAgent);
-  });
-
-  it("passes a SOCKS proxy URL with userinfo through unrewritten", async () => {
-    const agent = await downloadAgent("socks5h://user:secret@proxy.example.com:1080");
-
-    expect(agent).toBeInstanceOf(SocksProxyAgent);
-    expect((agent as SocksProxyAgent).proxy).toEqual(
-      expect.objectContaining({
-        host: "proxy.example.com",
-        port: 1080,
-        userId: "user",
-        password: "secret",
+  it("rejects a failed download", async () => {
+    const { downloadMAXFile } = await import(
+      "../../../src/app/services/file-download-service.js"
+    );
+    const api = {
+      getFile: vi.fn().mockResolvedValue({
+        file_id: "fid",
+        file_path: "https://cdn.example/voice.ogg",
       }),
-    );
-  });
-
-  it("prefers the proxy agent over the IPv4 agent when both are configured", async () => {
-    const agent = await downloadAgent("socks5h://127.0.0.1:1080", true);
-
-    expect(agent).toBeInstanceOf(SocksProxyAgent);
-    expect(agent).not.toBeInstanceOf(HttpsAgent);
-  });
-
-  it("retries a download when the TLS connection fails before it is established", async () => {
-    vi.useFakeTimers();
-    const tlsError = Object.assign(
-      new Error("Client network socket disconnected before secure TLS connection was established"),
-      { code: "ECONNRESET" },
-    );
-    nodeFetchMock.mockRejectedValueOnce(tlsError).mockResolvedValueOnce({
-      ok: true,
-      headers: { get: () => null },
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
-    });
-
-    try {
-      const { downloadTelegramFile } = await loadDownloadModule();
-      const downloadPromise = downloadTelegramFile(makeApiStub(), "fid");
-      await vi.advanceTimersByTimeAsync(1000);
-
-      await expect(downloadPromise).resolves.toEqual(
-        expect.objectContaining({ filePath: "voice/sample.ogg" }),
-      );
-      expect(nodeFetchMock).toHaveBeenCalledTimes(2);
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it("redacts the bot token from download errors", async () => {
-    nodeFetchMock.mockRejectedValueOnce(
-      Object.assign(
-        new Error(
-          "request to https://api.telegram.org/file/botbot-token-xyz/voice/sample.ogg failed",
-        ),
-        { code: "CERT_HAS_EXPIRED" },
-      ),
+    } as unknown as Api;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response("nope", { status: 404, statusText: "Not Found" })),
     );
 
-    const { downloadTelegramFile } = await loadDownloadModule();
-    const error = await downloadTelegramFile(makeApiStub(), "fid").catch(
-      (downloadError: unknown) => downloadError,
-    );
-    expect(error).toMatchObject({
-      code: "CERT_HAS_EXPIRED",
-      message: "request to https://api.telegram.org/file/bot***/voice/sample.ogg failed",
-    });
-    expect((error as Error).stack).not.toContain("bot-token-xyz");
-  });
-
-  it.each([
-    {
-      status: 429,
-      statusText: "Too Many Requests",
-      retryAfter: "2",
-      delayMs: 2000,
-    },
-    { status: 502, statusText: "Bad Gateway", retryAfter: null, delayMs: 1000 },
-  ])(
-    "retries a transient $status response",
-    async ({ status, statusText, retryAfter, delayMs }) => {
-      vi.useFakeTimers();
-      nodeFetchMock.mockResolvedValueOnce({
-        ok: false,
-        status,
-        statusText,
-        headers: { get: (name: string) => (name === "retry-after" ? retryAfter : null) },
-      });
-      nodeFetchMock.mockResolvedValueOnce({
-        ok: true,
-        headers: { get: () => null },
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
-      });
-
-      try {
-        const { downloadTelegramFile } = await loadDownloadModule();
-        const downloadPromise = downloadTelegramFile(makeApiStub(), "fid");
-        await vi.advanceTimersByTimeAsync(delayMs);
-
-        await expect(downloadPromise).resolves.toEqual(
-          expect.objectContaining({ filePath: "voice/sample.ogg" }),
-        );
-        expect(nodeFetchMock).toHaveBeenCalledTimes(2);
-      } finally {
-        vi.useRealTimers();
-      }
-    },
-  );
-
-  it("retries when reading a successful response body is interrupted", async () => {
-    vi.useFakeTimers();
-    const reset = Object.assign(new Error("socket hang up"), { code: "ECONNRESET" });
-    nodeFetchMock.mockResolvedValueOnce({
-      ok: true,
-      headers: { get: () => null },
-      arrayBuffer: () => Promise.reject(reset),
-    });
-    nodeFetchMock.mockResolvedValueOnce({
-      ok: true,
-      headers: { get: () => null },
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
-    });
-
-    try {
-      const { downloadTelegramFile } = await loadDownloadModule();
-      const downloadPromise = downloadTelegramFile(makeApiStub(), "fid");
-      await vi.advanceTimersByTimeAsync(1000);
-
-      await expect(downloadPromise).resolves.toEqual(
-        expect.objectContaining({ filePath: "voice/sample.ogg" }),
-      );
-      expect(nodeFetchMock).toHaveBeenCalledTimes(2);
-    } finally {
-      vi.useRealTimers();
-    }
+    await expect(downloadMAXFile(api, "fid")).rejects.toThrow(/404/);
   });
 });

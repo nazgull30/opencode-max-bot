@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import type { ModelInfo } from "../../../src/app/types/model.js";
 
 const mocked = vi.hoisted(() => ({

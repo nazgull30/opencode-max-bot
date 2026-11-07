@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { getActiveOpencodeServer } from "../../opencode/server-target.js";
 import {
@@ -10,7 +10,7 @@ import {
 import { logger } from "../../utils/logger.js";
 import { t } from "../../i18n/index.js";
 import { isContainerRuntime } from "../../runtime/container.js";
-import { editBotText } from "../messages/telegram-text.js";
+import { editBotText } from "../messages/max-text.js";
 import { promptQueue } from "../../app/managers/prompt-queue-manager.js";
 import { withdrawPromptQueue } from "../../app/services/prompt-inbox-service.js";
 import { markAttachedSessionIdle } from "../../app/services/attach-service.js";

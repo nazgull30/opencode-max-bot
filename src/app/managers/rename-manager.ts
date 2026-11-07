@@ -23,18 +23,18 @@ export class RenameManager {
     });
   }
 
-  setMessageId(messageId: number): void {
+  setMessageId(messageId: string): void {
     const state = this.state;
     if (state) {
       state.messageId = messageId;
     }
   }
 
-  getMessageId(): number | null {
+  getMessageId(): string | null {
     return this.state?.messageId ?? null;
   }
 
-  isActiveMessage(messageId: number | null): boolean {
+  isActiveMessage(messageId: string | null): boolean {
     const activeMessageId = this.getMessageId();
     return activeMessageId !== null && activeMessageId === messageId;
   }

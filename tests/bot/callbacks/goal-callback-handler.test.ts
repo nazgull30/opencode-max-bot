@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { InteractionManager } from "../../../src/app/managers/interaction-manager.js";
 import { GoalManager } from "../../../src/app/managers/goal-manager.js";
 import { KeyboardManager } from "../../../src/bot/keyboards/keyboard-manager.js";
@@ -57,7 +57,7 @@ function setup(read: () => Promise<unknown>, action: "start" | "resume" = "resum
     metadata: {
       flow: "goal",
       stage: "confirm",
-      messageId: 42,
+      messageId: "42",
       sessionId: "s1",
       directory: "repo",
       goalId: action === "resume" ? goal.id : null,
@@ -78,7 +78,7 @@ function setup(read: () => Promise<unknown>, action: "start" | "resume" = "resum
   } as unknown as Parameters<typeof handleGoalCallback>[1];
   const context = () =>
     ({
-      callbackQuery: { data: "goal:confirm", message: { message_id: 42 } },
+      callbackQuery: { data: "goal:confirm", message: { message_id: "42" } },
       chat: { id: 1 },
       answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
       deleteMessage: vi.fn().mockResolvedValue(undefined),

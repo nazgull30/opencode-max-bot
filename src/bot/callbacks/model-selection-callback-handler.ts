@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { getStoredAgent, resolveProjectAgent } from "../../app/services/agent-selection-service.js";
 import {
@@ -45,7 +45,7 @@ const MODEL_SEARCH_RESULT_CALLBACK_PREFIX = "model:result:";
 interface ModelSearchMetadata {
   flow: string;
   stage: string;
-  messageId?: number | undefined;
+  messageId?: string | undefined;
   query: string;
   models: ModelInfo[];
 }
@@ -101,7 +101,7 @@ function parseModelSearchMetadata(deps: ModelSelectionDeps): ModelSearchMetadata
   }
 
   const messageId =
-    typeof state.metadata.messageId === "number" ? state.metadata.messageId : undefined;
+    typeof state.metadata.messageId === "string" ? state.metadata.messageId : undefined;
   const query = typeof state.metadata.query === "string" ? state.metadata.query : "";
 
   return { flow, stage, messageId, query, models: parseModelItems(state.metadata.models) };
@@ -371,7 +371,7 @@ function buildModelSearchResultsView(
 function transitionToModelSearchResults(
   deps: ModelSelectionDeps,
   query: string,
-  messageId: number | undefined,
+  messageId: string | undefined,
   results: FavoriteModel[],
 ): void {
   deps.interactionManager.transition({

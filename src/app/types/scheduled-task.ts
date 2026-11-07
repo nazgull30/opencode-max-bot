@@ -73,9 +73,9 @@ export interface TaskCreationState {
   model: ScheduledTaskModel;
   scheduleText: string | null;
   parsedSchedule: ParsedTaskSchedule | null;
-  scheduleRequestMessageId: number | null;
-  previewMessageId: number | null;
-  promptRequestMessageId: number | null;
+  scheduleRequestMessageId: string | null;
+  previewMessageId: string | null;
+  promptRequestMessageId: string | null;
 }
 
 export function createScheduledTaskModel(model: ModelInfo): ScheduledTaskModel {

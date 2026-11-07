@@ -4,7 +4,7 @@ export interface PendingAttachment {
   absolutePath: string;
   worktree: string;
   /** Confirmation message carrying the cancel button, so it can be retired once consumed. */
-  confirmationMessageId?: number;
+  confirmationMessageId?: string;
 }
 
 /**
@@ -20,7 +20,7 @@ class PromptAttachmentManager {
     logger.info(`[PromptAttachment] Attached file: path=${absolutePath}, worktree=${worktree}`);
   }
 
-  setConfirmationMessageId(messageId: number): void {
+  setConfirmationMessageId(messageId: string): void {
     if (!this.state) {
       return;
     }

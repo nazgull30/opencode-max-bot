@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { InputFile } from "grammy";
+import { InputFile } from "../../../src/max/compat.js";
 import { sendTtsResponseForSession } from "../../../src/bot/handlers/tts-response-handler.js";
 import { t } from "../../../src/i18n/index.js";
 import { defined } from "../../helpers/defined.js";

@@ -1,4 +1,4 @@
-import type { InlineNode, TelegramBlock, TelegramListItem } from "./types.js";
+import type { InlineNode, MAXBlock, MAXListItem } from "./types.js";
 
 export function extractInlinePlainText(nodes: InlineNode[]): string {
   let result = "";
@@ -57,7 +57,7 @@ export function buildAlignedTableText(rows: string[][]): string {
 }
 
 function buildListItemText(
-  item: TelegramListItem,
+  item: MAXListItem,
   index: number,
   ordered: boolean,
   start: number,
@@ -74,7 +74,7 @@ function buildListItemText(
     .join("\n");
 }
 
-export function toBlockPlainText(block: TelegramBlock): string {
+export function toBlockPlainText(block: MAXBlock): string {
   switch (block.type) {
     case "paragraph":
     case "heading":
@@ -104,7 +104,7 @@ export function toBlockPlainText(block: TelegramBlock): string {
       return block.text;
     default: {
       const exhaustiveCheck: never = block;
-      throw new Error(`Unsupported Telegram block: ${JSON.stringify(exhaustiveCheck)}`);
+      throw new Error(`Unsupported MAX block: ${JSON.stringify(exhaustiveCheck)}`);
     }
   }
 }

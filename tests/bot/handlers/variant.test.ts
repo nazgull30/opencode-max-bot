@@ -65,10 +65,10 @@ function mockContext(overrides: Record<string, unknown> = {}) {
     chat: { id: 123 },
     api: {},
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
-    reply: vi.fn().mockResolvedValue({ message_id: 999 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "999" }),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     ...overrides,
-  } as unknown as import("grammy").Context;
+  } as unknown as import("../../../src/max/compat.js").Context;
 }
 
 function createDeps() {

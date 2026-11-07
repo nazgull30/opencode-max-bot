@@ -426,7 +426,7 @@ describe("bot/streaming/compact-progress-streamer", () => {
   });
 
   it("does not send a finished summary when the card never landed", async () => {
-    const sendText = vi.fn().mockRejectedValue(new Error("telegram down"));
+    const sendText = vi.fn().mockRejectedValue(new Error("max down"));
     const editText = vi.fn().mockResolvedValue(undefined);
     const streamer = new CompactProgressStreamer({ throttleMs: 0, sendText, editText });
 
@@ -478,9 +478,9 @@ describe("bot/streaming/compact-progress-streamer", () => {
       let nextId = 10;
       const sendText = vi.fn(async (_sessionId: string, _text: string) => nextId++);
       const editText = vi.fn(
-        async (_sessionId: string, _messageId: number, _text: string) => undefined,
+        async (_sessionId: string, _messageId: string | number, _text: string) => undefined,
       );
-      const deleteText = vi.fn(async (_sessionId: string, _messageId: number) => undefined);
+      const deleteText = vi.fn(async (_sessionId: string, _messageId: string | number) => undefined);
       const onPark = vi.fn();
       const streamer = new CompactProgressStreamer({
         throttleMs: 0,
@@ -522,8 +522,8 @@ describe("bot/streaming/compact-progress-streamer", () => {
 
       expect(sendText).toHaveBeenCalledTimes(2);
       expect(deleteText).toHaveBeenCalledWith("s1", 11);
-      expect(deleteText).not.toHaveBeenCalledWith("s1", 10);
-      expect(editText.mock.calls.some((call) => call[1] === 10 && !call[2].startsWith("⏳"))).toBe(
+      expect(deleteText).not.toHaveBeenCalledWith("s1", "10");
+      expect(editText.mock.calls.some((call) => String(call[1]) === "10" && !call[2].startsWith("⏳"))).toBe(
         false,
       );
     });

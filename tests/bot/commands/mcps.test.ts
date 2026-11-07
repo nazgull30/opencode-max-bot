@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { mcpsCommand } from "../../../src/bot/commands/mcp-catalog-command.js";
 import { handleMcpsCallback } from "../../../src/bot/callbacks/mcp-catalog-callback-handler.js";
 import { t } from "../../../src/i18n/index.js";
@@ -34,12 +34,12 @@ vi.mock("../../../src/opencode/client.js", () => ({
 function createCommandContext(messageId: number): Context {
   return {
     chat: { id: 777 },
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 900 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "900" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -51,15 +51,15 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
-    reply: vi.fn().mockResolvedValue({ message_id: 901 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "901" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 902 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "902" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -136,7 +136,7 @@ describe("bot/commands/mcps", () => {
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.flow).toBe("mcps");
     expect(state?.metadata.stage).toBe("list");
-    expect(state?.metadata.messageId).toBe(102);
+    expect(state?.metadata.messageId).toBe("102");
   });
 
   it("shows fetch error when API fails", async () => {
@@ -155,7 +155,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "list",
-        messageId: 200,
+        messageId: "200",
         projectDirectory: "D:\\Projects\\Repo",
         servers: [
           { name: "filesystem", status: { status: "connected" } },
@@ -194,7 +194,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "detail",
-        messageId: 300,
+        messageId: "300",
         projectDirectory: "D:\\Projects\\Repo",
         serverName: "filesystem",
         servers: [{ name: "filesystem", status: { status: "connected" } }],
@@ -230,7 +230,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "detail",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         serverName: "github",
         servers: [{ name: "github", status: { status: "disabled" } }],
@@ -265,7 +265,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "detail",
-        messageId: 500,
+        messageId: "500",
         projectDirectory: "D:\\Projects\\Repo",
         serverName: "filesystem",
         servers: [{ name: "filesystem", status: { status: "connected" } }],
@@ -292,7 +292,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "list",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         servers: [{ name: "filesystem", status: { status: "connected" } }],
       },
@@ -314,7 +314,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "list",
-        messageId: 700,
+        messageId: "700",
         projectDirectory: "D:\\Projects\\Repo",
         servers: [{ name: "filesystem", status: { status: "connected" } }],
       },
@@ -338,7 +338,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "list",
-        messageId: 800,
+        messageId: "800",
         projectDirectory: "D:\\Projects\\Repo",
         servers: [{ name: "oauth-server", status: { status: "needs_auth" } }],
       },
@@ -400,7 +400,7 @@ describe("bot/commands/mcps", () => {
       metadata: {
         flow: "mcps",
         stage: "detail",
-        messageId: 900,
+        messageId: "900",
         projectDirectory: "D:\\Projects\\Repo",
         serverName: "github",
         servers: [{ name: "github", status: { status: "disabled" } }],

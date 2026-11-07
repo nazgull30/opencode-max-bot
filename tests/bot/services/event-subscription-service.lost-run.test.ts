@@ -1,7 +1,7 @@
 import { rm } from "node:fs/promises";
 import { createTestHome } from "../../helpers/test-environment.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import type { Event } from "@opencode-ai/sdk/v2";
 import { setRuntimeMode } from "../../../src/runtime/mode.js";
 import { resetSingletonState } from "../../helpers/reset-singleton-state.js";
@@ -46,13 +46,13 @@ function createFakeBot(): { bot: Bot<Context>; api: FakeBotApi } {
     error_code: 400,
   });
   const api: FakeBotApi = {
-    sendMessage: vi.fn().mockResolvedValue({ message_id: 100 }),
+    sendMessage: vi.fn().mockResolvedValue({ message_id: "100" }),
     sendRichMessage: vi.fn().mockRejectedValue(richUnavailable),
     sendMessageDraft: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     editRichMessage: vi.fn().mockRejectedValue(richUnavailable),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
-    sendDocument: vi.fn().mockResolvedValue({ message_id: 101 }),
+    sendDocument: vi.fn().mockResolvedValue({ message_id: "101" }),
   };
 
   return { bot: { api } as unknown as Bot<Context>, api };
@@ -177,12 +177,12 @@ describe("bot/services/event-subscription-service lost run", () => {
   let api: FakeBotApi;
 
   beforeEach(async () => {
-    vi.stubEnv("TELEGRAM_BOT_TOKEN", "test-telegram-token");
-    vi.stubEnv("TELEGRAM_ALLOWED_USER_ID", "123456789");
+    vi.stubEnv("MAX_BOT_TOKEN", "test-max-token");
+    vi.stubEnv("MAX_ALLOWED_USER_ID", "123456789");
     vi.stubEnv("OPENCODE_MODEL_PROVIDER", "test-provider");
     vi.stubEnv("OPENCODE_MODEL_ID", "test-model");
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", await createTestHome("lost-run-"));
-    tempHome = process.env.OPENCODE_TELEGRAM_HOME!;
+    vi.stubEnv("OPENCODE_MAX_HOME", await createTestHome("lost-run-"));
+    tempHome = process.env.OPENCODE_MAX_HOME!;
     setRuntimeMode("installed");
 
     mocked.subscribeToEvents.mockReset().mockResolvedValue(undefined);
@@ -211,7 +211,7 @@ describe("bot/services/event-subscription-service lost run", () => {
       configuredProviderID: "test-provider",
       configuredModelID: "test-model",
     });
-    service.setTelegramContext(fake.bot, 42);
+    service.setMAXContext(fake.bot, 42);
     await service.ensureEventSubscription("D:/repo");
     container.summaryAggregator.setSession("session-1");
     container.summaryAggregator.processEvent({
@@ -320,15 +320,15 @@ describe("bot/services/event-subscription-service lost run", () => {
       "form-1",
       "session-1",
     );
-    container.questionManager.addMessageId(700);
-    container.questionManager.setActiveMessageId(700);
+    container.questionManager.addMessageId("700");
+    container.questionManager.setActiveMessageId("700");
 
     const ending = service!.endRunLostWithServer("opencode_restarted");
     await settle();
     await ending;
 
-    expect(api.deleteMessage).not.toHaveBeenCalledWith(42, 700);
-    const pollEdit = api.editMessageText.mock.calls.find((call) => call[1] === 700);
+    expect(api.deleteMessage).not.toHaveBeenCalledWith(42, "700");
+    const pollEdit = api.editMessageText.mock.calls.find((call) => String(call[1]) === "700");
     expect(JSON.stringify(pollEdit)).toContain(t("question.not_answered"));
     expect(container.questionManager.isActive()).toBe(false);
   });

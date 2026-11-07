@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 
 const flushPendingPromptMock = vi.hoisted(() => vi.fn());
 
@@ -17,7 +17,7 @@ import { createTestAppContainer } from "../../helpers/app-container.js";
 import type { AppContainer } from "../../../src/app/bootstrap/app-container.js";
 
 function createPhotoContext(caption = "Describe this"): { ctx: Context; replyMock: ReturnType<typeof vi.fn> } {
-  const replyMock = vi.fn().mockResolvedValue({ message_id: 100 });
+  const replyMock = vi.fn().mockResolvedValue({ message_id: "100" });
   const ctx = {
     chat: { id: 777 },
     message: {

@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import type { UserMessageItem } from "../../app/services/message-history-service.js";
 import { t } from "../../i18n/index.js";
 
@@ -9,7 +9,7 @@ export const MESSAGES_CALLBACK_REVERT = `${MESSAGES_CALLBACK_PREFIX}revert`;
 export const MESSAGES_CALLBACK_FORK = `${MESSAGES_CALLBACK_PREFIX}fork`;
 export const MESSAGES_CALLBACK_BACK = `${MESSAGES_CALLBACK_PREFIX}back`;
 export const MESSAGES_CALLBACK_CANCEL = `${MESSAGES_CALLBACK_PREFIX}cancel`;
-export const TELEGRAM_MESSAGE_LIMIT = 4096;
+export const MAX_MESSAGE_LIMIT = 4096;
 
 const MAX_INLINE_BUTTON_LABEL_LENGTH = 64;
 
@@ -55,7 +55,7 @@ export function formatMessagesSelectText(page: number): string {
 
 export function formatMessageDetailText(message: UserMessageItem): string {
   const prefix = `[${formatMessageTime(message.created)}]\n\n`;
-  return truncateMessageHistoryText(`${prefix}${message.text}`, TELEGRAM_MESSAGE_LIMIT);
+  return truncateMessageHistoryText(`${prefix}${message.text}`, MAX_MESSAGE_LIMIT);
 }
 
 export function buildMessagePageCallback(page: number): string {

@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { config } from "../../config.js";
 import type { SkillCatalogItem } from "../../app/services/skills-catalog-service.js";
@@ -25,7 +25,7 @@ import {
 interface SkillsListMetadata {
   flow: "skills";
   stage: "list";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   skills: SkillCatalogItem[];
   page: number;
@@ -34,7 +34,7 @@ interface SkillsListMetadata {
 interface SkillsConfirmMetadata {
   flow: "skills";
   stage: "confirm";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   skillName: string;
 }
@@ -47,14 +47,14 @@ export interface ExecuteSkillParams {
   argumentsText: string;
 }
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 function parseSkillItems(value: unknown): SkillCatalogItem[] | null {
@@ -93,7 +93,7 @@ export function parseSkillsMetadata(state: InteractionState | null): SkillsMetad
   const messageId = state.metadata.messageId;
   const projectDirectory = state.metadata.projectDirectory;
 
-  if (flow !== "skills" || typeof messageId !== "number" || typeof projectDirectory !== "string") {
+  if (flow !== "skills" || typeof messageId !== "string" || typeof projectDirectory !== "string") {
     return null;
   }
 

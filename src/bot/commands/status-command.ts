@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { checkOpencodeHealth } from "../../opencode/server-health.js";
 import { getGitWorktreeContext } from "../../app/services/worktree-service.js";
@@ -11,7 +11,7 @@ import { getAgentDisplayName } from "../../app/types/agent.js";
 import { logger } from "../../utils/logger.js";
 import { isExpectedOpencodeUnavailableError } from "../../utils/opencode-error.js";
 import { t } from "../../i18n/index.js";
-import { sendBotText } from "../messages/telegram-text.js";
+import { sendBotText } from "../messages/max-text.js";
 import { getBotVersion } from "../../runtime/bot-version.js";
 
 export type StatusCommandDeps = Pick<AppContainer, "keyboardManager" | "pinnedMessageManager">;

@@ -1,9 +1,9 @@
-import { parseTelegramBlocks } from "./block-parser.js";
-import { normalizeMarkdownForTelegramRendering } from "./markdown-normalizer.js";
-import type { InlineNode, TelegramBlock } from "./types.js";
+import { parseMAXBlocks } from "./block-parser.js";
+import { normalizeMarkdownForMAXRendering } from "./markdown-normalizer.js";
+import type { InlineNode, MAXBlock } from "./types.js";
 
 /**
- * Escapes characters reserved in Telegram MarkdownV2.
+ * Escapes characters reserved in MAX MarkdownV2.
  * These must be escaped everywhere except when used as syntactic delimiters
  * we intentionally emit (e.g. the surrounding * of bold).
  */
@@ -51,7 +51,7 @@ function renderInlineNodes(nodes: InlineNode[]): string {
     .join("");
 }
 
-function renderBlock(block: TelegramBlock): string {
+function renderBlock(block: MAXBlock): string {
   switch (block.type) {
     case "paragraph":
       return renderInlineNodes(block.inlines);
@@ -108,15 +108,15 @@ function renderBlock(block: TelegramBlock): string {
 }
 
 /**
- * Converts standard Markdown into Telegram MarkdownV2.
+ * Converts standard Markdown into MAX MarkdownV2.
  *
  * Uses the project's existing block parser (unified/remark) so that
  * headings, lists, tables, code blocks, etc. are handled consistently
- * with the entity-based Telegram renderer.
+ * with the entity-based MAX renderer.
  */
-export function convertToTelegramMarkdownV2(markdown: string): string {
-  const normalized = normalizeMarkdownForTelegramRendering(markdown);
-  const blocks = parseTelegramBlocks(normalized);
+export function convertToMaxMarkdown(markdown: string): string {
+  const normalized = normalizeMarkdownForMAXRendering(markdown);
+  const blocks = parseMAXBlocks(normalized);
   if (blocks.length === 0) {
     return "";
   }

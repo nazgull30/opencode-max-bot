@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import {
   MAX_QUEUED_PROMPTS,
   MAX_QUEUED_MEDIA_BYTES,
@@ -18,7 +18,7 @@ import { getPromptQueueMode } from "../../app/stores/settings-store.js";
 import { t } from "../../i18n/index.js";
 import { opencodeServerVersion } from "../../opencode/client.js";
 import { logger } from "../../utils/logger.js";
-import { sendBotText } from "../messages/telegram-text.js";
+import { sendBotText } from "../messages/max-text.js";
 import { isReplyKeyboardButtonText } from "../message-patterns.js";
 import {
   admitPromptToInbox,
@@ -240,7 +240,7 @@ export async function tryEnqueuePromptIfBusy(
 
 /**
  * Rejects a busy queued-media candidate before handlers download or encode it.
- * Media sizes are raw Telegram file_size values, not expanded data-URI bytes.
+ * Media sizes are raw MAX file_size values, not expanded data-URI bytes.
  */
 export async function rejectQueuedMediaBeforePreparation(
   ctx: Context,

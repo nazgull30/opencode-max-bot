@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { t } from "../../../src/i18n/index.js";
 import {
   handleProjectSearchCallback,
@@ -132,7 +132,7 @@ describe("bot/commands/projects handleProjectSelect", () => {
     });
     const ctx = {
       message: { text: "  " },
-      reply: vi.fn().mockResolvedValue({ message_id: 77 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "77" }),
     } as unknown as Context;
     expect(await handleProjectSearchTextInput(ctx, createDeps())).toBe(true);
     expect(mocked.getProjectsMock).not.toHaveBeenCalled();
@@ -155,12 +155,12 @@ describe("bot/commands/projects handleProjectSelect", () => {
         flow: "project-search",
         stage: "results",
         query: "app",
-        messageId: 77,
+        messageId: "77",
         ids: ["1"],
       },
     });
     const ctx = createCallbackContext("projects:search:page:1");
-    Object.assign(ctx.callbackQuery!, { message: { message_id: 77 } });
+    Object.assign(ctx.callbackQuery!, { message: { message_id: "77" } });
     mocked.getProjectsMock.mockRejectedValue(new Error("offline"));
     await handleProjectSearchCallback(ctx, createDeps());
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: t("projects.page_load_error") });
@@ -201,7 +201,7 @@ describe("bot/commands/projects handleProjectSelect", () => {
     container.interactionManager.start({
       kind: "inline",
       expectedInput: "callback",
-      metadata: { menuKind: "project", messageId: 9 },
+      metadata: { menuKind: "project", messageId: "9" },
     });
     const ctx = createCallbackContext("projects:search");
     Object.assign(ctx, { deleteMessage: vi.fn().mockResolvedValue(undefined) });
@@ -210,11 +210,11 @@ describe("bot/commands/projects handleProjectSelect", () => {
     expect(ctx.reply).toHaveBeenCalledWith(t("projects.search.prompt"));
     container.interactionManager.transition({
       expectedInput: "callback",
-      metadata: { flow: "project-search", stage: "results", messageId: 77 },
+      metadata: { flow: "project-search", stage: "results", messageId: "77" },
     });
     Object.assign(ctx.callbackQuery!, {
       data: "projects:search:again",
-      message: { message_id: 77 },
+      message: { message_id: "77" },
     });
     await handleProjectSearchCallback(ctx, createDeps());
     expect(container.interactionManager.getSnapshot()?.expectedInput).toBe("text");
@@ -228,13 +228,13 @@ describe("bot/commands/projects handleProjectSelect", () => {
         flow: "project-search",
         stage: "results",
         query: "app",
-        messageId: 77,
+        messageId: "77",
         ids: ["old"],
       },
     });
     mocked.getProjectsMock.mockResolvedValue([{ id: "new", worktree: "/repo/app" }]);
     const ctx = createCallbackContext("projects:search:page:1");
-    Object.assign(ctx.callbackQuery!, { message: { message_id: 77 } });
+    Object.assign(ctx.callbackQuery!, { message: { message_id: "77" } });
     await handleProjectSearchCallback(ctx, createDeps());
     expect(ctx.editMessageText).toHaveBeenCalled();
     expect(container.interactionManager.getSnapshot()?.metadata.ids).toEqual(["new"]);
@@ -244,10 +244,10 @@ describe("bot/commands/projects handleProjectSelect", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "project-search", stage: "results", messageId: 77 },
+      metadata: { flow: "project-search", stage: "results", messageId: "77" },
     });
     const ctx = createCallbackContext("projects:search:cancel");
-    Object.assign(ctx.callbackQuery!, { message: { message_id: 77 } });
+    Object.assign(ctx.callbackQuery!, { message: { message_id: "77" } });
     Object.assign(ctx, { deleteMessage: vi.fn().mockResolvedValue(undefined) });
     await handleProjectSearchCallback(ctx, createDeps());
     expect(container.interactionManager.getSnapshot()).toBeNull();
@@ -259,7 +259,7 @@ describe("bot/commands/projects handleProjectSelect", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "project-search", stage: "results", messageId: 77 },
+      metadata: { flow: "project-search", stage: "results", messageId: "77" },
     });
     container.foregroundSessionState.markBusy("session-1", "/repo");
     const ctx = createCallbackContext("projects:search:cancel");
@@ -272,10 +272,10 @@ describe("bot/commands/projects handleProjectSelect", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "project-search", stage: "results", messageId: 77, ids: ["gone"] },
+      metadata: { flow: "project-search", stage: "results", messageId: "77", ids: ["gone"] },
     });
     const ctx = createCallbackContext("projects:search:result:0");
-    Object.assign(ctx.callbackQuery!, { message: { message_id: 77 } });
+    Object.assign(ctx.callbackQuery!, { message: { message_id: "77" } });
     mocked.getProjectsMock.mockResolvedValue([]);
     await handleProjectSearchCallback(ctx, createDeps());
     expect(mocked.clearAllInteractionStateMock).toHaveBeenCalledWith("project_select_error");
@@ -286,7 +286,7 @@ describe("bot/commands/projects handleProjectSelect", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "project-search", stage: "results", messageId: 77, ids: ["gone"] },
+      metadata: { flow: "project-search", stage: "results", messageId: "77", ids: ["gone"] },
     });
     mocked.getProjectsMock.mockImplementation(async () => {
       container.interactionManager.start({
@@ -297,7 +297,7 @@ describe("bot/commands/projects handleProjectSelect", () => {
       return [];
     });
     const ctx = createCallbackContext("projects:search:result:0");
-    Object.assign(ctx.callbackQuery!, { message: { message_id: 77 } });
+    Object.assign(ctx.callbackQuery!, { message: { message_id: "77" } });
     await handleProjectSearchCallback(ctx, createDeps());
     expect(container.interactionManager.getSnapshot()?.metadata.flow).toBe("replacement");
     expect(mocked.clearAllInteractionStateMock).not.toHaveBeenCalled();

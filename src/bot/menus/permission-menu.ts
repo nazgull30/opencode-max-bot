@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { logger } from "../../utils/logger.js";
 import type {
@@ -10,7 +10,7 @@ import type {
 import type { I18nKey } from "../../i18n/en.js";
 import { t } from "../../i18n/index.js";
 
-const TELEGRAM_MESSAGE_LIMIT = 4096;
+const MAX_MESSAGE_LIMIT = 4096;
 const PATTERN_PREFIX = "• ";
 const CUT_SUFFIX = "…\n";
 const CUT_PATTERNS_LINE = `${PATTERN_PREFIX}${CUT_SUFFIX}`;
@@ -278,7 +278,7 @@ function formatOutcomeLine(outcome: PermissionOutcome): string {
 
 /**
  * Format permission request text, optionally closed by a status line. Patterns are cut
- * when the whole text would not fit into one Telegram message.
+ * when the whole text would not fit into one MAX message.
  */
 function formatPermissionText(
   request: PermissionRequest,
@@ -294,7 +294,7 @@ function formatPermissionText(
   const status = statusLine ? `\n${statusLine}` : "";
 
   // Show patterns (commands/files)
-  let budget = TELEGRAM_MESSAGE_LIMIT - header.length - grouped.length - status.length;
+  let budget = MAX_MESSAGE_LIMIT - header.length - grouped.length - status.length;
   let patterns = "";
   for (const [index, pattern] of request.patterns.entries()) {
     const line = `${PATTERN_PREFIX}${pattern}\n`;

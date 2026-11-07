@@ -215,42 +215,13 @@ function getOptionalSttRequestFormatEnvVar(
   return defaultValue;
 }
 
-export function buildTelegramConfig(): {
+export function buildMaxConfig(): {
   token: string;
   allowedUserId: number;
-  proxyUrl: string;
-  apiRoot: string;
-  proxySecret: string;
-  forceIpv4: boolean;
 } {
-  const proxyUrl = getEnvVar("TELEGRAM_PROXY_URL", false);
-  // grammY rejects an apiRoot ending with `/`, so normalize once at config
-  // load instead of leaking the concern into every consumer.
-  const apiRoot = getEnvVar("TELEGRAM_API_ROOT", false).replace(/\/+$/, "");
-  const proxySecret = getEnvVar("TELEGRAM_PROXY_SECRET", false);
-  const forceIpv4 = getOptionalBooleanEnvVar("TELEGRAM_FORCE_IPV4", false);
-
-  if (proxyUrl && apiRoot) {
-    throw new Error(
-      "TELEGRAM_PROXY_URL and TELEGRAM_API_ROOT are alternative connectivity modes and cannot be used together. " +
-        "TELEGRAM_PROXY_URL tunnels TCP through a SOCKS/HTTP forward proxy; " +
-        "TELEGRAM_API_ROOT routes API calls through an HTTPS reverse proxy. Pick one.",
-    );
-  }
-  if (proxySecret && !apiRoot) {
-    throw new Error(
-      "TELEGRAM_PROXY_SECRET requires TELEGRAM_API_ROOT to be set. " +
-        "Without a custom API root, the secret header would be sent to api.telegram.org.",
-    );
-  }
-
   return {
-    token: getEnvVar("TELEGRAM_BOT_TOKEN"),
-    allowedUserId: parseInt(getEnvVar("TELEGRAM_ALLOWED_USER_ID"), 10),
-    proxyUrl,
-    apiRoot,
-    proxySecret,
-    forceIpv4,
+    token: getEnvVar("MAX_BOT_TOKEN"),
+    allowedUserId: parseInt(getEnvVar("MAX_ALLOWED_USER_ID"), 10),
   };
 }
 
@@ -258,7 +229,7 @@ const opencodeServerVersion = getOptionalOpencodeServerVersionEnvVar("OPENCODE_S
 const opencodeServerMode = resolveOpencodeServerMode(opencodeServerVersion);
 
 export const config = {
-  telegram: buildTelegramConfig(),
+  max: buildMaxConfig(),
   opencode: {
     serverVersion: opencodeServerVersion,
     serverMode: opencodeServerMode,
@@ -297,7 +268,7 @@ export const config = {
     locale: getOptionalLocaleEnvVar("BOT_LOCALE", "en"),
     trackBackgroundSessions: getOptionalBooleanEnvVar("TRACK_BACKGROUND_SESSIONS", true),
     messageFormatMode: getOptionalMessageFormatModeEnvVar("MESSAGE_FORMAT_MODE", "markdown"),
-    // Buffer near-limit text for this window so Telegram-split chunks can be merged.
+    // Buffer near-limit text for this window so MAX-split chunks can be merged.
     // Short messages are processed immediately; 0 disables merging entirely.
     messageMergeWindowMs: getOptionalNonNegativeIntEnvVar("MESSAGE_MERGE_WINDOW_MS", 1500),
     initialSettingsPreset: parseInitialSettingsPreset(),

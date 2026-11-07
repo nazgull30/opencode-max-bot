@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import type { McpCatalogServerItem } from "../../app/services/mcp-catalog-service.js";
 import {
@@ -25,7 +25,7 @@ import {
 interface McpsListMetadata {
   flow: "mcps";
   stage: "list";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   servers: McpCatalogServerItem[];
 }
@@ -33,7 +33,7 @@ interface McpsListMetadata {
 interface McpsDetailMetadata {
   flow: "mcps";
   stage: "detail";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   serverName: string;
   servers: McpCatalogServerItem[];
@@ -41,14 +41,14 @@ interface McpsDetailMetadata {
 
 type McpsMetadata = McpsListMetadata | McpsDetailMetadata;
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 function parseMcpsMetadata(state: InteractionState | null): McpsMetadata | null {
@@ -61,7 +61,7 @@ function parseMcpsMetadata(state: InteractionState | null): McpsMetadata | null 
   const messageId = state.metadata.messageId;
   const projectDirectory = state.metadata.projectDirectory;
 
-  if (flow !== "mcps" || typeof messageId !== "number" || typeof projectDirectory !== "string") {
+  if (flow !== "mcps" || typeof messageId !== "string" || typeof projectDirectory !== "string") {
     return null;
   }
 

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { statusCommand } from "../../../src/bot/commands/status-command.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
 
@@ -71,7 +71,7 @@ vi.mock("../../../src/app/services/worktree-service.js", () => ({
   getGitWorktreeContext: mocked.getGitWorktreeContextMock,
 }));
 
-vi.mock("../../../src/bot/messages/telegram-text.js", () => ({
+vi.mock("../../../src/bot/messages/max-text.js", () => ({
   sendBotText: mocked.sendBotTextMock,
 }));
 

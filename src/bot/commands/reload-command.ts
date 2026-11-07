@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import {
   reloadOpencodeConfig,
@@ -7,7 +7,7 @@ import {
 import { t } from "../../i18n/index.js";
 import { logger } from "../../utils/logger.js";
 import { safeBackgroundTask } from "../../utils/safe-background-task.js";
-import { editBotText } from "../messages/telegram-text.js";
+import { editBotText } from "../messages/max-text.js";
 import {
   refreshModelViews,
   refreshModelViewsAfterLateCatalogSettle,
@@ -27,7 +27,7 @@ function formatReloadResult(result: ConfigReloadResult): string {
 
 async function reloadAndReport(
   ctx: CommandContext<Context>,
-  statusMessageId: number,
+  statusMessageId: string,
   deps: ReloadCommandDeps,
 ): Promise<void> {
   let text: string;

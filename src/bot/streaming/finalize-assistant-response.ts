@@ -1,6 +1,6 @@
 import type { StreamingMessagePayload, ResponseStreamer } from "./response-streamer.js";
 import { logger } from "../../utils/logger.js";
-import type { TelegramRenderedPart } from "../render/types.js";
+import type { MAXRenderedPart } from "../render/types.js";
 
 interface FinalizeAssistantResponseOptions {
   sessionId: string;
@@ -9,11 +9,11 @@ interface FinalizeAssistantResponseOptions {
   responseStreamer: Pick<ResponseStreamer, "complete">;
   flushPendingServiceMessages: () => Promise<void>;
   prepareStreamingPayload: (messageText: string) => StreamingMessagePayload | null;
-  renderFinalParts: (messageText: string) => TelegramRenderedPart[];
+  renderFinalParts: (messageText: string) => MAXRenderedPart[];
   getReplyKeyboard: () => unknown;
   notifyFirstFinalPart?: boolean;
   sendRenderedPart: (
-    part: TelegramRenderedPart,
+    part: MAXRenderedPart,
     options:
       | {
           reply_markup?: unknown;
@@ -66,7 +66,7 @@ export async function finalizeAssistantResponse({
 
   if (result.streamed) {
     logger.debug(
-      `[FinalizeResponse] Finalized streamed assistant message in place: session=${sessionId}, message=${messageId}, telegramMessages=${result.telegramMessageIds.length}`,
+      `[FinalizeResponse] Finalized streamed assistant message in place: session=${sessionId}, message=${messageId}, messages=${result.messageIds.length}`,
     );
     return true;
   }

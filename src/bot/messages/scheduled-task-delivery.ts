@@ -1,20 +1,20 @@
-import type { Api, RawApi } from "grammy";
+import type { Api } from "../../max/compat.js";
 import { config } from "../../config.js";
 import type {
   QueuedScheduledTaskDelivery,
 } from "../../app/types/scheduled-task.js";
 import type { ScheduledTaskDeliverySender } from "../../app/services/scheduled-task-runtime-service.js";
 import { formatSummaryWithMode } from "./summary-message-formatter.js";
-import { escapePlainTextForTelegramMarkdownV2 } from "../../utils/telegram-markdown.js";
-import { AGENT_TEXT_LINK_PREVIEW_OPTIONS, sendBotText } from "./telegram-text.js";
+import { escapePlainTextForMarkdown } from "../../utils/markdown-escape.js";
+import { AGENT_TEXT_LINK_PREVIEW_OPTIONS, sendBotText } from "./max-text.js";
 
-type SendMessageApi = Pick<Api<RawApi>, "sendMessage">;
+type SendMessageApi = Api;
 
-const TELEGRAM_MESSAGE_LIMIT = 4096;
+const MAX_MESSAGE_LIMIT = 4096;
 
 interface ScheduledTaskMessagePart {
   text: string;
-  /** Parts carrying the agent's reply keep Telegram's link preview. */
+  /** Parts carrying the agent's reply keep MAX's link preview. */
   carriesResult: boolean;
 }
 
@@ -48,14 +48,14 @@ function buildScheduledTaskSuccessMessageParts(
     );
   }
 
-  const header = escapePlainTextForTelegramMarkdownV2(delivery.notificationText);
+  const header = escapePlainTextForMarkdown(delivery.notificationText);
   const resultParts = formatSummaryWithMode(delivery.resultText, config.bot.messageFormatMode);
   if (resultParts.length === 0) {
     return [{ text: header, carriesResult: false }];
   }
 
   const firstPart = `${header}\n\n${resultParts[0]}`;
-  if (firstPart.length <= TELEGRAM_MESSAGE_LIMIT) {
+  if (firstPart.length <= MAX_MESSAGE_LIMIT) {
     return toResultParts([firstPart, ...resultParts.slice(1)]);
   }
 

@@ -37,7 +37,7 @@ function createDelivery(
 }
 
 async function sendAndCollect(delivery: QueuedScheduledTaskDelivery) {
-  const sendMessage = vi.fn().mockResolvedValue({ message_id: 1 });
+  const sendMessage = vi.fn().mockResolvedValue({ message_id: "1" });
   await createScheduledTaskDeliverySender({ sendMessage } as never, 777).send(delivery);
   return sendMessage.mock.calls.map((call) => ({
     text: String(call[1]),
@@ -55,7 +55,7 @@ describe("bot/messages/scheduled-task-delivery", () => {
     const calls = await sendAndCollect(createDelivery({ footerText: "Build · 1m" }));
 
     expect(calls).toHaveLength(2);
-    expect(calls[0]?.text).toContain("example\\.com/report");
+    expect(calls[0]?.text).toContain("example.com/report");
     expect(calls[0]?.options).toMatchObject({ disable_notification: true, ...agentPreview });
     expect(calls[1]?.text).toBe("Build · 1m");
     expect(calls[1]?.options?.link_preview_options).toBeUndefined();

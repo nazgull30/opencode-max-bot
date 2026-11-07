@@ -1,4 +1,4 @@
-import { Keyboard } from "grammy";
+import { Keyboard } from "../../max/compat.js";
 import { getAgentButtonLabel } from "../../app/types/agent.js";
 import { formatModelForButton } from "../../app/types/model.js";
 import type { ModelInfo } from "../../app/types/model.js";

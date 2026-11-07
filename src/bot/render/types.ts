@@ -1,35 +1,31 @@
-import type { InputRichMessageWithoutUpload, MessageEntity } from "grammy/types";
+import type { MessageEntity } from "../../max/compat.js";
 
 /**
- * A rich block that carries no file upload. The bot never attaches media to
- * assistant output, and drafts only accept the upload-free variant, so this is
- * the block type used across the render layer.
+ * A block already converted to the MAX HTML representation. MAX accepts a
+ * limited HTML subset, so this is the native form the bot delivers.
  */
-export type TelegramRichBlock = NonNullable<InputRichMessageWithoutUpload["blocks"]>[number];
+export interface RenderedBlockData {
+  html: string;
+}
 
 /**
- * A message ready to be delivered to Telegram.
+ * A message ready to be delivered to MAX.
  *
- * `blocks` carries the native rich representation; `fallbackText` is the plain
- * projection of the same content, used when the native send fails. A part with
- * `source: "plain"` has no blocks and its `fallbackText` already fits a text
- * message.
+ * `html` is the formatted representation; `fallbackText` is the plain
+ * projection used when a formatted send is rejected. A part with
+ * `source: "plain"` carries no HTML tags and its text already fits a message.
  */
-export interface TelegramRenderedPart {
-  blocks: TelegramRichBlock[];
+export interface MAXRenderedPart {
+  html: string;
   fallbackText: string;
-  source: "blocks" | "plain";
-  /**
-   * Entities for the plain representation. Reasoning is delivered as a text
-   * message with a collapsed quote, which rich blocks cannot express; ignored
-   * for parts that carry blocks.
-   */
+  source: "html" | "plain";
+  /** Plain representation metadata, currently used for reasoning quotes. */
   entities?: MessageEntity[] | undefined;
 }
 
-/** A single parsed block paired with its plain-text projection. */
-export interface TelegramRenderedBlock {
-  block: TelegramRichBlock;
+/** A single parsed block paired with its formatted and plain projections. */
+export interface MAXRenderedBlock {
+  block: RenderedBlockData;
   plainText: string;
 }
 
@@ -40,17 +36,17 @@ export type TableColumnAlign = "left" | "center" | "right";
  * One entry of a list. The content is a block list so that nested lists, code
  * and quotes inside an item survive; `checked` is set only for task items.
  */
-export interface TelegramListItem {
-  blocks: TelegramBlock[];
+export interface MAXListItem {
+  blocks: MAXBlock[];
   checked?: boolean;
 }
 
-export type TelegramBlock =
+export type MAXBlock =
   | { type: "paragraph"; inlines: InlineNode[] }
   | { type: "heading"; level: number; inlines: InlineNode[] }
-  | { type: "blockquote"; blocks: TelegramBlock[] }
+  | { type: "blockquote"; blocks: MAXBlock[] }
   /** `start` continues the numbering when a list is written out in pieces. */
-  | { type: "list"; ordered: boolean; items: TelegramListItem[]; start?: number }
+  | { type: "list"; ordered: boolean; items: MAXListItem[]; start?: number }
   | { type: "code"; language?: string | undefined; text: string }
   | { type: "table"; rows: string[][]; align?: TableColumnAlign[] }
   | { type: "rule" }

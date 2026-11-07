@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import { fetchCurrentAgent, getAvailableAgents } from "../../app/services/agent-selection-service.js";
 import { getAgentDisplayName } from "../../app/types/agent.js";
 import { logger } from "../../utils/logger.js";
@@ -34,7 +34,7 @@ export async function buildAgentSelectionMenu(currentAgent?: string): Promise<In
 
 /**
  * Show agent selection menu
- * @param ctx grammY context
+ * @param ctx MAX context
  */
 export async function showAgentSelectionMenu(ctx: Context, deps: InlineMenuDeps): Promise<void> {
   try {

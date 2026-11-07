@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import {
   closeQuestionSettledOutside,
   showCurrentQuestion,
@@ -70,7 +70,7 @@ function createApi(sendMessageIds: number[]): Context["api"] {
   const nextMessage = async () => {
     const messageId = sendMessageIds[index] ?? sendMessageIds[sendMessageIds.length - 1] ?? 1;
     index += 1;
-    return { message_id: messageId };
+    return { message_id: String(messageId) };
   };
 
   return {
@@ -87,7 +87,7 @@ function createCallbackContext(data: string, messageId: number, api: Context["ap
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     api,
@@ -139,18 +139,12 @@ describe("bot question menu/callbacks", () => {
     container.questionManager.startQuestions([QUESTION_ONE], "req-1", "session-1");
     await showCurrentQuestion(api, 123, createDeps());
 
-    expect(api.sendRichMessage).toHaveBeenNthCalledWith(
+    expect(api.sendMessage).toHaveBeenNthCalledWith(
       1,
       123,
+      "<b>❓ 1/1 Q1</b>\n\nPick one\n\n<b>Yes</b> — accept\n\n<b>No</b> — decline",
       {
-        blocks: [
-          { type: "paragraph", text: { type: "bold", text: "❓ 1/1 Q1" } },
-          { type: "paragraph", text: "Pick one" },
-          { type: "paragraph", text: [{ type: "bold", text: "Yes" }, " — accept"] },
-          { type: "paragraph", text: [{ type: "bold", text: "No" }, " — decline"] },
-        ],
-      },
-      {
+        parse_mode: "HTML",
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.arrayContaining([
             [{ text: "Yes", callback_data: "question:select:0:0" }],
@@ -159,29 +153,25 @@ describe("bot question menu/callbacks", () => {
         }),
       },
     );
-    expect(api.sendRichMessage).toHaveBeenCalledTimes(1);
-    expect(api.sendMessage).not.toHaveBeenCalled();
-    expect(container.questionManager.getMessageIds()).toEqual([100]);
-    expect(container.questionManager.getActiveMessageId()).toBe(100);
+    expect(api.sendMessage).toHaveBeenCalledTimes(1);
+    expect(container.questionManager.getMessageIds()).toEqual(["100"]);
+    expect(container.questionManager.getActiveMessageId()).toBe("100");
 
     const state = container.interactionManager.getSnapshot();
     expect(state?.kind).toBe("question");
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.requestID).toBe("req-1");
-    expect(state?.metadata.messageId).toBe(100);
+    expect(state?.metadata.messageId).toBe("100");
     expect(state?.metadata.questionIndex).toBe(0);
   });
 
-  it("falls back to raw question text when the native send fails", async () => {
-    const sendMessage = vi.fn().mockResolvedValueOnce({ message_id: 801 });
-    const sendRichMessage = vi
+  it("falls back to raw question text when the HTML send fails", async () => {
+    const sendMessage = vi
       .fn()
-      .mockRejectedValueOnce(
-        Object.assign(new Error("Bad Request: RICH_MESSAGE_BLOCK_UNSUPPORTED"), { error_code: 400 }),
-      );
+      .mockRejectedValueOnce(new Error("Bad Request: bad html"))
+      .mockResolvedValueOnce({ message_id: "801" });
     const api = {
       sendMessage,
-      sendRichMessage,
       editMessageText: vi.fn().mockResolvedValue(true),
       deleteMessage: vi.fn().mockResolvedValue(true),
     } as unknown as Context["api"];
@@ -189,15 +179,14 @@ describe("bot question menu/callbacks", () => {
     container.questionManager.startQuestions([QUESTION_ONE], "req-fallback", "session-1");
     await showCurrentQuestion(api, 123, createDeps());
 
-    expect(sendRichMessage).toHaveBeenCalledTimes(1);
-    expect(sendMessage).toHaveBeenCalledTimes(1);
+    expect(sendMessage).toHaveBeenCalledTimes(2);
     expect(sendMessage).toHaveBeenNthCalledWith(
-      1,
+      2,
       123,
       expect.stringContaining("❓ 1/1 Q1\n\nPick one\n\nYes — accept\n\nNo — decline"),
       expect.objectContaining({ reply_markup: expect.anything() }),
     );
-    expect(container.questionManager.getActiveMessageId()).toBe(801);
+    expect(container.questionManager.getActiveMessageId()).toBe("801");
   });
 
   it("renders an option without a description as a bold label only", async () => {
@@ -211,16 +200,11 @@ describe("bot question menu/callbacks", () => {
     container.questionManager.startQuestions([question], "req-bare", "session-1");
     await showCurrentQuestion(api, 123, createDeps());
 
-    const calls = (api.sendRichMessage as unknown as { mock: { calls: unknown[][] } }).mock.calls;
-    const message = defined(calls[0]?.[1]) as { blocks: unknown[] };
-
-    expect(message.blocks.at(-1)).toEqual({
-      type: "paragraph",
-      text: { type: "bold", text: "Only label" },
-    });
+    const text = String((api.sendMessage as unknown as { mock: { calls: unknown[][] } }).mock.calls[0]?.[1]);
+    expect(text.endsWith("<b>Only label</b>")).toBe(true);
   });
 
-  it("truncates long question text to Telegram message limit", async () => {
+  it("truncates long question text to MAX message limit", async () => {
     const api = createApi([901]);
     const longQuestion: Question = {
       header: "Long",
@@ -231,25 +215,9 @@ describe("bot question menu/callbacks", () => {
     container.questionManager.startQuestions([longQuestion], "req-long", "session-1");
     await showCurrentQuestion(api, 123, createDeps());
 
-    const calls = (api.sendRichMessage as unknown as { mock: { calls: unknown[][] } }).mock.calls;
-    const message = defined(calls[0]?.[1]) as { blocks: Array<{ text: unknown }> };
-
-    const flatten = (text: unknown): string => {
-      if (typeof text === "string") {
-        return text;
-      }
-      if (Array.isArray(text)) {
-        return text.map(flatten).join("");
-      }
-      if (text && typeof text === "object" && "text" in text) {
-        return flatten((text as { text: unknown }).text);
-      }
-      return "";
-    };
-
-    const rendered = message.blocks.map((block) => flatten(block.text));
-    expect(rendered.join("\n\n").length).toBeLessThanOrEqual(4096);
-    expect(rendered.at(-1)?.endsWith("…")).toBe(true);
+    const text = String((api.sendMessage as unknown as { mock: { calls: unknown[][] } }).mock.calls[0]?.[1]);
+    expect(text.length).toBeLessThanOrEqual(4000);
+    expect(text.endsWith("…")).toBe(true);
   });
 
   it("switches to mixed mode on custom callback and accepts custom text", async () => {
@@ -269,10 +237,10 @@ describe("bot question menu/callbacks", () => {
 
     expect(container.questionManager.getCustomAnswer(0)).toBe("My custom answer");
     expect(container.questionManager.getCurrentIndex()).toBe(1);
-    expect(container.questionManager.getActiveMessageId()).toBe(102);
+    expect(container.questionManager.getActiveMessageId()).toBe("102");
     expect(container.interactionManager.getSnapshot()?.expectedInput).toBe("callback");
 
-    expect(api.deleteMessage).toHaveBeenCalledWith(123, 101);
+    expect(api.deleteMessage).toHaveBeenCalledWith(123, "101");
   });
 
   it("deletes the question message after single-choice selection", async () => {
@@ -287,7 +255,7 @@ describe("bot question menu/callbacks", () => {
     expect(handled).toBe(true);
     expect(selectCtx.deleteMessage).toHaveBeenCalledOnce();
     expect(container.questionManager.getCurrentIndex()).toBe(1);
-    expect(container.questionManager.getActiveMessageId()).toBe(702);
+    expect(container.questionManager.getActiveMessageId()).toBe("702");
   });
 
   it("rejects stale callback from old question message", async () => {
@@ -342,7 +310,7 @@ describe("bot question menu/callbacks", () => {
       directory: "D:/repo",
     });
     await vi.waitFor(() => {
-      expect(api.editMessageText).toHaveBeenCalledWith(123, 300, t("question.cancelled"));
+      expect(api.editMessageText).toHaveBeenCalledWith(123, "300", t("question.cancelled"));
     });
     expect(cancelCtx.editMessageText).not.toHaveBeenCalled();
     expect(api.deleteMessage).not.toHaveBeenCalled();
@@ -402,7 +370,7 @@ describe("bot question menu/callbacks", () => {
       expect(editMock).toHaveBeenCalled();
     });
     const [, messageId, content, options] = defined(editMock.mock.calls[0]);
-    expect(messageId).toBe(302);
+    expect(messageId).toBe("302");
     expect(JSON.stringify(content)).toContain(t("permission.delivery_failed"));
     expect(JSON.stringify(content)).toContain(QUESTION_ONE.question);
     expect(options).toHaveProperty("reply_markup");
@@ -414,7 +382,7 @@ describe("bot question menu/callbacks", () => {
 
     expect(mocked.questionRejectMock).toHaveBeenCalledTimes(2);
     await vi.waitFor(() => {
-      expect(api.editMessageText).toHaveBeenCalledWith(123, 302, t("question.cancelled"));
+      expect(api.editMessageText).toHaveBeenCalledWith(123, "302", t("question.cancelled"));
     });
     expect(container.questionManager.isActive()).toBe(false);
   });
@@ -429,7 +397,7 @@ describe("bot question menu/callbacks", () => {
     expect(mocked.questionRejectMock).not.toHaveBeenCalled();
     const editMock = api.editMessageText as unknown as ReturnType<typeof vi.fn>;
     const [, messageId, content, options] = defined(editMock.mock.calls[0]);
-    expect(messageId).toBe(310);
+    expect(messageId).toBe("310");
     expect(JSON.stringify(content)).toContain(t("permission.delivery_failed"));
     expect(options).toHaveProperty("reply_markup");
     expect(container.questionManager.isActive()).toBe(true);
@@ -507,7 +475,7 @@ describe("bot question menu/callbacks", () => {
     await pressButton("question:cancel:0", 308, api);
 
     await vi.waitFor(() => {
-      expect(api.editMessageText).toHaveBeenCalledWith(123, 308, t("question.cancelled"));
+      expect(api.editMessageText).toHaveBeenCalledWith(123, "308", t("question.cancelled"));
     });
     expect(container.questionManager.isActive()).toBe(false);
   });
@@ -561,16 +529,10 @@ describe("bot question menu/callbacks", () => {
     expect(handled).toBe(true);
     expect(api.editMessageText).toHaveBeenCalledWith(
       123,
-      500,
+      "500",
+      `<b>❓ 1/1 Q multi</b>\n\nPick multiple${t("question.multi_hint")}\n\n<b>One</b> — 1\n\n<b>Two</b> — 2`,
       {
-        blocks: [
-          { type: "paragraph", text: { type: "bold", text: "❓ 1/1 Q multi" } },
-          { type: "paragraph", text: `Pick multiple${t("question.multi_hint")}` },
-          { type: "paragraph", text: [{ type: "bold", text: "One" }, " — 1"] },
-          { type: "paragraph", text: [{ type: "bold", text: "Two" }, " — 2"] },
-        ],
-      },
-      {
+        parse_mode: "HTML",
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.arrayContaining([
             [{ text: "✅ One", callback_data: "question:select:0:0" }],
@@ -604,11 +566,12 @@ describe("bot question menu/callbacks", () => {
     await pressButton("question:custom:0", 800, api);
     await handleQuestionTextAnswer(createTextContext("My\nown answer", api), createDeps());
 
-    expect(api.deleteMessage).toHaveBeenCalledWith(123, 800);
+    expect(api.deleteMessage).toHaveBeenCalledWith(123, "800");
     expect(container.questionManager.getCurrentIndex()).toBe(0);
-    expect(container.questionManager.getActiveMessageId()).toBe(801);
+    expect(container.questionManager.getActiveMessageId()).toBe("801");
     expect(container.interactionManager.getSnapshot()?.expectedInput).toBe("callback");
-    expect(api.sendRichMessage).toHaveBeenLastCalledWith(123, expect.anything(), {
+    expect(api.sendMessage).toHaveBeenLastCalledWith(123, expect.anything(), {
+      parse_mode: "HTML",
       reply_markup: expect.objectContaining({
         inline_keyboard: [
           [{ text: "One", callback_data: "question:select:0:0" }],
@@ -638,7 +601,7 @@ describe("bot question menu/callbacks", () => {
     expect(textCtx.reply).not.toHaveBeenCalled();
     expect(container.questionManager.getCustomAnswer(0)).toBe("Second");
     expect(container.questionManager.isCustomAnswerSelected(0)).toBe(true);
-    expect(container.questionManager.getActiveMessageId()).toBe(812);
+    expect(container.questionManager.getActiveMessageId()).toBe("812");
   });
 
   it("toggles the custom row in place", async () => {
@@ -654,7 +617,8 @@ describe("bot question menu/callbacks", () => {
 
     expect(container.questionManager.isCustomAnswerSelected(0)).toBe(false);
     expect(toggleCtx.answerCallbackQuery).toHaveBeenCalledWith();
-    expect(api.editMessageText).toHaveBeenLastCalledWith(123, 821, expect.anything(), {
+    expect(api.editMessageText).toHaveBeenLastCalledWith(123, "821", expect.anything(), {
+      parse_mode: "HTML",
       reply_markup: expect.objectContaining({
         inline_keyboard: expect.arrayContaining([
           [{ text: "✏️ Mine", callback_data: "question:toggle_custom:0" }],
@@ -696,7 +660,7 @@ describe("bot question menu/callbacks", () => {
     expect(container.questionManager.isActive()).toBe(false);
   });
 
-  it("marks the poll as answered from Telegram before its answers go out", async () => {
+  it("marks the poll as answered from MAX before its answers go out", async () => {
     const api = createApi([850, 851]);
     const markedAtReply: boolean[] = [];
     mocked.questionReplyMock.mockImplementation(async () => {
@@ -712,7 +676,7 @@ describe("bot question menu/callbacks", () => {
     expect(container.questionManager.isActive()).toBe(false);
   });
 
-  it("closes a poll settled outside Telegram with its line and no buttons", async () => {
+  it("closes a poll settled outside MAX with its line and no buttons", async () => {
     const api = createApi([860]);
 
     container.questionManager.startQuestions([QUESTION_ONE], "req-outside", "session-1");
@@ -722,7 +686,7 @@ describe("bot question menu/callbacks", () => {
     const editMock = api.editMessageText as unknown as ReturnType<typeof vi.fn>;
     const [chatId, messageId, content, options] = defined(editMock.mock.calls[0]);
     expect(chatId).toBe(123);
-    expect(messageId).toBe(860);
+    expect(messageId).toBe("860");
     expect(JSON.stringify(content)).toContain(t("question.settled_outside.cancelled"));
     expect(JSON.stringify(content)).toContain(QUESTION_ONE.question);
     expect(options ?? {}).not.toHaveProperty("reply_markup");
@@ -749,7 +713,7 @@ describe("bot question menu/callbacks", () => {
       const api = createApi([900]);
       container.questionManager.startQuestions([question], "req-custom-flag", "session-1");
       await showCurrentQuestion(api, 123, createDeps());
-      const options = vi.mocked(api.sendRichMessage).mock.calls[0]?.[2] as {
+      const options = vi.mocked(api.sendMessage).mock.calls[0]?.[2] as {
         reply_markup: { inline_keyboard: Array<Array<{ callback_data: string }>> };
       };
       return options.reply_markup.inline_keyboard.map((row) => defined(row[0]).callback_data);
@@ -813,7 +777,7 @@ describe("poll answers delivered to OpenCode", () => {
   function editsOf(api: Context["api"], messageId: number): string[] {
     const editMock = api.editMessageText as unknown as ReturnType<typeof vi.fn>;
     return editMock.mock.calls
-      .filter((call) => call[1] === messageId)
+      .filter((call) => String(call[1]) === String(messageId))
       .map((call) => JSON.stringify(call[2]));
   }
 
@@ -830,7 +794,7 @@ describe("poll answers delivered to OpenCode", () => {
     await showCurrentQuestion(api, 123, createDeps());
     await pressButton("question:select:0:0", 900, api);
 
-    expect(api.deleteMessage).not.toHaveBeenCalledWith(123, 900);
+    expect(api.deleteMessage).not.toHaveBeenCalledWith(123, "900");
     expect(container.questionManager.isAnswering()).toBe(true);
 
     // Buttons do nothing while the answers are on their way.
@@ -841,7 +805,7 @@ describe("poll answers delivered to OpenCode", () => {
     await vi.waitFor(() => {
       expect(container.questionManager.isActive()).toBe(false);
     });
-    expect(api.deleteMessage).toHaveBeenCalledWith(123, 900);
+    expect(api.deleteMessage).toHaveBeenCalledWith(123, "900");
     expect(api.sendMessage).toHaveBeenLastCalledWith(
       123,
       expect.stringContaining(t("question.summary.title")),
@@ -867,7 +831,7 @@ describe("poll answers delivered to OpenCode", () => {
     expect(defined(editMock.mock.calls.at(-1))[3]).toHaveProperty("reply_markup");
     expect(container.questionManager.isActive()).toBe(true);
     expect(container.questionManager.getCurrentIndex()).toBe(1);
-    expect(api.deleteMessage).not.toHaveBeenCalledWith(123, 911);
+    expect(api.deleteMessage).not.toHaveBeenCalledWith(123, "911");
 
     await pressButton("question:select:1:1", 911, api);
 
@@ -969,10 +933,10 @@ describe("poll answers delivered to OpenCode", () => {
     let land: () => void = () => {};
     const held = () =>
       new Promise((resolve) => {
-        land = () => resolve({ message_id: 960 });
+        land = () => resolve({ message_id: "960" });
       });
     (api.sendMessage as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(held);
-    (api.sendRichMessage as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(held);
+    (api.sendMessage as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(held);
 
     // As the attach restore does: open the slot, then send the poll.
     container.questionManager.startQuestions([QUESTION_ONE], "req-restored", "session-1");
@@ -985,7 +949,7 @@ describe("poll answers delivered to OpenCode", () => {
     expect(container.interactionManager.getSnapshot()).toBeNull();
   });
 
-  it("leaves a poll settled outside Telegram while its tap was acknowledged with its line", async () => {
+  it("leaves a poll settled outside MAX while its tap was acknowledged with its line", async () => {
     const api = createApi([970]);
 
     container.questionManager.startQuestions([QUESTION_ONE], "req-race", "session-1");
@@ -1000,7 +964,7 @@ describe("poll answers delivered to OpenCode", () => {
     await handleQuestionCallback(ctx, createDeps());
 
     expect(ctx.deleteMessage).not.toHaveBeenCalled();
-    expect(api.deleteMessage).not.toHaveBeenCalledWith(123, 970);
+    expect(api.deleteMessage).not.toHaveBeenCalledWith(123, "970");
     expect(mocked.questionReplyMock).not.toHaveBeenCalled();
     expect(editsOf(api, 970).join()).toContain(t("question.settled_outside.cancelled"));
   });

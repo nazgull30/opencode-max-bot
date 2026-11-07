@@ -1,4 +1,4 @@
-import { Bot, Context } from "grammy";
+import { Bot, Context } from "../../max/compat.js";
 import type { FilePartInput, TextPartInput } from "@opencode-ai/sdk/v2";
 import type { Model } from "@opencode-ai/sdk/v2";
 import { opencodeClient, opencodeV2Client } from "../../opencode/client.js";
@@ -34,7 +34,7 @@ import {
 import { resolvePendingAttachment } from "../../app/services/prompt-attachment-service.js";
 import { getMissingFolderNotice } from "../../app/services/missing-folder-notice-service.js";
 import {
-  downloadTelegramFile,
+  downloadMAXFile,
   toDataUri,
 } from "../../app/services/file-download-service.js";
 import {
@@ -157,7 +157,7 @@ export interface ProcessPromptDeps
  */
 async function retireAttachmentConfirmation(
   ctx: Context,
-  messageId: number | undefined,
+  messageId: string | undefined,
 ): Promise<void> {
   if (!messageId || !ctx.chat) {
     return;
@@ -172,7 +172,7 @@ async function retireAttachmentConfirmation(
  * Processes a user prompt: ensures project/session, subscribes to events, and sends
  * the prompt to OpenCode. Used by text, voice, and photo message handlers.
  *
- * @param ctx - Grammy context
+ * @param ctx - MAX context
  * @param input - Text and attachment content of the prompt
  * @param deps - Dependencies (bot, event subscription and app state)
  * @returns true if the prompt was dispatched, false if it was blocked/failed early.
@@ -330,7 +330,7 @@ export async function processUserPrompt(
 
     // CRITICAL: Use the async prompt start endpoint here.
     // session.prompt streams the full assistant response and can outlive the original
-    // Telegram message handler, which turns late transport failures into misleading
+    // MAX message handler, which turns late transport failures into misleading
     // "failed to send" messages even after the run has already started.
     // The actual assistant result still arrives via the SSE event subscription.
     safeBackgroundTask({
@@ -439,7 +439,7 @@ async function replyIfProjectFolderMissing(
 }
 
 /**
- * Turns an incoming prompt into the OpenCode request: downloads Telegram photos, adds a
+ * Turns an incoming prompt into the OpenCode request: downloads MAX photos, adds a
  * file attached through /ls, and resolves the agent, model and variant.
  * Returns null when the prompt cannot be sent; the user has been told why.
  */
@@ -451,7 +451,7 @@ async function preparePromptRequest(
 ): Promise<PreparedPromptRequest | null> {
   const currentAgent = await resolveProjectAgent(getStoredAgent());
   const storedModel = (deps.getStoredModel ?? getStoredModel)();
-  const preparedInput = await prepareTelegramPhotos(ctx.api, input, deps, storedModel, (text) =>
+  const preparedInput = await prepareMAXPhotos(ctx.api, input, deps, storedModel, (text) =>
     ctx.reply(text),
   );
   if (!preparedInput) {
@@ -674,7 +674,7 @@ export async function prepareHandedOverPrompt(
   selection: HandoverSelection,
   deps: HandedOverPromptDeps,
 ): Promise<PromptRequestOptions | null> {
-  const preparedInput = await prepareTelegramPhotos(api, input, deps, selection, null);
+  const preparedInput = await prepareMAXPhotos(api, input, deps, selection, null);
   if (!preparedInput) {
     return null;
   }
@@ -714,7 +714,7 @@ export async function admitHandedOverPromptToInbox(
 /** Replies in the chat while a prompt is prepared; null for a prompt that shows nothing. */
 type PromptPreparationReply = ((text: string) => Promise<unknown>) | null;
 
-async function prepareTelegramPhotos(
+async function prepareMAXPhotos(
   api: Context["api"],
   input: IncomingPrompt,
   deps: HandedOverPromptDeps,
@@ -749,7 +749,7 @@ async function prepareTelegramPhotos(
     isAlbum || input.photos.length > 1 ? t("bot.files_downloading") : t("bot.photo_downloading"),
   );
 
-  const downloadFile = deps.downloadFile ?? downloadTelegramFile;
+  const downloadFile = deps.downloadFile ?? downloadMAXFile;
 
   try {
     const downloadedParts: FilePartInput[] = [];
@@ -763,14 +763,14 @@ async function prepareTelegramPhotos(
       });
     }
 
-    logger.info(`[Bot] Prepared ${downloadedParts.length} Telegram photo(s) for prompt`);
+    logger.info(`[Bot] Prepared ${downloadedParts.length} MAX photo(s) for prompt`);
     return {
       ...input,
       fileParts: [...input.fileParts, ...downloadedParts],
       photos: [],
     };
   } catch (err) {
-    logger.error("[Bot] Error downloading Telegram photo input:", err);
+    logger.error("[Bot] Error downloading MAX photo input:", err);
     await reply?.(isAlbum ? t("bot.media_group_download_error") : t("bot.photo_download_error"));
     return null;
   }

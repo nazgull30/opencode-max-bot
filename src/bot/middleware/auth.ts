@@ -1,4 +1,4 @@
-import { Context, NextFunction } from "grammy";
+import { Context, NextFunction } from "../../max/compat.js";
 import { config } from "../../config.js";
 import { logger } from "../../utils/logger.js";
 
@@ -6,10 +6,10 @@ export async function authMiddleware(ctx: Context, next: NextFunction): Promise<
   const userId = ctx.from?.id;
 
   logger.debug(
-    `[Auth] Checking access: userId=${userId}, allowedUserId=${config.telegram.allowedUserId}, hasCallbackQuery=${!!ctx.callbackQuery}, hasMessage=${!!ctx.message}`,
+    `[Auth] Checking access: userId=${userId}, allowedUserId=${config.max.allowedUserId}, hasCallbackQuery=${!!ctx.callbackQuery}, hasMessage=${!!ctx.message}`,
   );
 
-  if (userId && userId === config.telegram.allowedUserId) {
+  if (userId && userId === config.max.allowedUserId) {
     logger.debug(`[Auth] Access granted for userId=${userId}`);
     await next();
   } else if (userId && userId === ctx.me.id) {
@@ -22,7 +22,7 @@ export async function authMiddleware(ctx: Context, next: NextFunction): Promise<
     // Actively hide commands for unauthorized users by setting empty command list
     // Only do this if the chat is NOT the authorized user's chat
     // (to avoid resetting commands when forwarded messages are received)
-    if (ctx.chat?.id && ctx.chat.id !== config.telegram.allowedUserId) {
+    if (ctx.chat?.id && ctx.chat.id !== config.max.allowedUserId) {
       try {
         // Set empty commands for this specific chat (more reliable than deleteMyCommands)
         await ctx.api.setMyCommands([], {

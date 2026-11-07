@@ -33,7 +33,7 @@ export function startInteractionForTest(
           messageIds: [],
           requestID: null,
           sessionId: "session-test",
-          answeredFromTelegram: false,
+          answeredFromMAX: false,
           dismissing: false,
           settledWhileSending: null,
           lastCancelFailed: false,

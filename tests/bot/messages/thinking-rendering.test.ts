@@ -16,7 +16,7 @@ describe("bot/messages/thinking-rendering", () => {
     expect(payload?.parts).toHaveLength(1);
     const firstPart = defined(payload?.parts[0]);
     expect(firstPart.source).toBe("plain");
-    expect(firstPart.blocks).toEqual([]);
+    expect(firstPart.html).toBe("");
     expect(firstPart.fallbackText).toBe(`${header}\nLine one\nLine two`);
     expect(firstPart.entities).toEqual([
       { type: "blockquote", offset: header.length + 1, length: "Line one\nLine two".length },

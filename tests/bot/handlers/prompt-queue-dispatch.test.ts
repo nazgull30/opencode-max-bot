@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { defined } from "../../helpers/defined.js";
 import { createIncomingPrompt } from "../../../src/app/types/prompt.js";
 
@@ -29,7 +29,7 @@ vi.mock("../../../src/app/services/run-control-service.js", () => ({
   isForegroundBusy: isForegroundBusyMock,
 }));
 
-vi.mock("../../../src/bot/messages/telegram-text.js", () => ({
+vi.mock("../../../src/bot/messages/max-text.js", () => ({
   sendBotText: sendBotTextMock,
 }));
 
@@ -368,7 +368,7 @@ describe("bot/handlers/prompt-queue-dispatch", () => {
     });
 
     it("still sends the prompt when the echo fails", async () => {
-      sendBotTextMock.mockRejectedValue(new Error("telegram down"));
+      sendBotTextMock.mockRejectedValue(new Error("max down"));
       await tryEnqueuePrompt(makeContext(), "first");
 
       await dispatchNextQueuedPrompt();

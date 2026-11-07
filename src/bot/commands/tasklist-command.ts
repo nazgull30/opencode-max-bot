@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { t } from "../../i18n/index.js";
 import { listScheduledTasks } from "../../app/stores/scheduled-task-store.js";

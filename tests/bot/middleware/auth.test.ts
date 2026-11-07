@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 
 const mocked = vi.hoisted(() => ({
   loggerDebugMock: vi.fn(),
@@ -20,7 +20,7 @@ vi.mock("../../../src/config.js", async (importOriginal) => {
   return {
     config: {
       ...actual.config,
-      telegram: { ...actual.config.telegram, allowedUserId: 777 },
+      max: { ...actual.config.max, allowedUserId: 777 },
     },
   };
 });
@@ -39,7 +39,7 @@ function createContext(
     from,
     chat: { id: chatId },
     me: { id: BOT_ID, is_bot: true },
-    message: { message_id: 1 },
+    message: { message_id: "1" },
     api: { setMyCommands },
   } as unknown as Context;
   return { ctx, setMyCommands };

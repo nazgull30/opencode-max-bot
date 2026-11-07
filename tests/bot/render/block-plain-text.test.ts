@@ -5,10 +5,10 @@ import {
   extractInlinePlainText,
   toBlockPlainText,
 } from "../../../src/bot/render/block-plain-text.js";
-import { parseTelegramBlocks } from "../../../src/bot/render/block-parser.js";
+import { parseMAXBlocks } from "../../../src/bot/render/block-parser.js";
 
 function plainTextOf(markdown: string): string {
-  const blocks = parseTelegramBlocks(markdown);
+  const blocks = parseMAXBlocks(markdown);
   return blocks.map(toBlockPlainText).join("\n\n");
 }
 
@@ -57,7 +57,7 @@ describe("bot/render/block-plain-text", () => {
       expect(plainTextOf("1. a\n2. b")).toBe("1. a\n2. b");
     });
 
-    it("keeps the text of inline spans Telegram draws but plain text cannot", () => {
+    it("keeps the text of inline spans MAX draws but plain text cannot", () => {
       expect(plainTextOf("H<sub>2</sub>O, м<sup>2</sup>, ==note==, <kbd>Ctrl</kbd>")).toBe(
         "H2O, м2, note, Ctrl",
       );

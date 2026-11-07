@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { promptAttachment } from "../../app/managers/prompt-attachment-manager.js";
 import { logger } from "../../utils/logger.js";

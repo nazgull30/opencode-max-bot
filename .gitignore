@@ -20,6 +20,7 @@ Thumbs.db
 *.swo
 
 # Local AI tooling
+.codegraph/
 .claude/
 .codex/
 .kilocode/
@@ -35,7 +36,6 @@ settings.json
 settings.json.bak
 settings.json.tmp
 .tmp/
-e2e/output/
 
 # Packaging artifacts
 *.tgz

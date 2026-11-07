@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFunction } from "../../../src/max/compat.js";
 import { interactionGuardMiddleware } from "../../../src/bot/middleware/interaction-guard.js";
 import { t } from "../../../src/i18n/index.js";
 import {
@@ -11,7 +11,7 @@ import { createIncomingPrompt } from "../../../src/app/types/prompt.js";
 import { setIncomingPrompt } from "../../../src/bot/handlers/rich-message-handler.js";
 import * as settingsStore from "../../../src/app/stores/settings-store.js";
 import { startInteractionForTest } from "../../helpers/interaction.js";
-import type { Bot } from "grammy";
+import type { Bot } from "../../../src/max/compat.js";
 import { initializePromptQueueDispatch } from "../../../src/bot/handlers/prompt-queue-dispatch.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
 import type { AppContainer } from "../../../src/app/bootstrap/app-container.js";

@@ -139,7 +139,7 @@ describe("bot/streaming/tool-call-streamer", () => {
     expect(editText).toHaveBeenCalledWith("s1", 21, "first subagent card updated");
   });
 
-  it("paces Telegram operations from independently ready subagent streams", async () => {
+  it("paces MAX operations from independently ready subagent streams", async () => {
     vi.useFakeTimers();
 
     const operationTimes: number[] = [];
@@ -197,7 +197,7 @@ describe("bot/streaming/tool-call-streamer", () => {
     expect(sendText).toHaveBeenLastCalledWith("s1", "new card");
   });
 
-  it("creates continuation messages when the stream exceeds Telegram limits", async () => {
+  it("creates continuation messages when the stream exceeds MAX limits", async () => {
     vi.useFakeTimers();
 
     let nextMessageId = 100;
@@ -427,7 +427,7 @@ describe("bot/streaming/tool-call-streamer", () => {
     let resolveEdit: (() => void) | undefined;
     let id = 1;
     const sendText = vi.fn(async () => id++);
-    const editText = vi.fn((_sessionId: string, _messageId: number, _text: string) =>
+    const editText = vi.fn((_sessionId: string, _messageId: string | number, _text: string) =>
       new Promise<void>((resolve) => { resolveEdit = resolve; }),
     );
     const streamer = new ToolCallStreamer({
@@ -667,7 +667,7 @@ describe("bot/streaming/tool-call-streamer", () => {
       let id = 1;
       const sendText = vi.fn(async (_sessionId: string, _text: string) => id++);
       const editText = vi.fn(
-        async (_sessionId: string, _messageId: number, _text: string) => undefined,
+        async (_sessionId: string, _messageId: string | number, _text: string) => undefined,
       );
       const streamer = new ToolCallStreamer({
         throttleMs: 0,

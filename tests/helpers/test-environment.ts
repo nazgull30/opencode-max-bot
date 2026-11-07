@@ -8,7 +8,7 @@ const state = globalThis as typeof globalThis & {
 };
 // Module resets must not forget ownership or adopt a restored user environment.
 const homes = (state.__opencodeTestHomes ??= {
-  defaultHome: fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-tests-")),
+  defaultHome: fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-tests-")),
   homes: new Set<string>(),
 });
 homes.homes.add(homes.defaultHome);
@@ -36,18 +36,18 @@ export function isolateRuntimePaths(paths: RuntimePaths): RuntimePaths {
 }
 
 const TEST_ENV_DEFAULTS: Record<string, string> = {
-  TELEGRAM_BOT_TOKEN: "test-telegram-token",
-  TELEGRAM_ALLOWED_USER_ID: "123456789",
+  MAX_BOT_TOKEN: "test-max-token",
+  MAX_ALLOWED_USER_ID: "123456789",
   OPENCODE_API_URL: "http://localhost:4096",
   OPENCODE_MODEL_PROVIDER: "test-provider",
   OPENCODE_MODEL_ID: "test-model",
   LOG_LEVEL: "error",
   LOG_RETENTION: "10",
-  OPENCODE_TELEGRAM_HOME: homes.defaultHome,
+  OPENCODE_MAX_HOME: homes.defaultHome,
 };
 
 export function ensureTestEnvironment(): void {
-  process.env.OPENCODE_TELEGRAM_HOME = homes.defaultHome;
+  process.env.OPENCODE_MAX_HOME = homes.defaultHome;
   for (const [key, value] of Object.entries(TEST_ENV_DEFAULTS)) {
     if (!process.env[key]) {
       process.env[key] = value;

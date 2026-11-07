@@ -3813,7 +3813,7 @@ describe("summary/aggregator", () => {
       expect(onQuestion.mock.calls[0]?.[2]).toBe("child-session-1");
     });
 
-    it("reports questions settled outside Telegram for the followed session and its subagents", async () => {
+    it("reports questions settled outside MAX for the followed session and its subagents", async () => {
       const onQuestionSettled = vi.fn();
       summaryAggregator.setOnQuestionSettled(onQuestionSettled);
       trackChildSession();

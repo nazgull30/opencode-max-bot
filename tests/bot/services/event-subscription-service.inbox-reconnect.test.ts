@@ -1,7 +1,7 @@
 import { rm } from "node:fs/promises";
 import { createTestHome } from "../../helpers/test-environment.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import { setRuntimeMode } from "../../../src/runtime/mode.js";
 import { resetSingletonState } from "../../helpers/reset-singleton-state.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
@@ -55,12 +55,12 @@ describe("bot/services/event-subscription-service inbox after reconnect", () => 
   let service: BotEventSubscriptionService | null = null;
 
   beforeEach(async () => {
-    vi.stubEnv("TELEGRAM_BOT_TOKEN", "test-telegram-token");
-    vi.stubEnv("TELEGRAM_ALLOWED_USER_ID", "123456789");
+    vi.stubEnv("MAX_BOT_TOKEN", "test-max-token");
+    vi.stubEnv("MAX_ALLOWED_USER_ID", "123456789");
     vi.stubEnv("OPENCODE_MODEL_PROVIDER", "test-provider");
     vi.stubEnv("OPENCODE_MODEL_ID", "test-model");
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", await createTestHome("inbox-reconnect-"));
-    tempHome = process.env.OPENCODE_TELEGRAM_HOME!;
+    vi.stubEnv("OPENCODE_MAX_HOME", await createTestHome("inbox-reconnect-"));
+    tempHome = process.env.OPENCODE_MAX_HOME!;
     setRuntimeMode("installed");
 
     mocked.subscribeToEvents.mockReset().mockResolvedValue(undefined);
@@ -77,10 +77,10 @@ describe("bot/services/event-subscription-service inbox after reconnect", () => 
     ]);
     sessionService.setCurrentSession({ id: "session-1", title: "Test", directory: "D:/repo" });
 
-    const api = { sendMessage: vi.fn().mockResolvedValue({ message_id: 100 }) };
+    const api = { sendMessage: vi.fn().mockResolvedValue({ message_id: "100" }) };
     service = createEventSubscriptionService(createTestAppContainer());
     service.clearRuntimeState("test_setup");
-    service.setTelegramContext({ api } as unknown as Bot<Context>, 42);
+    service.setMAXContext({ api } as unknown as Bot<Context>, 42);
     await service.ensureEventSubscription("D:/repo");
   });
 

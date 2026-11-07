@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { isTtsConfigured } from "../../app/services/tts-service.js";
 import {

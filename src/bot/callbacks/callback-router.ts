@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import type { InteractionErrorScope } from "../../app/managers/interaction-manager.js";
 import { t } from "../../i18n/index.js";
@@ -255,7 +255,7 @@ export function registerCallbackRouter(bot: Bot<Context>, deps: CallbackRouterDe
     logger.debug(`[Bot] Callback context: from=${ctx.from?.id}, chat=${ctx.chat?.id}`);
 
     if (ctx.chat) {
-      container.setTelegramContext(bot, ctx.chat.id);
+      container.setMAXContext(bot, ctx.chat.id);
     }
 
     let errorScope: InteractionErrorScope = "interaction";

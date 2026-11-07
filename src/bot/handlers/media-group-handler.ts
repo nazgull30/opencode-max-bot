@@ -1,4 +1,4 @@
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFunction } from "../../max/compat.js";
 import type { FilePartInput, Model } from "@opencode-ai/sdk/v2";
 import { config } from "../../config.js";
 import { t } from "../../i18n/index.js";
@@ -6,7 +6,7 @@ import { getModelCapabilities, supportsInput } from "../../app/services/model-ca
 import { getStoredModel } from "../../app/services/model-selection-service.js";
 import { logger } from "../../utils/logger.js";
 import {
-  downloadTelegramFile,
+  downloadMAXFile,
   isFileSizeAllowed,
   isTextMimeType,
   toDataUri,
@@ -24,21 +24,21 @@ import {
 
 const DEFAULT_MEDIA_GROUP_DEBOUNCE_MS = 1_000;
 
-type TelegramDocument = NonNullable<NonNullable<Context["message"]>["document"]>;
-type TelegramPhoto = NonNullable<NonNullable<Context["message"]>["photo"]>;
+type MAXDocument = NonNullable<NonNullable<Context["message"]>["document"]>;
+type MAXPhoto = NonNullable<NonNullable<Context["message"]>["photo"]>;
 
 type PendingMediaGroupItem = {
   ctx: Context;
-  messageId: number;
+  messageId: string;
   caption: string;
 } & (
   | {
       kind: "photo";
-      photos: TelegramPhoto;
+      photos: MAXPhoto;
     }
   | {
       kind: "document";
-      document: TelegramDocument;
+      document: MAXDocument;
     }
   | {
       kind: "unsupported";
@@ -49,7 +49,7 @@ type ValidMediaGroupItem =
   | {
       kind: "file";
       ctx: Context;
-      messageId: number;
+      messageId: string;
       fileId: string;
       mime: string;
       filename: string;
@@ -201,14 +201,14 @@ export class MediaGroupAttachmentHandler {
     clearTimeout(batch.timer);
     this.batches.delete(key);
 
-    const items = [...batch.items].sort((left, right) => left.messageId - right.messageId);
+    const items = [...batch.items].sort((left, right) => left.messageId.localeCompare(right.messageId));
     const replyCtx = items[0]?.ctx;
 
     if (!replyCtx) {
       return;
     }
 
-    logger.info(`[MediaGroup] Processing Telegram media group: key=${key}, items=${items.length}`);
+    logger.info(`[MediaGroup] Processing MAX media group: key=${key}, items=${items.length}`);
 
     try {
       const unsupportedContexts = items
@@ -374,7 +374,7 @@ export class MediaGroupAttachmentHandler {
     validItems: ValidMediaGroupItem[],
     originalItems: PendingMediaGroupItem[],
   ): Promise<{ promptText: string; fileParts: FilePartInput[] }> {
-    const downloadFile = this.deps.downloadFile ?? downloadTelegramFile;
+    const downloadFile = this.deps.downloadFile ?? downloadMAXFile;
     const textSections: string[] = [];
     const fileParts: FilePartInput[] = [];
 

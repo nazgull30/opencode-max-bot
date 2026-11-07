@@ -1,14 +1,12 @@
 /**
- * Telegram rich messages allow 32768 characters and 500 blocks (nested blocks,
- * list items, table rows and details bodies all count). Plain text messages are
- * still capped at 4096 characters, so the two representations of the same
- * content are chunked with different budgets.
+ * MAX text messages allow 4000 characters. Bot-composed text is kept below the
+ * limit to leave room for the formatting markup that wraps it.
  */
-export const DEFAULT_MAX_PART_CHARS = 32000;
+export const DEFAULT_MAX_PART_CHARS = 3800;
 export const DEFAULT_MAX_PART_BLOCKS = 480;
 
-/** Budget for text that is delivered as a plain Telegram message. */
+/** Budget for text that is delivered as a plain MAX message. */
 export const PLAIN_MAX_PART_CHARS = 3800;
 
-/** Hard Telegram limit for `sendMessage` / `editMessageText` / `sendMessageDraft` text. */
-export const TELEGRAM_TEXT_MESSAGE_LIMIT = 4096;
+/** Hard MAX limit for `POST /messages` and `PUT /messages` text. */
+export const MAX_TEXT_MESSAGE_LIMIT = 4000;

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
 import { startInteractionForTest } from "../../helpers/interaction.js";
 import type { AppContainer } from "../../../src/app/bootstrap/app-container.js";

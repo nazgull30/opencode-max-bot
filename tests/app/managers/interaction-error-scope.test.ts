@@ -85,7 +85,7 @@ describe("app/managers/interaction-error-scope", () => {
   it("releases a waiting poll with the bumped generation for the permission scope", async () => {
     const listener = vi.fn();
     interactionManager.setOnWaitingRequestReady(listener);
-    permissionManager.startPermission(TEST_PERMISSION, 101);
+    permissionManager.startPermission(TEST_PERMISSION, "101");
     interactionManager.waitQuestion([TEST_QUESTION], "req-1", "session-1");
     const generation = interactionManager.getGeneration();
 
@@ -101,7 +101,7 @@ describe("app/managers/interaction-error-scope", () => {
   });
 
   it("clears only permissionManager for the permission scope", () => {
-    permissionManager.startPermission(TEST_PERMISSION, 101);
+    permissionManager.startPermission(TEST_PERMISSION, "101");
 
     interactionManager.clearErrorScope("permission", "test_cleanup");
 

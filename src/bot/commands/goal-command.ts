@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { CommandContext, Context, InlineKeyboard } from "grammy";
+import { CommandContext, Context, InlineKeyboard } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import {
   formatGoalConfirmation,
@@ -148,7 +148,7 @@ export async function handleGoalTextInput(ctx: Context, deps: GoalCommandDeps): 
   if (state?.metadata.flow !== "goal" || state.metadata.stage !== "objective") return false;
   const message = ctx.message;
   const richMedia =
-    message?.rich_message && convertRichMessage(message.rich_message.blocks).skippedMediaCount;
+    message?.rich_message && convertRichMessage().skippedMediaCount;
   if (
     message?.photo?.length ||
     message?.voice ||

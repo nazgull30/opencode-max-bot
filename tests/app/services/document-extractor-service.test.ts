@@ -17,7 +17,7 @@ const mockDocExtractor = vi.hoisted(() => ({
 vi.mock("../../../src/config.js", () => ({
   config: {
     docExtractor: mockDocExtractor,
-    telegram: { token: "test", allowedUserId: 0, proxyUrl: "" },
+    max: { token: "test", allowedUserId: 0, proxyUrl: "" },
     opencode: {
       apiUrl: "http://localhost:4096",
       username: "opencode",

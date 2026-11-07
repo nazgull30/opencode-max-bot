@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { abortCommand, abortCurrentOperation } from "../../../src/bot/commands/abort-command.js";
 import { promptQueue } from "../../../src/app/managers/prompt-queue-manager.js";
 import { createIncomingPrompt } from "../../../src/app/types/prompt.js";
@@ -116,7 +116,7 @@ describe("bot/commands/abort", () => {
     mocked.currentSession = { id: "session-1", title: "Session", directory: "D:/repo" };
     mocked.abortMock.mockResolvedValue({ data: true, error: null });
     mocked.statusMock.mockResolvedValue({ data: { "session-1": { type: "idle" } }, error: null });
-    const ctx = { chat: { id: 1 }, reply: vi.fn().mockResolvedValue({ message_id: 1 }) };
+    const ctx = { chat: { id: 1 }, reply: vi.fn().mockResolvedValue({ message_id: "1" }) };
 
     await abortCommand(ctx as never, createDeps());
 
@@ -130,7 +130,7 @@ describe("bot/commands/abort", () => {
     mocked.currentSession = { id: "session-1", title: "Session", directory: "D:/repo" };
     mocked.abortMock.mockResolvedValue({ data: true, error: null });
     mocked.statusMock.mockResolvedValue({ data: { "session-1": { type: "idle" } }, error: null });
-    const ctx = { chat: { id: 1 }, reply: vi.fn().mockResolvedValue({ message_id: 1 }) };
+    const ctx = { chat: { id: 1 }, reply: vi.fn().mockResolvedValue({ message_id: "1" }) };
 
     await abortCurrentOperation(ctx as never, createDeps(), { notifyUser: false });
 
@@ -185,7 +185,7 @@ describe("bot/commands/abort", () => {
       error: null,
     });
 
-    const replyMock = vi.fn().mockResolvedValue({ message_id: 88 });
+    const replyMock = vi.fn().mockResolvedValue({ message_id: "88" });
     const editMessageTextMock = vi.fn().mockResolvedValue(undefined);
 
     const ctx = {
@@ -204,7 +204,7 @@ describe("bot/commands/abort", () => {
       mocked.abortMock.mock.invocationCallOrder[0] ?? Number.POSITIVE_INFINITY,
     );
     expect(mocked.abortMock).toHaveBeenCalled();
-    expect(editMessageTextMock).toHaveBeenCalledWith(777, 88, t("stop.success"));
+    expect(editMessageTextMock).toHaveBeenCalledWith(777, "88", t("stop.success"));
 
     expect(container.questionManager.isActive()).toBe(false);
     expect(container.permissionManager.isActive()).toBe(false);
@@ -248,8 +248,8 @@ describe("bot/commands/abort", () => {
         api,
         reply: vi
           .fn()
-          .mockResolvedValueOnce({ message_id: 88 })
-          .mockResolvedValue({ message_id: 89 }),
+          .mockResolvedValueOnce({ message_id: "88" })
+          .mockResolvedValue({ message_id: "89" }),
       };
 
       await abortCurrentOperation(ctx as never, createDeps());
@@ -270,7 +270,7 @@ describe("bot/commands/abort", () => {
         outcome === "paused" ? "▶ Continue" : "⏸ Pause",
       );
       expect(api.editMessageText).not.toHaveBeenCalled();
-      expect(api.deleteMessage).toHaveBeenCalledExactlyOnceWith(777, 88);
+      expect(api.deleteMessage).toHaveBeenCalledExactlyOnceWith(777, "88");
     },
   );
 
@@ -289,7 +289,7 @@ describe("bot/commands/abort", () => {
 
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: { editMessageText: vi.fn().mockResolvedValue(undefined) },
     } as unknown as Context;
 
@@ -324,7 +324,7 @@ describe("bot/commands/abort", () => {
 
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: { editMessageText: vi.fn().mockResolvedValue(undefined) },
     } as unknown as Context;
 
@@ -353,7 +353,7 @@ describe("bot/commands/abort", () => {
 
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: { editMessageText: vi.fn().mockResolvedValue(undefined) },
     } as unknown as Context;
 
@@ -380,7 +380,7 @@ describe("bot/commands/abort", () => {
 
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: {
         editMessageText: vi.fn().mockResolvedValue(undefined),
       },
@@ -405,7 +405,7 @@ describe("bot/commands/abort", () => {
     function createCtx(editMessageText = vi.fn().mockResolvedValue(undefined)) {
       return {
         chat: { id: 777 },
-        reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+        reply: vi.fn().mockResolvedValue({ message_id: "88" }),
         api: { editMessageText },
       } as unknown as Context;
     }
@@ -426,7 +426,7 @@ describe("bot/commands/abort", () => {
       expect(deps.countBackgroundOperations).toHaveBeenCalledWith("session-1");
       expect(editMessageText).toHaveBeenCalledWith(
         777,
-        88,
+        "88",
         t("stop.success_background_running", { count: 2 }),
       );
       expect(t("stop.success_background_running", { count: 2 })).toContain("2");
@@ -440,7 +440,7 @@ describe("bot/commands/abort", () => {
 
       await abortCommand(createCtx(editMessageText) as never, deps);
 
-      expect(editMessageText).toHaveBeenCalledWith(777, 88, t("stop.success"));
+      expect(editMessageText).toHaveBeenCalledWith(777, "88", t("stop.success"));
       expect(deps.interruptSubagents).toHaveBeenCalledWith("abort_command");
       expect(defined(editMessageText.mock.invocationCallOrder[0])).toBeLessThan(
         defined(deps.interruptSubagents.mock.invocationCallOrder[0]),
@@ -525,7 +525,7 @@ describe("bot/commands/abort", () => {
       error: null,
     });
 
-    const replyMock = vi.fn().mockResolvedValue({ message_id: 88 });
+    const replyMock = vi.fn().mockResolvedValue({ message_id: "88" });
     const editMessageTextMock = vi.fn().mockResolvedValue(undefined);
 
     const ctx = {
@@ -562,7 +562,7 @@ describe("bot/commands/abort", () => {
     const editMessageTextMock = vi.fn().mockResolvedValue(undefined);
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: {
         editMessageText: editMessageTextMock,
       },
@@ -570,7 +570,7 @@ describe("bot/commands/abort", () => {
 
     await abortCommand(ctx as never, createDeps());
 
-    expect(editMessageTextMock).toHaveBeenCalledWith(777, 88, t("stop.warn_unconfirmed"));
+    expect(editMessageTextMock).toHaveBeenCalledWith(777, "88", t("stop.warn_unconfirmed"));
     expectAbortStateReleased("abort_unconfirmed");
   });
 
@@ -587,7 +587,7 @@ describe("bot/commands/abort", () => {
     const editMessageTextMock = vi.fn().mockResolvedValue(undefined);
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: {
         editMessageText: editMessageTextMock,
       },
@@ -595,7 +595,7 @@ describe("bot/commands/abort", () => {
 
     await abortCommand(ctx as never, createDeps());
 
-    expect(editMessageTextMock).toHaveBeenCalledWith(777, 88, t("stop.warn_maybe_finished"));
+    expect(editMessageTextMock).toHaveBeenCalledWith(777, "88", t("stop.warn_maybe_finished"));
     expectAbortStateReleased("abort_maybe_finished");
   });
 
@@ -614,7 +614,7 @@ describe("bot/commands/abort", () => {
     const editMessageTextMock = vi.fn().mockResolvedValue(undefined);
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: {
         editMessageText: editMessageTextMock,
       },
@@ -622,7 +622,7 @@ describe("bot/commands/abort", () => {
 
     await abortCommand(ctx as never, createDeps());
 
-    expect(editMessageTextMock).toHaveBeenCalledWith(777, 88, t("stop.warn_timeout"));
+    expect(editMessageTextMock).toHaveBeenCalledWith(777, "88", t("stop.warn_timeout"));
     expectAbortStateReleased("abort_error");
   });
 
@@ -639,7 +639,7 @@ describe("bot/commands/abort", () => {
     const editMessageTextMock = vi.fn().mockResolvedValue(undefined);
     const ctx = {
       chat: { id: 777 },
-      reply: vi.fn().mockResolvedValue({ message_id: 88 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "88" }),
       api: {
         editMessageText: editMessageTextMock,
       },
@@ -647,7 +647,7 @@ describe("bot/commands/abort", () => {
 
     await abortCommand(ctx as never, createDeps());
 
-    expect(editMessageTextMock).toHaveBeenCalledWith(777, 88, t("stop.warn_local_only"));
+    expect(editMessageTextMock).toHaveBeenCalledWith(777, "88", t("stop.warn_local_only"));
     expectAbortStateReleased("abort_error");
   });
 });

@@ -1,4 +1,4 @@
-import { Context, InputFile } from "grammy";
+import { Context, InputFile } from "../../max/compat.js";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { formatFileSize } from "../../app/services/file-download-service.js";

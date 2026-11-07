@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isContainerRuntime, OPENCODE_TELEGRAM_CONTAINER_ENV } from "../../src/runtime/container.js";
+import { isContainerRuntime, OPENCODE_MAX_CONTAINER_ENV } from "../../src/runtime/container.js";
 
 describe("runtime/container", () => {
   afterEach(() => {
@@ -15,25 +15,25 @@ describe("runtime/container", () => {
     ).toBe(false);
   });
 
-  it("is true when OPENCODE_TELEGRAM_CONTAINER is set to a truthy value", () => {
+  it("is true when OPENCODE_MAX_CONTAINER is set to a truthy value", () => {
     expect(
       isContainerRuntime({
-        env: { [OPENCODE_TELEGRAM_CONTAINER_ENV]: "1" },
+        env: { [OPENCODE_MAX_CONTAINER_ENV]: "1" },
         dockerEnvExists: () => false,
       }),
     ).toBe(true);
   });
 
-  it("is false when OPENCODE_TELEGRAM_CONTAINER is 0 or false", () => {
+  it("is false when OPENCODE_MAX_CONTAINER is 0 or false", () => {
     expect(
       isContainerRuntime({
-        env: { [OPENCODE_TELEGRAM_CONTAINER_ENV]: "0" },
+        env: { [OPENCODE_MAX_CONTAINER_ENV]: "0" },
         dockerEnvExists: () => false,
       }),
     ).toBe(false);
     expect(
       isContainerRuntime({
-        env: { [OPENCODE_TELEGRAM_CONTAINER_ENV]: "false" },
+        env: { [OPENCODE_MAX_CONTAINER_ENV]: "false" },
         dockerEnvExists: () => false,
       }),
     ).toBe(false);
@@ -49,7 +49,7 @@ describe("runtime/container", () => {
   });
 
   it("reads process.env when no env override is passed", () => {
-    vi.stubEnv(OPENCODE_TELEGRAM_CONTAINER_ENV, "1");
+    vi.stubEnv(OPENCODE_MAX_CONTAINER_ENV, "1");
 
     expect(isContainerRuntime({ dockerEnvExists: () => false })).toBe(true);
   });

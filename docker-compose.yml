@@ -3,14 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: opencode-telegram-bot
+    container_name: opencode-max-bot
     restart: unless-stopped
     network_mode: host
     environment:
       - NODE_ENV=production
       - OPENCODE_API_URL=${OPENCODE_API_URL:-http://127.0.0.1:4096}
-      - OPENCODE_TELEGRAM_HOME=/app/data
-      - OPENCODE_TELEGRAM_CONTAINER=1
+      - OPENCODE_MAX_HOME=/app/data
+      - OPENCODE_MAX_CONTAINER=1
     env_file:
       - .env
     volumes:

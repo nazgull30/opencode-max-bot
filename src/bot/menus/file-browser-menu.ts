@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import path from "node:path";
 import { config } from "../../config.js";
 import {

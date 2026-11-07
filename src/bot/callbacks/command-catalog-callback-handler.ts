@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { config } from "../../config.js";
 import type { CommandCatalogItem } from "../../app/services/command-catalog-service.js";
@@ -40,7 +40,7 @@ import {
 interface CommandsListMetadata {
   flow: "commands";
   stage: "list";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   commands: CommandCatalogItem[];
   page: number;
@@ -49,7 +49,7 @@ interface CommandsListMetadata {
 interface CommandsConfirmMetadata {
   flow: "commands";
   stage: "confirm";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   commandName: string;
 }
@@ -82,14 +82,14 @@ export type ExecuteCommandDeps = Pick<
   bot: Bot<Context>;
 };
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 function parseCommandItems(value: unknown): CommandCatalogItem[] | null {
@@ -130,7 +130,7 @@ export function parseCommandsMetadata(state: InteractionState | null): CommandsM
 
   if (
     flow !== "commands" ||
-    typeof messageId !== "number" ||
+    typeof messageId !== "string" ||
     typeof projectDirectory !== "string"
   ) {
     return null;

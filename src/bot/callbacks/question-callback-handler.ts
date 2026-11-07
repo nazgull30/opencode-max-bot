@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { getCurrentProject } from "../../app/stores/settings-store.js";
@@ -26,14 +26,14 @@ export type QuestionCallbackDeps = Pick<
   "interactionManager" | "questionManager" | "summaryAggregator"
 >;
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 /** The poll's last question: answering it sends the whole poll to OpenCode. */
@@ -66,7 +66,7 @@ export async function handleQuestionCallback(
     return true;
   }
 
-  if (deps.questionManager.isSettlingFromTelegram()) {
+  if (deps.questionManager.isSettlingFromMAX()) {
     // The answers or the dismissal are on their way: no button does anything until they land.
     await ctx.answerCallbackQuery();
     return true;
@@ -209,7 +209,7 @@ async function handleSubmitAnswer(
 /**
  * A question was answered: the last one sends the poll's answers and stays on screen until
  * OpenCode takes them, an earlier one gives way to the next question. A poll that was closed
- * while the tap was being acknowledged (settled outside Telegram, a reset) is left as it is.
+ * while the tap was being acknowledged (settled outside MAX, a reset) is left as it is.
  */
 async function answerStep(
   ctx: Context,

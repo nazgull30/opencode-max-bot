@@ -32,11 +32,11 @@ const { getRuntimePathsMock, runtimePathsState } = vi.hoisted(() => {
   const runtimePathsState = {
     value: {
       mode: "installed",
-      appHome: "D:/temp/opencode-telegram-test",
-      envFilePath: "D:/temp/opencode-telegram-test/.env",
-      settingsFilePath: "D:/temp/opencode-telegram-test/settings.json",
-      logsDirPath: "D:/temp/opencode-telegram-test/logs",
-      runDirPath: "D:/temp/opencode-telegram-test/run",
+      appHome: "D:/temp/opencode-max-test",
+      envFilePath: "D:/temp/opencode-max-test/.env",
+      settingsFilePath: "D:/temp/opencode-max-test/settings.json",
+      logsDirPath: "D:/temp/opencode-max-test/logs",
+      runDirPath: "D:/temp/opencode-max-test/run",
     },
   };
 
@@ -85,7 +85,7 @@ describe("runtime/service/manager", () => {
   let originalArgv1: string | undefined;
 
   beforeEach(async () => {
-    tempDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-telegram-service-"));
+    tempDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-max-service-"));
     originalArgv1 = process.argv[1];
     process.argv[1] = path.join(tempDirPath, "dist", "cli.js");
 
@@ -142,8 +142,8 @@ describe("runtime/service/manager", () => {
         detached: true,
         windowsHide: true,
         env: expect.objectContaining({
-          OPENCODE_TELEGRAM_SERVICE_CHILD: "1",
-          OPENCODE_TELEGRAM_SERVICE_STATE_PATH: getServiceStateFilePath(),
+          OPENCODE_MAX_SERVICE_CHILD: "1",
+          OPENCODE_MAX_SERVICE_STATE_PATH: getServiceStateFilePath(),
         }),
       }),
     );

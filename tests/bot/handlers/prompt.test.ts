@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import type { FilePartInput } from "@opencode-ai/sdk/v2";
 import {
   admitPromptToInbox,
@@ -262,13 +262,13 @@ describe("bot/handlers/prompt", () => {
 
     it("drops a pending /ls attachment as a failed send does", async () => {
       promptAttachment.set("D:\\Projects\\Repo\\src\\index.ts", "D:\\Projects\\Repo");
-      promptAttachment.setConfirmationMessageId(555);
+      promptAttachment.setConfirmationMessageId("555");
 
       await processUserPrompt(createContext(), "Explain this file", createDeps());
 
       expect(promptAttachment.get()).toBeNull();
       expect(mocked.interactionClearMock).toHaveBeenCalledWith("attachment_consumed");
-      expect(mocked.editMessageReplyMarkupMock).toHaveBeenCalledWith(777, 555);
+      expect(mocked.editMessageReplyMarkupMock).toHaveBeenCalledWith(777, "555");
       expect(mocked.resolvePendingAttachmentMock).not.toHaveBeenCalled();
     });
 
@@ -745,7 +745,7 @@ describe("bot/handlers/prompt", () => {
 
     function startWaitingMode(): void {
       promptAttachment.set("D:\\Projects\\Repo\\src\\index.ts", "D:\\Projects\\Repo");
-      promptAttachment.setConfirmationMessageId(555);
+      promptAttachment.setConfirmationMessageId("555");
     }
 
     it("sends the attached file alongside the prompt", async () => {
@@ -779,7 +779,7 @@ describe("bot/handlers/prompt", () => {
 
       await processUserPrompt(createContext(), "Explain this file", createDeps());
 
-      expect(mocked.editMessageReplyMarkupMock).toHaveBeenCalledWith(777, 555);
+      expect(mocked.editMessageReplyMarkupMock).toHaveBeenCalledWith(777, "555");
     });
 
     it("still retires the confirmation when the file went stale", async () => {
@@ -788,7 +788,7 @@ describe("bot/handlers/prompt", () => {
 
       await processUserPrompt(createContext(), "Explain this file", createDeps());
 
-      expect(mocked.editMessageReplyMarkupMock).toHaveBeenCalledWith(777, 555);
+      expect(mocked.editMessageReplyMarkupMock).toHaveBeenCalledWith(777, "555");
     });
 
     it("does not touch any message when no file is attached", async () => {

@@ -1,25 +1,25 @@
 import type { FilePartInput } from "@opencode-ai/sdk/v2";
 
-export type TelegramPhotoSource = "standalone" | "album" | "rich";
+export type MAXPhotoSource = "standalone" | "album" | "rich";
 
-export interface TelegramPhotoInput {
+export interface MAXPhotoInput {
   fileId: string;
   filename: string;
-  source: TelegramPhotoSource;
+  source: MAXPhotoSource;
   fileSize?: number;
 }
 
 export interface IncomingPrompt {
   text: string;
   fileParts: FilePartInput[];
-  photos: TelegramPhotoInput[];
+  photos: MAXPhotoInput[];
 }
 
 export function createIncomingPrompt(
   text: string,
   options: {
     fileParts?: FilePartInput[];
-    photos?: TelegramPhotoInput[];
+    photos?: MAXPhotoInput[];
   } = {},
 ): IncomingPrompt {
   return {

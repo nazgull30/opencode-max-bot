@@ -1,7 +1,7 @@
 import { projectSearchFallback, type I18nDictionary } from "./en.js";
 
 /**
- * Indonesian localization for OpenCode Telegram Bot.
+ * Indonesian localization for OpenCode MAX Bot.
  *
  * Keep upstream emoji and technical terms where they help recognition.
  * Prefer natural Indonesian wording over literal translation.
@@ -72,7 +72,7 @@ export const id: I18nDictionary = {
   "common.unknown_error": "kesalahan tidak diketahui",
 
   "start.welcome":
-    "👋 Selamat datang di OpenCode Telegram Bot!\n\nGunakan perintah:\n/projects — pilih proyek\n/sessions — daftar sesi\n/new — sesi baru\n/commands — perintah khusus\n/skills — katalog skill\n/task — tugas terjadwal\n/tasklist — daftar tugas terjadwal\n/status — status\n/help — bantuan\n\nGunakan tombol di bawah untuk memilih agent, model, dan varian.",
+    "👋 Selamat datang di OpenCode MAX Bot!\n\nGunakan perintah:\n/projects — pilih proyek\n/sessions — daftar sesi\n/new — sesi baru\n/commands — perintah khusus\n/skills — katalog skill\n/task — tugas terjadwal\n/tasklist — daftar tugas terjadwal\n/status — status\n/help — bantuan\n\nGunakan tombol di bawah untuk memilih agent, model, dan varian.",
   "help.keyboard_hint":
     "💡 Gunakan tombol keyboard di bawah untuk agent, model, varian, dan aksi konteks.",
   "help.text":
@@ -110,7 +110,7 @@ export const id: I18nDictionary = {
   "bot.assistant_reply_undelivered":
     "⚠️ Balasan terakhir dari asisten tidak berhasil dikirim. Kirim ulang pesanmu jika masih membutuhkannya.",
   "bot.stale_messages_skipped":
-    "⚠️ Beberapa pesan terlewat saat Telegram tidak bisa dijangkau. Kirim ulang pesan-pesan itu.",
+    "⚠️ Beberapa pesan terlewat saat MAX tidak bisa dijangkau. Kirim ulang pesan-pesan itu.",
   "bot.session_retry":
     "🔁 {message}\n\nProvider terus mengembalikan kesalahan yang sama meski diulang berkali-kali. Gunakan /abort untuk menghentikan.",
   "bot.external_user_input": "Input pengguna eksternal",
@@ -406,8 +406,8 @@ export const id: I18nDictionary = {
   "permission.outcome.once": "✅ Allowed once",
   "permission.outcome.always": "🔓 Allowed always",
   "permission.outcome.reject": "❌ Rejected",
-  "permission.outcome.outside_suffix": " · answered outside Telegram",
-  "permission.outcome.settled_outside": "☑️ Answered outside Telegram",
+  "permission.outcome.outside_suffix": " · answered outside MAX",
+  "permission.outcome.settled_outside": "☑️ Answered outside MAX",
   "permission.outcome.not_answered": "⏹ Not answered",
   "permission.delivery_failed": "⚠️ The answer did not reach OpenCode — tap again",
   "permission.name.bash": "Bash",
@@ -428,8 +428,8 @@ export const id: I18nDictionary = {
   "question.select_one_required_callback": "Pilih minimal satu opsi",
   "question.enter_custom_callback": "Kirim jawaban khusus sebagai pesan",
   "question.cancelled": "❌ Pertanyaan dibatalkan",
-  "question.settled_outside.answered": "☑️ Answered outside Telegram",
-  "question.settled_outside.cancelled": "❌ Cancelled outside Telegram",
+  "question.settled_outside.answered": "☑️ Answered outside MAX",
+  "question.settled_outside.cancelled": "❌ Cancelled outside MAX",
   "question.not_answered": "⏹ Not answered",
   "question.answer_already_received": "Jawaban sudah diterima, tunggu sebentar...",
   "question.completed_no_answers": "✅ Pertanyaan selesai (tanpa jawaban)",
@@ -495,7 +495,7 @@ export const id: I18nDictionary = {
   "tool.file_header.edit":
     "Edit File/Path: {path}\n============================================================\n\n",
 
-  "runtime.wizard.ask_token": "Masukkan token bot Telegram (dapatkan dari @BotFather).\n> ",
+  "runtime.wizard.ask_token": "Masukkan token bot MAX (dapatkan dari MAX Business).\n> ",
   "runtime.wizard.ask_language":
     "Pilih bahasa antarmuka.\nMasukkan nomor bahasa dari daftar atau kode locale.\nTekan Enter untuk mempertahankan bahasa default: {defaultLocale}\n{options}\n> ",
   "runtime.wizard.language_invalid":
@@ -505,7 +505,7 @@ export const id: I18nDictionary = {
   "runtime.wizard.token_invalid":
     "Format token sepertinya tidak valid (seharusnya <id>:<secret>). Coba lagi.\n",
   "runtime.wizard.ask_user_id":
-    "Masukkan ID Pengguna Telegram (bisa diperoleh dari @userinfobot).\n> ",
+    "Masukkan ID Pengguna MAX (bisa diperoleh dari MAX profile).\n> ",
   "runtime.wizard.user_id_invalid": "Masukkan bilangan bulat positif (> 0).\n",
   "runtime.wizard.ask_api_url":
     "Masukkan URL API OpenCode (opsional).\nTekan Enter untuk menggunakan default: {defaultUrl}\n> ",
@@ -524,11 +524,11 @@ export const id: I18nDictionary = {
     "Enter OpenCode server password.\nPress Enter to keep the saved password.\n> ",
   "runtime.wizard.api_url_invalid":
     "Masukkan URL yang valid (http/https) atau tekan Enter untuk default.\n",
-  "runtime.wizard.start": "Menyiapkan OpenCode Telegram Bot.\n",
+  "runtime.wizard.start": "Menyiapkan OpenCode MAX Bot.\n",
   "runtime.wizard.saved": "Konfigurasi disimpan:\n- {envPath}\n",
   "runtime.wizard.not_configured_starting": "Aplikasi belum dikonfigurasi. Membuka wizard...\n",
   "runtime.wizard.tty_required":
-    "Wizard interaktif memerlukan terminal TTY. Jalankan `opencode-telegram config` di shell interaktif.",
+    "Wizard interaktif memerlukan terminal TTY. Jalankan `opencode-max config` di shell interaktif.",
   "runtime.container.command_unavailable": "⚠️ Perintah ini tidak tersedia di image Docker.",
 
   "rename.no_session": "⚠️ Tidak ada sesi aktif. Buat atau pilih sesi terlebih dahulu.",

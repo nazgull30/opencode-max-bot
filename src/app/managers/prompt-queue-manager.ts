@@ -2,7 +2,7 @@ import { logger } from "../../utils/logger.js";
 import type { IncomingPrompt } from "../types/prompt.js";
 
 export const MAX_QUEUED_PROMPTS = 5;
-/** Maximum raw Telegram media bytes retained by all queued prompts. */
+/** Maximum raw MAX media bytes retained by all queued prompts. */
 export const MAX_QUEUED_MEDIA_BYTES = 20 * 1024 * 1024;
 
 /** Number of recently delivered, unmatched OpenCode inbox ids kept for late admissions. */
@@ -33,7 +33,7 @@ export interface InboxPromptInput {
 export interface QueuedPromptInput extends IncomingPrompt {
   displayText?: string;
   responseMode?: "text_only" | "text_and_tts";
-  /** Raw media bytes from Telegram file_size metadata, before base64 encoding. */
+  /** Raw media bytes from MAX file_size metadata, before base64 encoding. */
   mediaBytes?: number;
 }
 

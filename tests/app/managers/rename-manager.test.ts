@@ -27,16 +27,16 @@ describe("renameManager", () => {
 
   it("tracks message ID for cleanup", () => {
     renameManager.startWaiting("session-456", "/path", "Test");
-    renameManager.setMessageId(42);
+    renameManager.setMessageId("42");
 
-    expect(renameManager.getMessageId()).toBe(42);
-    expect(renameManager.isActiveMessage(42)).toBe(true);
-    expect(renameManager.isActiveMessage(99)).toBe(false);
+    expect(renameManager.getMessageId()).toBe("42");
+    expect(renameManager.isActiveMessage("42")).toBe(true);
+    expect(renameManager.isActiveMessage("99")).toBe(false);
   });
 
   it("clears state completely", () => {
     renameManager.startWaiting("session-789", "/path", "Title");
-    renameManager.setMessageId(100);
+    renameManager.setMessageId("100");
 
     renameManager.clear();
 

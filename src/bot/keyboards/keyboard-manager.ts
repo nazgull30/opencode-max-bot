@@ -1,4 +1,4 @@
-import type { Api } from "grammy";
+import type { Api } from "../../max/compat.js";
 import { createMainKeyboard } from "./main-reply-keyboard.js";
 import { getQueuedPromptButtonLabels } from "./queued-prompt-button.js";
 import { getStoredAgent } from "../../app/services/agent-selection-service.js";
@@ -28,7 +28,7 @@ export class KeyboardManager {
   private readonly UPDATE_DEBOUNCE_MS = 2000; // Don't update more than once per 2 seconds
 
   /**
-   * Initialize the keyboard manager with Telegram API and chat ID
+   * Initialize the keyboard manager with MAX API and chat ID
    * Loads initial state from settings/config
    */
   public initialize(api: Api, chatId: number): void {

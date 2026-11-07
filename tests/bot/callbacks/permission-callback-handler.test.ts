@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context, InlineKeyboard } from "grammy";
+import type { Context, InlineKeyboard } from "../../../src/max/compat.js";
 import type { PermissionRequest } from "../../../src/app/types/permission.js";
 import { showPermissionRequest } from "../../../src/bot/menus/permission-menu.js";
 import { handlePermissionCallback } from "../../../src/bot/callbacks/permission-callback-handler.js";
@@ -78,7 +78,7 @@ function createPermissionRequest(
 
 function createBotApi(messageId: number = 500): Context["api"] {
   return {
-    sendMessage: vi.fn().mockResolvedValue({ message_id: messageId }),
+    sendMessage: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
     editMessageText: vi.fn().mockResolvedValue(true),
     deleteMessage: vi.fn().mockResolvedValue(true),
   } as unknown as Context["api"];
@@ -90,7 +90,7 @@ function createPermissionCallbackContext(data: string, messageId: number): Conte
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
@@ -176,15 +176,15 @@ describe("bot permission menu/callbacks", () => {
     expect(getCallbackData(replyMarkup.inline_keyboard[2]?.[0])).toBe("permission:reject");
 
     expect(container.permissionManager.isActive()).toBe(true);
-    expect(container.permissionManager.getRequestID(500)).toBe("perm-1");
-    expect(container.permissionManager.getMessageId()).toBe(500);
+    expect(container.permissionManager.getRequestID("500")).toBe("perm-1");
+    expect(container.permissionManager.getMessageId()).toBe("500");
     expect(container.permissionManager.getPendingCount()).toBe(1);
 
     const state = container.interactionManager.getSnapshot();
     expect(state?.kind).toBe("permission");
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.requestID).toBe("perm-1");
-    expect(state?.metadata.messageId).toBe(500);
+    expect(state?.metadata.messageId).toBe("500");
   });
 
   it("keeps multiple active permission requests without deleting previous messages", async () => {
@@ -193,7 +193,7 @@ describe("bot permission menu/callbacks", () => {
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
 
     const sendMessageMock = botApi.sendMessage as unknown as ReturnType<typeof vi.fn>;
-    sendMessageMock.mockResolvedValueOnce({ message_id: 501 });
+    sendMessageMock.mockResolvedValueOnce({ message_id: "501" });
 
     await showPermissionRequest(
       botApi,
@@ -205,16 +205,16 @@ describe("bot permission menu/callbacks", () => {
     const deleteMessageMock = botApi.deleteMessage as unknown as ReturnType<typeof vi.fn>;
     expect(deleteMessageMock).not.toHaveBeenCalled();
 
-    expect(container.permissionManager.getRequestID(500)).toBe("perm-1");
-    expect(container.permissionManager.getRequestID(501)).toBe("perm-2");
-    expect(container.permissionManager.getMessageId()).toBe(501);
-    expect(container.permissionManager.getMessageIds()).toEqual([500, 501]);
+    expect(container.permissionManager.getRequestID("500")).toBe("perm-1");
+    expect(container.permissionManager.getRequestID("501")).toBe("perm-2");
+    expect(container.permissionManager.getMessageId()).toBe("501");
+    expect(container.permissionManager.getMessageIds()).toEqual(["500", "501"]);
     expect(container.permissionManager.getPendingCount()).toBe(2);
 
     const state = container.interactionManager.getSnapshot();
     expect(state?.kind).toBe("permission");
     expect(state?.metadata.requestID).toBe("perm-2");
-    expect(state?.metadata.messageId).toBe(501);
+    expect(state?.metadata.messageId).toBe("501");
     expect(state?.metadata.pendingCount).toBe(2);
   });
 
@@ -252,8 +252,8 @@ describe("bot permission menu/callbacks", () => {
   });
 
   it("discards an in-flight permission message after state is cleared", async () => {
-    let resolveSend: (message: { message_id: number }) => void = () => {};
-    const pendingSend = new Promise<{ message_id: number }>((resolve) => {
+    let resolveSend: (message: { message_id: string }) => void = () => {};
+    const pendingSend = new Promise<{ message_id: string }>((resolve) => {
       resolveSend = resolve;
     });
     const botApi = {
@@ -271,11 +271,11 @@ describe("bot permission menu/callbacks", () => {
       expect(botApi.sendMessage).toHaveBeenCalledTimes(1);
     });
     container.permissionManager.clear();
-    resolveSend({ message_id: 503 });
+    resolveSend({ message_id: "503" });
 
     await showTask;
 
-    expect(botApi.deleteMessage).toHaveBeenCalledWith(777, 503);
+    expect(botApi.deleteMessage).toHaveBeenCalledWith(777, "503");
     expect(container.permissionManager.isActive()).toBe(false);
     expect(container.interactionManager.getSnapshot()).toBeNull();
   });
@@ -286,7 +286,7 @@ describe("bot permission menu/callbacks", () => {
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
 
     const sendMessageMock = botApi.sendMessage as unknown as ReturnType<typeof vi.fn>;
-    sendMessageMock.mockResolvedValueOnce({ message_id: 501 });
+    sendMessageMock.mockResolvedValueOnce({ message_id: "501" });
     await showPermissionRequest(
       botApi,
       777,
@@ -306,7 +306,7 @@ describe("bot permission menu/callbacks", () => {
 
     expect(container.permissionManager.isActive()).toBe(true);
     expect(container.permissionManager.getPendingCount()).toBe(2);
-    expect(container.permissionManager.getRequestID(501)).toBe("perm-2");
+    expect(container.permissionManager.getRequestID("501")).toBe("perm-2");
   });
 
   it("handles valid permission reply and clears active states", async () => {
@@ -329,7 +329,7 @@ describe("bot permission menu/callbacks", () => {
     });
 
     const edit = getLastEdit(ctx);
-    expect(edit.messageId).toBe(600);
+    expect(edit.messageId).toBe("600");
     expect(edit.text).toContain("• npm test");
     expect(edit.text.endsWith(`\n${t("permission.outcome.always")}`)).toBe(true);
     expect(edit.options).toBeUndefined();
@@ -361,7 +361,7 @@ describe("bot permission menu/callbacks", () => {
     expect(container.permissionManager.isActive()).toBe(false);
   });
 
-  it("deduplicates equivalent permission requests behind one Telegram message", async () => {
+  it("deduplicates equivalent permission requests behind one MAX message", async () => {
     const botApi = createBotApi(650);
 
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
@@ -375,8 +375,8 @@ describe("bot permission menu/callbacks", () => {
     const sendMessageMock = botApi.sendMessage as unknown as ReturnType<typeof vi.fn>;
     expect(sendMessageMock).toHaveBeenCalledTimes(1);
     expect(container.permissionManager.getPendingCount()).toBe(1);
-    expect(container.permissionManager.getRequestID(650)).toBe("perm-1");
-    expect(container.permissionManager.getRequestIDs(650)).toEqual(["perm-1", "perm-duplicate"]);
+    expect(container.permissionManager.getRequestID("650")).toBe("perm-1");
+    expect(container.permissionManager.getRequestIDs("650")).toEqual(["perm-1", "perm-duplicate"]);
 
     const ctx = createPermissionCallbackContext("permission:always", 650);
     const handled = await handlePermissionCallback(ctx, createDeps());
@@ -418,7 +418,7 @@ describe("bot permission menu/callbacks", () => {
     const call = defined(editMessageTextMock.mock.calls[0]);
     const [chatId, messageId, text] = call;
     expect(chatId).toBe(777);
-    expect(messageId).toBe(651);
+    expect(messageId).toBe("651");
     expect(text).toContain(t("permission.grouped_count", { count: 2 }));
   });
 
@@ -436,7 +436,7 @@ describe("bot permission menu/callbacks", () => {
       container.permissionManager.addEquivalentRequest(createPermissionRequest("perm-stale"), generation - 1),
     ).toBeNull();
 
-    expect(container.permissionManager.getRequestIDs(652)).toEqual(["perm-1"]);
+    expect(container.permissionManager.getRequestIDs("652")).toEqual(["perm-1"]);
   });
 
   it("does not group behind a message whose request was replaced", async () => {
@@ -448,9 +448,9 @@ describe("bot permission menu/callbacks", () => {
       createPermissionRequest("perm-replaced"),
       createDeps(),
     );
-    // Same Telegram message id, different scope: the replaced request's
+    // Same MAX message id, different scope: the replaced request's
     // signature must no longer group new requests behind it.
-    container.permissionManager.startPermission(createPermissionRequest("perm-2", { patterns: ["ls"] }), 653);
+    container.permissionManager.startPermission(createPermissionRequest("perm-2", { patterns: ["ls"] }), "653");
 
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-3"), createDeps());
 
@@ -471,13 +471,13 @@ describe("bot permission menu/callbacks", () => {
     );
 
     expect(container.permissionManager.settleRequest("perm-duplicate", "once")).toEqual([
-      expect.objectContaining({ messageId: 655, openCount: 1, outcome: null }),
+      expect.objectContaining({ messageId: "655", openCount: 1, outcome: null }),
     ]);
-    expect(container.permissionManager.getRequestIDs(655)).toEqual(["perm-1"]);
+    expect(container.permissionManager.getRequestIDs("655")).toEqual(["perm-1"]);
 
     expect(container.permissionManager.settleRequest("perm-1", "once")).toEqual([
       expect.objectContaining({
-        messageId: 655,
+        messageId: "655",
         openCount: 0,
         outcome: { kind: "replied", reply: "once", outside: true },
       }),
@@ -485,11 +485,11 @@ describe("bot permission menu/callbacks", () => {
     expect(container.permissionManager.isActive()).toBe(false);
   });
 
-  it("counts OpenCode's own reply event for an answer being sent as the Telegram answer", async () => {
+  it("counts OpenCode's own reply event for an answer being sent as the MAX answer", async () => {
     const botApi = createBotApi(656);
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
 
-    container.permissionManager.markSending(656, "always", false);
+    container.permissionManager.markSending("656", "always", false);
 
     expect(container.permissionManager.settleRequest("perm-1", "always")).toEqual([
       expect.objectContaining({ outcome: { kind: "replied", reply: "always", outside: false } }),
@@ -539,7 +539,7 @@ describe("bot permission menu/callbacks", () => {
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
 
     const sendMessageMock = botApi.sendMessage as unknown as ReturnType<typeof vi.fn>;
-    sendMessageMock.mockResolvedValueOnce({ message_id: 701 });
+    sendMessageMock.mockResolvedValueOnce({ message_id: "701" });
     await showPermissionRequest(
       botApi,
       777,
@@ -563,7 +563,7 @@ describe("bot permission menu/callbacks", () => {
 
     expect(container.permissionManager.isActive()).toBe(true);
     expect(container.permissionManager.getPendingCount()).toBe(1);
-    expect(container.permissionManager.getRequestID(701)).toBe("perm-2");
+    expect(container.permissionManager.getRequestID("701")).toBe("perm-2");
 
     const stateAfterFirstReply = container.interactionManager.getSnapshot();
     expect(stateAfterFirstReply?.kind).toBe("permission");
@@ -595,14 +595,14 @@ describe("bot permission menu/callbacks", () => {
     const botApi = createBotApi(800);
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
     const sendMessageMock = botApi.sendMessage as unknown as ReturnType<typeof vi.fn>;
-    sendMessageMock.mockResolvedValueOnce({ message_id: 801 });
+    sendMessageMock.mockResolvedValueOnce({ message_id: "801" });
     await showPermissionRequest(
       botApi,
       777,
       createPermissionRequest("perm-2", { patterns: ["npm run build"] }),
       createDeps(),
     );
-    sendMessageMock.mockResolvedValueOnce({ message_id: 802 });
+    sendMessageMock.mockResolvedValueOnce({ message_id: "802" });
     await showPermissionRequest(
       botApi,
       777,
@@ -618,10 +618,10 @@ describe("bot permission menu/callbacks", () => {
 
     expect(mocked.permissionReplyMock).toHaveBeenCalledTimes(1);
     expect(deleteMessage).not.toHaveBeenCalled();
-    const rejected = getEditCalls(ctx).find((call) => call[1] === 801);
+    const rejected = getEditCalls(ctx).find((call) => call[1] === "801");
     expect(String(defined(rejected)[2]).endsWith(`\n${t("permission.outcome.reject")}`)).toBe(true);
-    expect(container.permissionManager.isActiveMessage(801)).toBe(false);
-    expect(container.permissionManager.isActiveMessage(802)).toBe(true);
+    expect(container.permissionManager.isActiveMessage("801")).toBe(false);
+    expect(container.permissionManager.isActiveMessage("802")).toBe(true);
     expect(container.permissionManager.isResolved("perm-2")).toBe(true);
   });
 
@@ -629,7 +629,7 @@ describe("bot permission menu/callbacks", () => {
     const botApi = createBotApi(810);
     await showPermissionRequest(botApi, 777, createPermissionRequest("perm-1"), createDeps());
     const sendMessageMock = botApi.sendMessage as unknown as ReturnType<typeof vi.fn>;
-    sendMessageMock.mockResolvedValueOnce({ message_id: 811 });
+    sendMessageMock.mockResolvedValueOnce({ message_id: "811" });
     await showPermissionRequest(
       botApi,
       777,
@@ -640,7 +640,7 @@ describe("bot permission menu/callbacks", () => {
     await handlePermissionCallback(createPermissionCallbackContext("permission:reject", 810), createDeps());
     await flushMicrotasks();
 
-    expect(container.permissionManager.isActiveMessage(811)).toBe(true);
+    expect(container.permissionManager.isActiveMessage("811")).toBe(true);
   });
 
   it("does not report an error when the permission request was already resolved", async () => {
@@ -677,12 +677,12 @@ describe("bot permission menu/callbacks", () => {
     await flushMicrotasks();
 
     const warning = getLastEdit(ctx);
-    expect(warning.messageId).toBe(751);
+    expect(warning.messageId).toBe("751");
     expect(warning.text.endsWith(`\n${t("permission.delivery_failed")}`)).toBe(true);
     expect(warning.options).toHaveProperty("reply_markup");
     expect(ctx.api.sendMessage).not.toHaveBeenCalled();
-    expect(container.permissionManager.isActiveMessage(751)).toBe(true);
-    expect(container.permissionManager.isSending(751)).toBe(false);
+    expect(container.permissionManager.isActiveMessage("751")).toBe(true);
+    expect(container.permissionManager.isSending("751")).toBe(false);
     expect(container.interactionManager.getSnapshot()?.kind).toBe("permission");
 
     const retryCtx = createPermissionCallbackContext("permission:once", 751);
@@ -713,7 +713,7 @@ describe("bot permission menu/callbacks", () => {
     await flushMicrotasks();
 
     expect(retryCtx.api.sendMessage).not.toHaveBeenCalled();
-    expect(container.permissionManager.isActiveMessage(755)).toBe(true);
+    expect(container.permissionManager.isActiveMessage("755")).toBe(true);
   });
 
   it("shows the warning when sending the answer throws", async () => {
@@ -726,7 +726,7 @@ describe("bot permission menu/callbacks", () => {
     await flushMicrotasks();
 
     expect(getLastEdit(ctx).text.endsWith(`\n${t("permission.delivery_failed")}`)).toBe(true);
-    expect(container.permissionManager.isActiveMessage(752)).toBe(true);
+    expect(container.permissionManager.isActiveMessage("752")).toBe(true);
   });
 
   it("sends the warning as a message when the prompt cannot be edited", async () => {
@@ -758,7 +758,7 @@ describe("bot permission menu/callbacks", () => {
     await handlePermissionCallback(ctx, createDeps());
     await flushMicrotasks();
 
-    expect(container.permissionManager.getRequestIDs(754)).toEqual(["perm-2"]);
+    expect(container.permissionManager.getRequestIDs("754")).toEqual(["perm-2"]);
     const warning = getLastEdit(ctx);
     expect(warning.text).not.toContain(t("permission.grouped_count", { count: 2 }));
     expect(warning.text.endsWith(`\n${t("permission.delivery_failed")}`)).toBe(true);

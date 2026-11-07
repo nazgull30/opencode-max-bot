@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { t } from "../../../src/i18n/index.js";
 
 const mocked = vi.hoisted(() => ({
@@ -35,7 +35,7 @@ vi.mock("../../../src/opencode/process.js", () => ({
   clearStandServerPid: mocked.clearStandServerPidMock,
 }));
 
-vi.mock("../../../src/bot/messages/telegram-text.js", () => ({
+vi.mock("../../../src/bot/messages/max-text.js", () => ({
   editBotText: mocked.editBotTextMock,
 }));
 
@@ -139,7 +139,7 @@ describe("bot/commands/opencode-stop-command", () => {
 
   it("warns when running in a container even if the API URL is local", async () => {
     const ctx = createContext();
-    vi.stubEnv("OPENCODE_TELEGRAM_CONTAINER", "1");
+    vi.stubEnv("OPENCODE_MAX_CONTAINER", "1");
 
     await opencodeStopCommand(ctx as never, createDeps());
 

@@ -1,4 +1,4 @@
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFunction } from "../../max/compat.js";
 import { extractCommandName, isKnownCommand } from "../routers/command-utils.js";
 import { logger } from "../../utils/logger.js";
 import { t } from "../../i18n/index.js";

@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import { t } from "../../i18n/index.js";
 
 export async function replyBusyBlocked(ctx: Context): Promise<void> {

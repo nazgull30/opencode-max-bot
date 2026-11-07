@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../../src/max/compat.js";
 import {
   appendInlineMenuCancelButton,
   ensureActiveInlineMenu,
@@ -16,7 +16,7 @@ let deps: AppContainer;
 function createReplyContext(messageId: number = 1): Context {
   return {
     chat: { id: 100 },
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
@@ -27,7 +27,7 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
@@ -116,7 +116,7 @@ describe("bot/menus/inline-menu", () => {
     expect(state?.kind).toBe("inline");
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.menuKind).toBe("model");
-    expect(state?.metadata.messageId).toBe(42);
+    expect(state?.metadata.messageId).toBe("42");
     expect(state?.metadata.modelLists).toEqual({
       favorites: [{ providerID: "openai", modelID: "gpt-4o" }],
       recent: [],
@@ -144,7 +144,7 @@ describe("bot/menus/inline-menu", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 99,
+        messageId: "99",
       },
     });
 
@@ -162,7 +162,7 @@ describe("bot/menus/inline-menu", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "project",
-        messageId: 10,
+        messageId: "10",
       },
     });
 
@@ -183,7 +183,7 @@ describe("bot/menus/inline-menu", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "variant",
-        messageId: 777,
+        messageId: "777",
       },
     });
 
@@ -203,7 +203,7 @@ describe("bot/menus/inline-menu", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "context",
-        messageId: 555,
+        messageId: "555",
       },
     });
 

@@ -623,7 +623,7 @@ function toFieldAnswer(
   }
 }
 
-/** Converts the per-question answers of the Telegram question UI back into a V2 form answer. */
+/** Converts the per-question answers of the MAX question UI back into a V2 form answer. */
 export function toFormAnswer(
   form: FormInfo,
   answers: ReadonlyArray<ReadonlyArray<string>>,

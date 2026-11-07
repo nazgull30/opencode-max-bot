@@ -1,26 +1,26 @@
-import { InputFile, type Bot, type Context } from "grammy";
+import { InputFile, type Api } from "../../max/compat.js";
 import type { CodeFileData } from "../../app/formatters/summary-formatter.js";
 import { logger } from "../../utils/logger.js";
 import {
   AGENT_TEXT_LINK_PREVIEW_OPTIONS,
   completeDraftPart,
   editRenderedBotPart,
-  getTelegramRenderedPartSignature,
+  getMAXRenderedPartSignature,
   sendDraftBotPart,
   sendRenderedBotPart,
-} from "../messages/telegram-text.js";
-import type { TelegramRenderedPart } from "../render/types.js";
+} from "../messages/max-text.js";
+import type { MAXRenderedPart } from "../render/types.js";
 
-type TelegramApi = Bot<Context>["api"];
-type SendMessageOptions = Parameters<TelegramApi["sendMessage"]>[2];
-type SendDocumentOptions = Parameters<TelegramApi["sendDocument"]>[2];
+type MAXApi = Api;
+type SendMessageOptions = Parameters<MAXApi["sendMessage"]>[2];
+type SendDocumentOptions = Parameters<MAXApi["sendDocument"]>[2];
 type RenderedSendOptions = Parameters<typeof sendRenderedBotPart>[0]["options"];
 type RenderedEditOptions = Parameters<typeof editRenderedBotPart>[0]["options"];
 type DraftCompleteOptions = Parameters<typeof completeDraftPart>[0]["options"];
 
 /** Where a session's messages go. */
-export interface TelegramDestination {
-  api: TelegramApi;
+export interface MaxDestination {
+  api: MAXApi;
   chatId: number;
 }
 
@@ -29,7 +29,7 @@ export interface TelegramDestination {
  * the user follows. The two answers are independent on purpose.
  */
 export interface SessionTargetPolicy {
-  getDestination(sessionId: string): TelegramDestination | null;
+  getDestination(sessionId: string): MaxDestination | null;
   isForegroundSession(sessionId: string): boolean;
 }
 
@@ -45,30 +45,31 @@ function isMessageToDeleteMissingError(error: unknown): boolean {
   const errorMessage = getLowerCaseErrorMessage(error);
   return (
     errorMessage.includes("message to delete not found") ||
-    errorMessage.includes("message identifier is not specified")
+    errorMessage.includes("message identifier is not specified") ||
+    errorMessage.includes("message not found")
   );
 }
 
 /**
- * Telegram primitives for the event bridge. Every call names its destination;
- * only "not modified" edits and already-missing deletes are tolerated, anything
- * else (a 429 included) reaches the caller so the streamers can retry.
+ * MAX primitives for the event bridge. Every call names its destination; only
+ * "not modified" edits and already-missing deletes are tolerated, anything else
+ * reaches the caller so the streamers can retry.
  */
-export class TelegramEventDelivery {
+export class MaxEventDelivery {
   private nextDraftId = 1;
 
   async sendText(
-    destination: TelegramDestination,
+    destination: MaxDestination,
     text: string,
     options?: SendMessageOptions,
-  ): Promise<number> {
+  ): Promise<string> {
     const sentMessage = options
       ? await destination.api.sendMessage(destination.chatId, text, options)
       : await destination.api.sendMessage(destination.chatId, text);
     return sentMessage.message_id;
   }
 
-  async editText(destination: TelegramDestination, messageId: number, text: string): Promise<void> {
+  async editText(destination: MaxDestination, messageId: string, text: string): Promise<void> {
     try {
       await destination.api.editMessageText(destination.chatId, messageId, text);
     } catch (error) {
@@ -80,7 +81,7 @@ export class TelegramEventDelivery {
     }
   }
 
-  async deleteText(destination: TelegramDestination, messageId: number): Promise<void> {
+  async deleteText(destination: MaxDestination, messageId: string): Promise<void> {
     await destination.api.deleteMessage(destination.chatId, messageId).catch((error) => {
       if (isMessageToDeleteMissingError(error)) {
         return;
@@ -91,14 +92,12 @@ export class TelegramEventDelivery {
   }
 
   async sendDocument(
-    destination: TelegramDestination,
+    destination: MaxDestination,
     fileData: CodeFileData,
     options?: SendDocumentOptions,
   ): Promise<void> {
     logger.debug(`[Bot] Sending code file: ${fileData.filename} (${fileData.buffer.length} bytes)`);
 
-    // Hand the buffer straight to grammY: no temp file on disk, so no writable
-    // install directory to depend on and no name collisions between uploads.
     await destination.api.sendDocument(
       destination.chatId,
       new InputFile(fileData.buffer, fileData.filename),
@@ -110,8 +109,8 @@ export class TelegramEventDelivery {
   }
 
   sendRenderedPart(
-    destination: TelegramDestination,
-    part: TelegramRenderedPart,
+    destination: MaxDestination,
+    part: MAXRenderedPart,
     options?: RenderedSendOptions,
     allowPlainFallback?: boolean,
   ) {
@@ -125,9 +124,9 @@ export class TelegramEventDelivery {
   }
 
   async editRenderedPart(
-    destination: TelegramDestination,
-    messageId: number,
-    part: TelegramRenderedPart,
+    destination: MaxDestination,
+    messageId: string,
+    part: MAXRenderedPart,
     options?: RenderedEditOptions,
   ) {
     try {
@@ -141,22 +140,22 @@ export class TelegramEventDelivery {
       });
     } catch (error) {
       if (isMessageNotModifiedError(error)) {
-        return { deliveredSignature: getTelegramRenderedPartSignature(part) };
+        return { deliveredSignature: getMAXRenderedPartSignature(part) };
       }
 
       throw error;
     }
   }
 
-  /** Starts a new draft; its id is the stream's message id from then on. */
-  async sendDraftPart(destination: TelegramDestination, part: TelegramRenderedPart) {
+  /** MAX has no drafts; a draft is an ordinary message that is edited in place. */
+  async sendDraftPart(destination: MaxDestination, part: MAXRenderedPart) {
     const draftId = this.nextDraftId;
     this.nextDraftId += 1;
     const result = await this.editDraftPart(destination, draftId, part);
-    return { messageId: draftId, deliveredSignature: result.deliveredSignature };
+    return { messageId: String(draftId), deliveredSignature: result.deliveredSignature };
   }
 
-  editDraftPart(destination: TelegramDestination, draftId: number, part: TelegramRenderedPart) {
+  editDraftPart(destination: MaxDestination, draftId: string | number, part: MAXRenderedPart) {
     return sendDraftBotPart({
       api: destination.api,
       chatId: destination.chatId,
@@ -166,8 +165,8 @@ export class TelegramEventDelivery {
   }
 
   completeDraftPart(
-    destination: TelegramDestination,
-    part: TelegramRenderedPart,
+    destination: MaxDestination,
+    part: MAXRenderedPart,
     options?: DraftCompleteOptions,
   ) {
     return completeDraftPart({

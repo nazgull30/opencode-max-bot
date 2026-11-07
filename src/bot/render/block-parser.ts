@@ -16,12 +16,12 @@ import { unified } from "unified";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import { extractInlinePlainText as extractInlineNodeText } from "./block-plain-text.js";
-import { normalizeMarkdownForTelegramBlockParsing } from "./markdown-normalizer.js";
+import { normalizeMarkdownForMAXBlockParsing } from "./markdown-normalizer.js";
 import type {
   InlineNode,
   TableColumnAlign,
-  TelegramBlock,
-  TelegramListItem,
+  MAXBlock,
+  MAXListItem,
 } from "./types.js";
 
 const markdownProcessor = unified().use(remarkParse).use(remarkGfm);
@@ -50,7 +50,7 @@ function prefixLines(text: string, prefix: string): string {
     .join("\n");
 }
 
-function createPlainBlock(text: string): TelegramBlock[] {
+function createPlainBlock(text: string): MAXBlock[] {
   const normalized = text.trim();
   if (!normalized) {
     return [];
@@ -151,7 +151,7 @@ function extractBlockPlainText(node: RootContent | ListItem): string {
 type InlineHtmlWrapper = Exclude<InlineNode["type"], "text" | "link">;
 
 /**
- * Inline HTML tags Telegram can express, mapped to the node that carries them.
+ * Inline HTML tags MAX can express, mapped to the node that carries them.
  * A tag outside this table stays visible as written: the markup may carry
  * meaning of its own, and dropping it would hide that from the reader.
  */
@@ -169,14 +169,14 @@ const INLINE_HTML_WRAPPERS = new Map<string, InlineHtmlWrapper>([
   ["sub", "subscript"],
   ["sup", "superscript"],
   ["mark", "marked"],
-  // Telegram has no keyboard tag; monowidth is the closest thing it draws.
+  // MAX has no keyboard tag; monowidth is the closest thing it draws.
   ["kbd", "code"],
   ["code", "code"],
 ]);
 
 const INLINE_HTML_TAG_PATTERN = /^<(\/?)([a-z][a-z0-9-]*)(?:\s[^>]*?)?\/?>$/i;
 
-/** Telegram's rich markdown marks text with `==`; remark leaves it in the text. */
+/** MAX's rich markdown marks text with `==`; remark leaves it in the text. */
 const MARKED_TEXT_PATTERN = /==(?=\S)([\s\S]*?\S)==/g;
 
 function parseInlineHtmlTag(value: string): { name: string; closing: boolean } | null {
@@ -340,7 +340,7 @@ function parseInlineNodes(nodes: PhrasingContent[]): InlineNode[] | null {
   return result;
 }
 
-function parseParagraphBlock(node: Paragraph): TelegramBlock[] {
+function parseParagraphBlock(node: Paragraph): MAXBlock[] {
   const inlines = parseInlineNodes(node.children);
   if (!inlines) {
     return createPlainBlock(extractBlockPlainText(node));
@@ -349,7 +349,7 @@ function parseParagraphBlock(node: Paragraph): TelegramBlock[] {
   return [{ type: "paragraph", inlines }];
 }
 
-function parseHeadingBlock(node: Heading): TelegramBlock[] {
+function parseHeadingBlock(node: Heading): MAXBlock[] {
   const inlines = parseInlineNodes(node.children);
   if (!inlines) {
     return createPlainBlock(extractBlockPlainText(node));
@@ -364,7 +364,7 @@ function parseHeadingBlock(node: Heading): TelegramBlock[] {
   ];
 }
 
-function parseBlockquoteBlock(node: Blockquote, depth: number): TelegramBlock[] {
+function parseBlockquoteBlock(node: Blockquote, depth: number): MAXBlock[] {
   if (depth >= MAX_NESTING_DEPTH) {
     return createPlainBlock(extractBlockPlainText(node));
   }
@@ -377,14 +377,14 @@ function parseBlockquoteBlock(node: Blockquote, depth: number): TelegramBlock[] 
   return [{ type: "blockquote", blocks }];
 }
 
-function parseListItem(item: ListItem, depth: number): TelegramListItem {
+function parseListItem(item: ListItem, depth: number): MAXListItem {
   return {
     blocks: item.children.flatMap((child) => parseRootContent(child, depth)),
     ...(typeof item.checked === "boolean" ? { checked: item.checked } : {}),
   };
 }
 
-function parseListBlock(node: List, depth: number): TelegramBlock[] {
+function parseListBlock(node: List, depth: number): MAXBlock[] {
   if (depth >= MAX_NESTING_DEPTH) {
     return createPlainBlock(extractBlockPlainText(node));
   }
@@ -397,7 +397,7 @@ function parseListBlock(node: List, depth: number): TelegramBlock[] {
   return [{ type: "list", ordered: Boolean(node.ordered), items }];
 }
 
-function parseCodeBlock(node: Code): TelegramBlock[] {
+function parseCodeBlock(node: Code): MAXBlock[] {
   return [{ type: "code", language: node.lang ?? undefined, text: node.value }];
 }
 
@@ -410,7 +410,7 @@ function parseColumnAlign(align: Table["align"]): TableColumnAlign[] | undefined
   return align.map((value) => value ?? "left");
 }
 
-function parseTableBlock(node: Table): TelegramBlock[] {
+function parseTableBlock(node: Table): MAXBlock[] {
   const rows = node.children.map((row) => row.children.map(extractTableCellPlainText));
   if (rows.length === 0) {
     return [];
@@ -420,7 +420,7 @@ function parseTableBlock(node: Table): TelegramBlock[] {
   return [{ type: "table", rows, ...(align ? { align } : {}) }];
 }
 
-function parseRootContent(node: RootContent, depth = 0): TelegramBlock[] {
+function parseRootContent(node: RootContent, depth = 0): MAXBlock[] {
   switch (node.type) {
     case "paragraph":
       return parseParagraphBlock(node);
@@ -441,8 +441,8 @@ function parseRootContent(node: RootContent, depth = 0): TelegramBlock[] {
   }
 }
 
-export function parseTelegramBlocks(markdown: string): TelegramBlock[] {
-  const normalized = normalizeMarkdownForTelegramBlockParsing(markdown).trim();
+export function parseMAXBlocks(markdown: string): MAXBlock[] {
+  const normalized = normalizeMarkdownForMAXBlockParsing(markdown).trim();
   if (!normalized) {
     return [];
   }

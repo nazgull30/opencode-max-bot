@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import {
   attachToSession,
   configureAttachPresentation,
@@ -131,7 +131,7 @@ function createDeps(): AppContainer {
 function createBot(): Bot<Context> {
   return {
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 1001 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "1001" }),
     },
   } as unknown as Bot<Context>;
 }
@@ -193,7 +193,7 @@ describe("attach/service", () => {
     mocked.pinnedGetStateMock.mockReset();
     mocked.pinnedGetStateMock.mockImplementation(() => ({
       sessionId: mocked.currentSession?.id ?? null,
-      messageId: 123,
+      messageId: "123",
     }));
     mocked.pinnedPrepareSessionChangeMock.mockReset();
     mocked.pinnedPrepareSessionChangeMock.mockResolvedValue(undefined);
@@ -227,7 +227,7 @@ describe("attach/service", () => {
   });
 
   it("draws the dashboard only after the session's updates are followed", async () => {
-    mocked.pinnedGetStateMock.mockReturnValueOnce({ sessionId: "other", messageId: 1 });
+    mocked.pinnedGetStateMock.mockReturnValueOnce({ sessionId: "other", messageId: "1" });
 
     await attachToSession({
       ...deps,
@@ -484,7 +484,7 @@ describe("attach/service", () => {
   it("reuses a saved pinned message after restart instead of recreating it", async () => {
     mocked.pinnedGetStateMock.mockReturnValueOnce({
       sessionId: null,
-      messageId: 123,
+      messageId: "123",
     });
 
     const restored = await restoreAttachedCurrentSession({
@@ -561,7 +561,7 @@ describe("attach/service", () => {
       metadata: {},
       always: [],
     };
-    container.permissionManager.startPermission(request, 501);
+    container.permissionManager.startPermission(request, "501");
     mocked.permissionListMock.mockResolvedValue({ data: [request], error: null });
 
     await restorePendingInteractionsAfterReconnect({ ...deps, bot: createBot(), chatId: 777 });
@@ -583,15 +583,15 @@ describe("attach/service", () => {
       container.attachManager.attach("session-1", "D:\\Projects\\Repo");
     });
 
-    it("ends a permission prompt OpenCode no longer lists as answered outside Telegram", async () => {
-      container.permissionManager.startPermission(permission, 501);
+    it("ends a permission prompt OpenCode no longer lists as answered outside MAX", async () => {
+      container.permissionManager.startPermission(permission, "501");
 
       await restorePendingInteractionsAfterReconnect({ ...deps, bot: createBot(), chatId: 777 });
 
       expect(mocked.applyPermissionPromptChangesMock).toHaveBeenCalledWith(
         expect.anything(),
         777,
-        [expect.objectContaining({ messageId: 501, outcome: { kind: "settled_outside" } })],
+        [expect.objectContaining({ messageId: "501", outcome: { kind: "settled_outside" } })],
         expect.anything(),
       );
       expect(container.permissionManager.isActive()).toBe(false);
@@ -610,14 +610,14 @@ describe("attach/service", () => {
       );
     });
 
-    it("leaves answers being sent from Telegram to that send", async () => {
-      container.permissionManager.startPermission(permission, 501);
-      container.permissionManager.markSending(501, "once", false);
+    it("leaves answers being sent from MAX to that send", async () => {
+      container.permissionManager.startPermission(permission, "501");
+      container.permissionManager.markSending("501", "once", false);
 
       await restorePendingInteractionsAfterReconnect({ ...deps, bot: createBot(), chatId: 777 });
 
       expect(mocked.applyPermissionPromptChangesMock).not.toHaveBeenCalled();
-      expect(container.permissionManager.isActiveMessage(501)).toBe(true);
+      expect(container.permissionManager.isActiveMessage("501")).toBe(true);
 
       container.permissionManager.clear();
       container.questionManager.startQuestions([], "question-1", "session-1");
@@ -652,22 +652,22 @@ describe("attach/service", () => {
 
     it("leaves a prompt that arrived while the lists were loading", async () => {
       mocked.permissionListMock.mockImplementation(async () => {
-        container.permissionManager.startPermission(permission, 502);
+        container.permissionManager.startPermission(permission, "502");
         return { data: [], error: null };
       });
 
       await restorePendingInteractionsAfterReconnect({ ...deps, bot: createBot(), chatId: 777 });
 
       expect(mocked.applyPermissionPromptChangesMock).not.toHaveBeenCalled();
-      expect(container.permissionManager.isActiveMessage(502)).toBe(true);
+      expect(container.permissionManager.isActiveMessage("502")).toBe(true);
       expect(container.permissionManager.isResolved("permission-1")).toBe(false);
     });
 
     it("does not restore a question released from the queue that is still being shown", async () => {
       container.interactionManager.setOnWaitingRequestReady(() => new Promise<void>(() => {}));
-      container.permissionManager.startPermission({ ...permission, id: "permission-2" }, 503);
+      container.permissionManager.startPermission({ ...permission, id: "permission-2" }, "503");
       container.interactionManager.waitQuestion([], "question-2", "session-1");
-      container.permissionManager.endPrompt(503, { kind: "replied", reply: "once", outside: false });
+      container.permissionManager.endPrompt("503", { kind: "replied", reply: "once", outside: false });
       container.interactionManager.clearKind("permission", "permission_replied");
       mocked.questionListMock.mockResolvedValue({
         data: [{ id: "question-2", sessionID: "session-1", questions: [] }],
@@ -681,18 +681,18 @@ describe("attach/service", () => {
     });
 
     it("checks nothing against a list that failed to load", async () => {
-      container.permissionManager.startPermission(permission, 501);
+      container.permissionManager.startPermission(permission, "501");
       mocked.permissionListMock.mockResolvedValue({ data: undefined, error: new Error("boom") });
 
       await restorePendingInteractionsAfterReconnect({ ...deps, bot: createBot(), chatId: 777 });
 
       expect(mocked.applyPermissionPromptChangesMock).not.toHaveBeenCalled();
-      expect(container.permissionManager.isActiveMessage(501)).toBe(true);
+      expect(container.permissionManager.isActiveMessage("501")).toBe(true);
     });
 
     describe("after the server restarted", () => {
       it("ends a permission prompt OpenCode no longer lists as not answered", async () => {
-        container.permissionManager.startPermission(permission, 501);
+        container.permissionManager.startPermission(permission, "501");
 
         await restorePendingInteractionsAfterReconnect(
           { ...deps, bot: createBot(), chatId: 777 },
@@ -702,7 +702,7 @@ describe("attach/service", () => {
         expect(mocked.applyPermissionPromptChangesMock).toHaveBeenCalledWith(
           expect.anything(),
           777,
-          [expect.objectContaining({ messageId: 501, outcome: { kind: "not_answered" } })],
+          [expect.objectContaining({ messageId: "501", outcome: { kind: "not_answered" } })],
           expect.anything(),
         );
       });

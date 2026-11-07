@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import {
   promptHandover,
   type ArrivalTicket,
@@ -333,7 +333,7 @@ async function notifyDeliveryFailure(sessionId: string): Promise<void> {
   }
 
   await deps.bot.api
-    .sendMessage(config.telegram.allowedUserId, t("bot.prompt_send_error"))
+    .sendMessage(config.max.allowedUserId, t("bot.prompt_send_error"))
     .catch((err) => {
       logger.error("[PromptHandover] Failed to report a handed-over prompt failure:", err);
     });

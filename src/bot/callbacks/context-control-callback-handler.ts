@@ -1,4 +1,4 @@
-import { Context } from "grammy";
+import { Context } from "../../max/compat.js";
 import { getStoredModel } from "../../app/services/model-selection-service.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { fetchSessionTitle, getCurrentSession } from "../../app/services/session-service.js";
@@ -50,7 +50,7 @@ export async function handleCompactDetails(ctx: Context, deps: InlineMenuDeps): 
 /**
  * Handle compact confirmation callback
  * Calls OpenCode API to compact the session
- * @param ctx grammY context
+ * @param ctx MAX context
  */
 export async function handleCompactConfirm(
   ctx: Context,

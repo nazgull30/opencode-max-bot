@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import { getProjectFolderName } from "./project-selection-menu.js";
 import type { RecentSession, RecentStatus } from "../../app/services/recent-sessions-service.js";
 import { t } from "../../i18n/index.js";

@@ -1,4 +1,4 @@
-import type { Api } from "grammy";
+import type { Api } from "../../max/compat.js";
 import { logger } from "../../utils/logger.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { getGitWorktreeContext } from "../../app/services/worktree-service.js";
@@ -88,7 +88,7 @@ export class PinnedMessageManager {
   private pendingUpdate = false;
   private pendingForceUpdate = false;
   private lastRenderedMessageText: string | null = null;
-  private leftoverUnpinMessageId: number | null = null;
+  private leftoverUnpinMessageId: string | null = null;
   private sessionGeneration = 0;
   private preparing: Promise<void> | null = null;
   private prepared: PreparedSession | null = null;
@@ -570,7 +570,7 @@ export class PinnedMessageManager {
 
   /**
    * Refresh the pinned message with current in-memory state.
-   * Used at thinking time to push accumulated silent updates to Telegram.
+   * Used at thinking time to push accumulated silent updates to MAX.
    */
   async refresh(): Promise<void> {
     await this.refreshProjectMetadata();
@@ -1146,7 +1146,7 @@ export class PinnedMessageManager {
     this.forgetOwnedDashboard();
   }
 
-  private async unpinMessageOrThrow(messageId: number): Promise<void> {
+  private async unpinMessageOrThrow(messageId: string): Promise<void> {
     if (!this.api || !this.chatId) {
       throw new Error("Pinned manager is not initialized");
     }
@@ -1206,7 +1206,7 @@ export class PinnedMessageManager {
     this.forgetOwnedDashboard();
   }
 
-  private async parkLeftoverDashboard(messageId: number): Promise<void> {
+  private async parkLeftoverDashboard(messageId: string): Promise<void> {
     const previousLeftoverId = this.leftoverUnpinMessageId;
     if (previousLeftoverId !== null && previousLeftoverId !== messageId) {
       // Retire the previously parked dashboard before its reference is replaced, so a failed
@@ -1384,7 +1384,7 @@ export class PinnedMessageManager {
     }
 
     try {
-      // Unpin only the message this bot owns: Telegram rate-limits unpinAllChatMessages
+      // Unpin only the message this bot owns: MAX rate-limits unpinAllChatMessages
       // hard, so it stalls every switch once a couple of them land close together.
       // No known dashboard means there is nothing to unpin.
       await this.unpinOwnedDashboard();

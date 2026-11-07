@@ -4,8 +4,8 @@ Instructions for AI agents working on this project.
 
 ## About the project
 
-**opencode-telegram-bot** is a Telegram bot that acts as a mobile client for OpenCode.
-It lets a user run and monitor coding tasks on a local machine through Telegram.
+**opencode-max-bot** is a MAX bot that acts as a mobile client for OpenCode.
+It lets a user run and monitor coding tasks on a local machine through MAX.
 
 Functional requirements, features, and development status are in [PRODUCT.md](./PRODUCT.md).
 
@@ -19,8 +19,7 @@ Functional requirements, features, and development status are in [PRODUCT.md](./
 
 ### Core dependencies
 
-- `grammy` - Telegram Bot API framework (https://grammy.dev/)
-- `@grammyjs/menu` - inline keyboards and menus
+- `@maxhub/max-bot-api` - official MAX Bot API client and framework
 - `@opencode-ai/sdk` - official OpenCode Server SDK
 - `dotenv` - environment variable loading
 
@@ -38,10 +37,10 @@ Functional requirements, features, and development status are in [PRODUCT.md](./
 
 ### Main components
 
-1. **Bot Layer** - grammY setup, middleware, commands, callback handlers
+1. **Bot Layer** - MAX SDK setup, middleware, commands, callback handlers
 2. **OpenCode Client Layer** - SDK wrapper and SSE event subscription
-3. **State Managers** - session/project/settings/question/permission/model/agent/variant/keyboard/pinned
-4. **Summary Pipeline** - event aggregation and Telegram-friendly formatting
+3. **State Managers** - session/project/settings/question/permission/model/agent/variant/inline-controls/dashboard
+4. **Summary Pipeline** - event aggregation and MAX-friendly formatting
 5. **Process Manager** - local OpenCode server process start, stop, and status
 6. **Runtime/CLI Layer** - runtime mode, config bootstrap, CLI commands
 7. **I18n Layer** - localized bot and CLI strings to multiple languages
@@ -49,8 +48,8 @@ Functional requirements, features, and development status are in [PRODUCT.md](./
 ### Data flow
 
 ```text
-Telegram User
-  -> Telegram Bot (grammY)
+MAX User
+  -> MAX Bot (@maxhub/max-bot-api)
   -> Managers + OpenCodeClient
   -> OpenCode Server
 
@@ -58,8 +57,8 @@ OpenCode Server
   -> SSE Events
   -> Event Listener
   -> Summary Aggregator / Tool Managers
-  -> Telegram Bot
-  -> Telegram User
+  -> MAX Bot
+  -> MAX User
 ```
 
 ### State management
@@ -146,7 +145,7 @@ If your shell runs on Windows:
 ### Language
 
 - Code, identifiers, comments, and in-code documentation must be in English.
-- User-facing Telegram messages should be localized through i18n.
+- User-facing MAX messages should be localized through i18n.
 
 ### Code style
 
@@ -192,7 +191,7 @@ const COMMAND_DEFINITIONS: BotCommandI18nDefinition[] = [
 Important:
 
 - When adding a command, update `definitions.ts` only.
-- The same source is used for Telegram `setMyCommands` and help/docs.
+- The same source is used for MAX bot commands (`PATCH /me/commands`) and help/docs.
 - Do not duplicate command lists elsewhere.
 
 ### Logging

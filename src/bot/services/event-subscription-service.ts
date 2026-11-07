@@ -1,4 +1,4 @@
-import { Bot, Context } from "grammy";
+import { Bot, Context } from "../../max/compat.js";
 import type { Event } from "@opencode-ai/sdk/v2";
 import { config } from "../../config.js";
 import { opencodeServerVersion } from "../../opencode/client.js";
@@ -20,8 +20,8 @@ import { SessionRuntimeState } from "../events/session-runtime-state.js";
 import { buildFailedToolEvent } from "../events/failed-tool-event.js";
 import type {
   SessionTargetPolicy,
-  TelegramDestination,
-} from "../events/telegram-event-delivery.js";
+  MaxDestination,
+} from "../events/max-event-delivery.js";
 import { createBackgroundNoticeDelivery } from "../events/background-notice-delivery.js";
 import { getReplyKeyboard } from "../events/handlers/handler-context.js";
 import { registerAssistantResponseHandlers } from "../events/handlers/assistant-response-handler.js";
@@ -33,7 +33,7 @@ import { registerGoalHandlers } from "../events/handlers/goal-handler.js";
 
 export interface BotEventSubscriptionService {
   ensureEventSubscription(directory: string): Promise<void>;
-  setTelegramContext(bot: Bot<Context> | null, chatId: number | null): void;
+  setMAXContext(bot: Bot<Context> | null, chatId: number | null): void;
   clearRuntimeState(reason: string): void;
   stopBackgroundOperations(reason: string, sessionId?: string): void;
   countBackgroundOperations(sessionId: string): number;
@@ -82,7 +82,7 @@ export function createEventSubscriptionService(
 }
 
 /**
- * Coordinates the OpenCode -> Telegram bridge: owns the subscription lifecycle
+ * Coordinates the OpenCode -> MAX bridge: owns the subscription lifecycle
  * and is the one place that decides where session messages go. Today every
  * session goes to the single chat, and the followed session is the foreground.
  */
@@ -103,7 +103,7 @@ class EventSubscriptionService implements BotEventSubscriptionService {
     setPromptResponseModeClearerForReconciliation(clearPromptResponseMode);
   }
 
-  setTelegramContext(bot: Bot<Context> | null, chatId: number | null): void {
+  setMAXContext(bot: Bot<Context> | null, chatId: number | null): void {
     this.botInstance = bot;
     this.chatIdInstance = chatId;
   }
@@ -136,7 +136,7 @@ class EventSubscriptionService implements BotEventSubscriptionService {
     stopEventListening();
     this.deps.summaryAggregator.clear();
     this.clearRuntimeState(reason);
-    this.setTelegramContext(null, null);
+    this.setMAXContext(null, null);
   }
 
   ensureEventSubscription = async (directory: string): Promise<void> => {
@@ -285,7 +285,7 @@ class EventSubscriptionService implements BotEventSubscriptionService {
     });
   }
 
-  private getChatDestination(): TelegramDestination | null {
+  private getChatDestination(): MaxDestination | null {
     if (!this.botInstance || !this.chatIdInstance) {
       return null;
     }

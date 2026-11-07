@@ -96,7 +96,7 @@ describe("pinned/manager", () => {
 
   beforeEach(() => {
     fakeApi = {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 999 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "999" }),
       editMessageText: vi.fn().mockResolvedValue(undefined),
       pinChatMessage: vi.fn().mockResolvedValue(undefined),
       unpinChatMessage: vi.fn().mockResolvedValue(undefined),
@@ -284,7 +284,7 @@ describe("pinned/manager", () => {
   });
 
   describe("refresh", () => {
-    it("calls editMessageText to push current state to Telegram", async () => {
+    it("calls editMessageText to push current state to MAX", async () => {
       // Set up state: create a pinned message first
       await pinnedMessageManager.onSessionChange("ses-1", "Test Session");
 
@@ -317,7 +317,7 @@ describe("pinned/manager", () => {
 
       expect(fakeApi.editMessageText).toHaveBeenCalledWith(
         123,
-        999,
+        "999",
         expect.stringContaining("Project: D:/repo: feature/mobile"),
       );
     });
@@ -664,21 +664,21 @@ describe("pinned/manager", () => {
       expect(fakeApi.editMessageText).toHaveBeenCalledTimes(2);
     });
 
-    it("recreates the pinned message when Telegram reports it was deleted", async () => {
+    it("recreates the pinned message when MAX reports it was deleted", async () => {
       fakeApi.editMessageText.mockRejectedValueOnce(
         new Error("Bad Request: message to edit not found"),
       );
-      fakeApi.sendMessage.mockResolvedValue({ message_id: 1001 });
+      fakeApi.sendMessage.mockResolvedValue({ message_id: "1001" });
 
       await pinnedMessageManager.onMessageComplete(tokens);
 
       expect(mocked.clearPinnedMessageId).toHaveBeenCalledTimes(1);
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
-      expect(mocked.setPinnedMessageId).toHaveBeenCalledWith(1001);
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 1001, {
+      expect(mocked.setPinnedMessageId).toHaveBeenCalledWith("1001");
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "1001", {
         disable_notification: true,
       });
-      expect(pinnedMessageManager.getState().messageId).toBe(1001);
+      expect(pinnedMessageManager.getState().messageId).toBe("1001");
     });
   });
 
@@ -848,7 +848,7 @@ describe("pinned/manager", () => {
 
   describe("restoreExistingSession", () => {
     beforeEach(() => {
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
     });
 
@@ -858,10 +858,10 @@ describe("pinned/manager", () => {
       expect(fakeApi.sendMessage).not.toHaveBeenCalled();
       expect(fakeApi.editMessageText).toHaveBeenCalledWith(
         123,
-        777,
+        "777",
         expect.stringContaining("Restored session"),
       );
-      expect(pinnedMessageManager.getState().messageId).toBe(777);
+      expect(pinnedMessageManager.getState().messageId).toBe("777");
     });
 
     it("restores the file diffs of the session it reattaches to", async () => {
@@ -876,7 +876,7 @@ describe("pinned/manager", () => {
       ]);
       expect(fakeApi.editMessageText).toHaveBeenLastCalledWith(
         123,
-        777,
+        "777",
         expect.stringContaining("src/a.ts (+4)"),
       );
     });
@@ -923,14 +923,14 @@ describe("pinned/manager", () => {
       await vi.waitFor(() => expect(pinnedMessageManager.getContextLimit()).toBe(1_000_000));
       expect(mocked.waitForModelContextLimit).toHaveBeenCalledWith("openai", "gpt-5");
       await vi.waitFor(() =>
-        expect(fakeApi.editMessageText).toHaveBeenCalledWith(123, 999, expect.any(String)),
+        expect(fakeApi.editMessageText).toHaveBeenCalledWith(123, "999", expect.any(String)),
       );
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
       await vi.waitFor(() => expect(keyboardUpdate).toHaveBeenLastCalledWith(0, 1_000_000));
     });
 
     it("fills in the limit after restoring an existing session", async () => {
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
       mocked.waitForModelContextLimit.mockResolvedValue(1_000_000);
 
@@ -972,7 +972,7 @@ describe("pinned/manager", () => {
 
         expect(fakeApi.editMessageText).toHaveBeenCalledWith(
           123,
-          999,
+          "999",
           expect.stringContaining("0/1000000"),
         );
         expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
@@ -993,7 +993,7 @@ describe("pinned/manager", () => {
         await vi.waitFor(() =>
           expect(fakeApi.editMessageText).toHaveBeenLastCalledWith(
             123,
-            999,
+            "999",
             expect.stringContaining("0/1000000"),
           ),
         );
@@ -1175,7 +1175,7 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.clear();
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
       expect(fakeApi.unpinAllChatMessages).not.toHaveBeenCalled();
       expect(mocked.clearPinnedMessageId).toHaveBeenCalled();
       expect(pinnedMessageManager.getState()).toMatchObject({
@@ -1194,7 +1194,7 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.clear();
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
       expect(pinnedMessageManager.getState()).toMatchObject({
         messageId: null,
         sessionId: null,
@@ -1215,7 +1215,7 @@ describe("pinned/manager", () => {
       expect(fakeApi.unpinChatMessage).not.toHaveBeenCalled();
     });
 
-    it("resets state without touching Telegram when not initialized", async () => {
+    it("resets state without touching MAX when not initialized", async () => {
       pinnedMessageManager = new PinnedMessageManager();
       fakeApi.unpinChatMessage.mockClear();
       fakeApi.unpinAllChatMessages.mockClear();
@@ -1238,7 +1238,7 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.onSessionChange("ses-2", "Other Session");
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
       expect(fakeApi.unpinAllChatMessages).not.toHaveBeenCalled();
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
     });
@@ -1246,17 +1246,17 @@ describe("pinned/manager", () => {
     it("retries a dashboard that failed to unpin before it loses its reference", async () => {
       await pinnedMessageManager.onSessionChange("ses-1", "Test Session");
       fakeApi.unpinChatMessage.mockRejectedValueOnce(new Error("Bad Request: too many requests"));
-      fakeApi.sendMessage.mockResolvedValueOnce({ message_id: 1000 });
+      fakeApi.sendMessage.mockResolvedValueOnce({ message_id: "1000" });
 
       await pinnedMessageManager.onSessionChange("ses-2", "Other Session");
 
       fakeApi.unpinChatMessage.mockClear();
-      fakeApi.sendMessage.mockResolvedValueOnce({ message_id: 1001 });
+      fakeApi.sendMessage.mockResolvedValueOnce({ message_id: "1001" });
 
       await pinnedMessageManager.onSessionChange("ses-3", "Third Session");
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 1000);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "1000");
     });
   });
 
@@ -1275,12 +1275,12 @@ describe("pinned/manager", () => {
 
     it("does not edit a leftover message on restore when off", async () => {
       mocked.getPinnedDashboardEnabled.mockReturnValue(false);
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
 
       await restoreSession("ses-1", "Restored session");
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 777);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "777");
       expect(fakeApi.editMessageText).not.toHaveBeenCalled();
       expect(fakeApi.sendMessage).not.toHaveBeenCalled();
       expect(fakeApi.pinChatMessage).not.toHaveBeenCalled();
@@ -1289,14 +1289,14 @@ describe("pinned/manager", () => {
 
     it("keeps the leftover id when restore unpin fails transiently", async () => {
       mocked.getPinnedDashboardEnabled.mockReturnValue(false);
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
       fakeApi.unpinChatMessage.mockRejectedValueOnce(new Error("Bad Request: too many requests"));
       mocked.clearPinnedMessageId.mockClear();
 
       await restoreSession("ses-1", "Restored session");
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 777);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "777");
       expect(mocked.clearPinnedMessageId).not.toHaveBeenCalled();
       expect(pinnedMessageManager.getState().messageId).toBeNull();
 
@@ -1304,16 +1304,16 @@ describe("pinned/manager", () => {
       fakeApi.sendMessage.mockClear();
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenLastCalledWith(123, 777);
+      expect(fakeApi.unpinChatMessage).toHaveBeenLastCalledWith(123, "777");
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 999, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "999", {
         disable_notification: true,
       });
     });
 
     it("forgets the leftover id when restore unpin says the message is gone", async () => {
       mocked.getPinnedDashboardEnabled.mockReturnValue(false);
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
       fakeApi.unpinChatMessage.mockRejectedValueOnce(
         new Error("Bad Request: message to unpin not found"),
@@ -1333,13 +1333,13 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.clear();
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
       expect(fakeApi.unpinAllChatMessages).not.toHaveBeenCalled();
     });
 
     it("keeps parked leftover ownership across clear while off", async () => {
       mocked.getPinnedDashboardEnabled.mockReturnValue(false);
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
       fakeApi.unpinChatMessage.mockRejectedValue(new Error("Bad Request: too many requests"));
       mocked.clearPinnedMessageId.mockClear();
@@ -1354,7 +1354,7 @@ describe("pinned/manager", () => {
       fakeApi.sendMessage.mockClear();
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenLastCalledWith(123, 777);
+      expect(fakeApi.unpinChatMessage).toHaveBeenLastCalledWith(123, "777");
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
     });
 
@@ -1393,7 +1393,7 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(false);
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
       expect(fakeApi.unpinAllChatMessages).not.toHaveBeenCalled();
       expect(mocked.clearPinnedMessageId).toHaveBeenCalled();
       expect(pinnedMessageManager.getState().messageId).toBeNull();
@@ -1402,14 +1402,14 @@ describe("pinned/manager", () => {
     it("unpins both owned dashboards when the setting is turned off", async () => {
       await pinnedMessageManager.onSessionChange("ses-1", "Test Session");
       fakeApi.unpinChatMessage.mockRejectedValueOnce(new Error("Bad Request: too many requests"));
-      fakeApi.sendMessage.mockResolvedValueOnce({ message_id: 1000 });
+      fakeApi.sendMessage.mockResolvedValueOnce({ message_id: "1000" });
       await pinnedMessageManager.onSessionChange("ses-2", "Other Session");
       fakeApi.unpinChatMessage.mockClear();
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(false);
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 1000);
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 999);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "1000");
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "999");
     });
 
     it("sends and pins a dashboard when turned on with a session", async () => {
@@ -1422,10 +1422,10 @@ describe("pinned/manager", () => {
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
       expect(String(defined(fakeApi.sendMessage.mock.calls[0]?.[1]))).toContain("D:/repo");
       expect(String(defined(fakeApi.sendMessage.mock.calls[0]?.[1]))).toContain("0/204800");
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 999, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "999", {
         disable_notification: true,
       });
-      expect(mocked.setPinnedMessageId).toHaveBeenCalledWith(999);
+      expect(mocked.setPinnedMessageId).toHaveBeenCalledWith("999");
     });
 
     it("does nothing when turned on with no session", async () => {
@@ -1439,7 +1439,7 @@ describe("pinned/manager", () => {
 
     it("unpins a parked leftover when turned on with no session", async () => {
       mocked.getPinnedDashboardEnabled.mockReturnValue(false);
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       mocked.getCurrentSession.mockReturnValue(undefined);
       pinnedMessageManager.initialize(fakeApi as never, 123);
       fakeApi.unpinChatMessage.mockRejectedValueOnce(new Error("Bad Request: too many requests"));
@@ -1449,7 +1449,7 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenLastCalledWith(123, 777);
+      expect(fakeApi.unpinChatMessage).toHaveBeenLastCalledWith(123, "777");
       expect(mocked.clearPinnedMessageId).toHaveBeenCalled();
       expect(fakeApi.sendMessage).not.toHaveBeenCalled();
     });
@@ -1461,7 +1461,7 @@ describe("pinned/manager", () => {
       await expect(pinnedMessageManager.applyPinnedDashboardEnabled(true)).rejects.toThrow(
         /too many requests/,
       );
-      expect(pinnedMessageManager.getState().messageId).toBe(999);
+      expect(pinnedMessageManager.getState().messageId).toBe("999");
       expect(mocked.setPinnedMessageId).not.toHaveBeenCalled();
       fakeApi.sendMessage.mockClear();
 
@@ -1469,14 +1469,14 @@ describe("pinned/manager", () => {
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
       expect(fakeApi.sendMessage).not.toHaveBeenCalled();
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 999, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "999", {
         disable_notification: true,
       });
     });
 
     it("does not pin a leftover dashboard after a session change while off", async () => {
       mocked.getPinnedDashboardEnabled.mockReturnValue(false);
-      mocked.getPinnedMessageId.mockReturnValue(777);
+      mocked.getPinnedMessageId.mockReturnValue("777");
       pinnedMessageManager.initialize(fakeApi as never, 123);
       fakeApi.unpinChatMessage.mockRejectedValue(new Error("Bad Request: too many requests"));
 
@@ -1487,17 +1487,17 @@ describe("pinned/manager", () => {
       fakeApi.unpinChatMessage.mockReset();
       fakeApi.unpinChatMessage.mockResolvedValue(undefined);
       fakeApi.sendMessage.mockClear();
-      fakeApi.sendMessage.mockResolvedValue({ message_id: 1005 });
+      fakeApi.sendMessage.mockResolvedValue({ message_id: "1005" });
       mocked.getCurrentSession.mockReturnValue({ id: "ses-2", title: "Other" });
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
-      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, 777);
+      expect(fakeApi.unpinChatMessage).toHaveBeenCalledWith(123, "777");
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 1005, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "1005", {
         disable_notification: true,
       });
-      expect(fakeApi.pinChatMessage).not.toHaveBeenCalledWith(123, 777, expect.anything());
+      expect(fakeApi.pinChatMessage).not.toHaveBeenCalledWith(123, "777", expect.anything());
     });
 
     it("creates the current dashboard when the session changes before retry", async () => {
@@ -1508,13 +1508,13 @@ describe("pinned/manager", () => {
 
       await pinnedMessageManager.onSessionChange("ses-2", "Other");
       fakeApi.sendMessage.mockClear();
-      fakeApi.sendMessage.mockResolvedValue({ message_id: 1002 });
+      fakeApi.sendMessage.mockResolvedValue({ message_id: "1002" });
       fakeApi.pinChatMessage.mockResolvedValue(undefined);
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 1002, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "1002", {
         disable_notification: true,
       });
     });
@@ -1527,13 +1527,13 @@ describe("pinned/manager", () => {
       pinnedMessageManager = new PinnedMessageManager();
       pinnedMessageManager.initialize(fakeApi as never, 123);
       fakeApi.sendMessage.mockClear();
-      fakeApi.sendMessage.mockResolvedValue({ message_id: 1003 });
+      fakeApi.sendMessage.mockResolvedValue({ message_id: "1003" });
       fakeApi.pinChatMessage.mockResolvedValue(undefined);
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 1003, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "1003", {
         disable_notification: true,
       });
     });
@@ -1547,12 +1547,12 @@ describe("pinned/manager", () => {
         /too many requests/,
       );
       fakeApi.sendMessage.mockClear();
-      fakeApi.sendMessage.mockResolvedValue({ message_id: 1004 });
+      fakeApi.sendMessage.mockResolvedValue({ message_id: "1004" });
 
       await pinnedMessageManager.applyPinnedDashboardEnabled(true);
 
       expect(fakeApi.sendMessage).toHaveBeenCalledTimes(1);
-      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, 1004, {
+      expect(fakeApi.pinChatMessage).toHaveBeenCalledWith(123, "1004", {
         disable_notification: true,
       });
     });
@@ -1613,7 +1613,7 @@ describe("pinned/manager", () => {
       await showSession("ses-1", "First");
       fakeApi.sendMessage.mockClear();
       fakeApi.editMessageText.mockClear();
-      fakeApi.sendMessage.mockResolvedValue({ message_id: 1000 });
+      fakeApi.sendMessage.mockResolvedValue({ message_id: "1000" });
       mocked.opencodeClient.session.messages.mockResolvedValue(history(5000, 0.25));
 
       await pinnedMessageManager.prepareSessionChange("ses-2", "Second", { directory: "D:/repo" });
@@ -1662,7 +1662,7 @@ describe("pinned/manager", () => {
 
       expect(fakeApi.sendMessage).not.toHaveBeenCalled();
       expect(pinnedMessageManager.getState().sessionId).toBe("ses-1");
-      expect(pinnedMessageManager.getState().messageId).toBe(999);
+      expect(pinnedMessageManager.getState().messageId).toBe("999");
     });
 
     it("sends nothing when the dashboard is cleared while a change loads", async () => {
@@ -1756,14 +1756,14 @@ describe("pinned/manager", () => {
       await queued[0]?.();
       expect(fakeApi.editMessageText).toHaveBeenCalledWith(
         123,
-        999,
+        "999",
         expect.stringContaining("$0.75"),
       );
     });
 
     describe("restoring after a restart", () => {
       beforeEach(() => {
-        mocked.getPinnedMessageId.mockReturnValue(777);
+        mocked.getPinnedMessageId.mockReturnValue("777");
         pinnedMessageManager.initialize(fakeApi as never, 123);
       });
 
@@ -1775,7 +1775,7 @@ describe("pinned/manager", () => {
         expect(fakeApi.editMessageText).toHaveBeenCalledTimes(1);
         expect(fakeApi.editMessageText).toHaveBeenCalledWith(
           123,
-          777,
+          "777",
           expect.stringContaining("3000/204800"),
         );
       });
@@ -1823,7 +1823,7 @@ describe("pinned/manager", () => {
 
         expect(fakeApi.editMessageText).toHaveBeenLastCalledWith(
           123,
-          999,
+          "999",
           expect.stringContaining("4000/204800"),
         );
       });

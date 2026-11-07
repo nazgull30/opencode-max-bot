@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import { t } from "../../i18n/index.js";
 import { formatTaskListBadge } from "../../app/formatters/scheduled-task-display-formatter.js";
 import type { ScheduledTask } from "../../app/types/scheduled-task.js";

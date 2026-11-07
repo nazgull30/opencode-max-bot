@@ -1,11 +1,11 @@
 import { config } from "../../config.js";
 import { logger } from "../../utils/logger.js";
-import { chunkPlainText, chunkTelegramRenderedBlocks } from "../render/chunker.js";
-import { renderTelegramBlocks, renderTelegramParts, toRenderedBlocks } from "../render/pipeline.js";
-import type { TelegramRenderedBlock, TelegramRenderedPart } from "../render/types.js";
+import { chunkPlainText, chunkMAXRenderedBlocks } from "../render/chunker.js";
+import { renderMAXBlocks, renderMAXParts, toRenderedBlocks } from "../render/pipeline.js";
+import type { MAXRenderedBlock, MAXRenderedPart } from "../render/types.js";
 import type { StreamingMessagePayload } from "../streaming/response-streamer.js";
 
-export function createPlainRenderedParts(text: string): TelegramRenderedPart[] {
+export function createPlainRenderedParts(text: string): MAXRenderedPart[] {
   return chunkPlainText(text);
 }
 
@@ -13,13 +13,13 @@ function useAssistantEntitiesFormat(): boolean {
   return config.bot.messageFormatMode === "markdown";
 }
 
-function renderAssistantBlocksSafe(text: string): TelegramRenderedBlock[] {
+function renderAssistantBlocksSafe(text: string): MAXRenderedBlock[] {
   if (!text) {
     return [];
   }
 
   try {
-    return renderTelegramBlocks(text);
+    return renderMAXBlocks(text);
   } catch (error) {
     logger.warn(
       "[AssistantRender] Block rendering failed, falling back to plain streaming block",
@@ -29,7 +29,7 @@ function renderAssistantBlocksSafe(text: string): TelegramRenderedBlock[] {
   }
 }
 
-export function renderAssistantFinalPartsSafe(text: string): TelegramRenderedPart[] {
+export function renderAssistantFinalPartsSafe(text: string): MAXRenderedPart[] {
   if (!text) {
     return [];
   }
@@ -47,7 +47,7 @@ export function renderAssistantFinalPartsSafe(text: string): TelegramRenderedPar
   }
 
   try {
-    const parts = renderTelegramParts(text);
+    const parts = renderMAXParts(text);
     logger.debug("[AssistantRender] Built final assistant parts in blocks mode", {
       formatMode,
       textLength: text.length,
@@ -84,9 +84,9 @@ function getStableStreamingBoundary(messageText: string): number {
  * is structurally complete and gets parsed, the trailing tail stays literal
  * until its block is finished.
  */
-export function buildStreamingBlocks(messageText: string): TelegramRenderedBlock[] {
+export function buildStreamingBlocks(messageText: string): MAXRenderedBlock[] {
   const stableBoundary = getStableStreamingBoundary(messageText);
-  const blocks: TelegramRenderedBlock[] = [];
+  const blocks: MAXRenderedBlock[] = [];
 
   if (stableBoundary > 0) {
     blocks.push(...renderAssistantBlocksSafe(messageText.slice(0, stableBoundary)));
@@ -120,7 +120,7 @@ export function prepareAssistantStreamingPayload(
   }
 
   const blocks = buildStreamingBlocks(messageText);
-  const parts = chunkTelegramRenderedBlocks(blocks);
+  const parts = chunkMAXRenderedBlocks(blocks);
   logger.debug("[AssistantRender] Built streaming assistant payload in blocks mode", {
     formatMode,
     textLength: messageText.length,

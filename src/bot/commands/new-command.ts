@@ -1,6 +1,6 @@
-import type { Bot } from "grammy";
+import type { Bot } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { setCurrentSession } from "../../app/services/session-service.js";
 import type { SessionInfo } from "../../app/types/session.js";

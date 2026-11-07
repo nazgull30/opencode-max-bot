@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import {
   calculateMessagesPaginationRange,
   parseMessagePageCallback,
@@ -86,7 +86,7 @@ vi.mock("../../../src/opencode/client.js", () => ({
 function createCommandContext(messageId: number): Context {
   return {
     chat: { id: 777 },
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
@@ -98,14 +98,14 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 999 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "999" }),
     },
   } as unknown as Context;
 }
@@ -136,7 +136,7 @@ beforeEach(() => {
     } as never,
     bot: {
       api: {
-        sendMessage: vi.fn().mockResolvedValue({ message_id: 999 }),
+        sendMessage: vi.fn().mockResolvedValue({ message_id: "999" }),
       },
     },
   } as unknown as MessagesCallbackDeps;
@@ -247,7 +247,7 @@ describe("bot/commands/messages", () => {
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.flow).toBe("messages");
     expect(state?.metadata.stage).toBe("list");
-    expect(state?.metadata.messageId).toBe(200);
+    expect(state?.metadata.messageId).toBe("200");
     expect(state?.metadata.messages).toEqual([
       { id: "new", text: "newer prompt with\nline break", created: newTime },
       { id: "old", text: "older prompt", created: oldTime },
@@ -328,7 +328,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "list",
-        messageId: 300,
+        messageId: "300",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -358,7 +358,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "list",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages: [{ id: "msg-1", text: "full prompt text", created }],
@@ -390,7 +390,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 500,
+        messageId: "500",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -418,7 +418,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 500,
+        messageId: "500",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -446,7 +446,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "list",
-        messageId: 501,
+        messageId: "501",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -473,7 +473,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -508,7 +508,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -541,7 +541,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "list",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -569,7 +569,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -622,7 +622,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -668,7 +668,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages: [{ id: "msg-1", text: "test prompt", created: 1000 }],
@@ -709,8 +709,11 @@ describe("bot/commands/messages", () => {
     await vi.waitFor(() => {
       expect(sendMessage).toHaveBeenCalledWith(
         777,
-        "See https://example.com/",
-        expect.objectContaining({ link_preview_options: { is_disabled: false } }),
+        'See <a href="https://example.com/">https://example.com/</a>',
+        expect.objectContaining({
+          link_preview_options: { is_disabled: false },
+          parse_mode: "HTML",
+        }),
       );
     });
   });
@@ -723,7 +726,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "detail",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -756,7 +759,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "list",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages,
@@ -783,7 +786,7 @@ describe("bot/commands/messages", () => {
       metadata: {
         flow: "messages",
         stage: "list",
-        messageId: 700,
+        messageId: "700",
         projectDirectory: "D:\\Projects\\Repo",
         sessionId: "session-1",
         messages: [{ id: "msg-1", text: "text", created: 1000 }],

@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import type { PermissionReply } from "../../app/types/permission.js";
 import { opencodeClient, opencodeServerVersion } from "../../opencode/client.js";
@@ -13,14 +13,14 @@ import { t } from "../../i18n/index.js";
 import { logger } from "../../utils/logger.js";
 import { safeBackgroundTask } from "../../utils/safe-background-task.js";
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 function isPermissionReply(value: string): value is PermissionReply {
@@ -118,7 +118,7 @@ async function handlePermissionReply(
   deps: PermissionCallbackDeps,
   reply: PermissionReply,
   requestIDs: string[],
-  callbackMessageId: number | null,
+  callbackMessageId: string | null,
 ): Promise<void> {
   const currentProject = getCurrentProject();
   const currentSession = getCurrentSession();
@@ -225,7 +225,7 @@ interface PermissionReplyResults {
 }
 
 interface FinishedPermissionReply {
-  messageId: number;
+  messageId: string;
   sessionID: string | null;
   reply: PermissionReply;
   settlesSession: boolean;

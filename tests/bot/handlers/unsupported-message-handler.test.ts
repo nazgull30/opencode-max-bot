@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Mock } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 
 const warnMock = vi.hoisted(() => vi.fn());
 
@@ -27,7 +27,7 @@ function createContext(field: string, value: unknown = {}): {
   const ctx = {
     chat: { id: 42 },
     message: {
-      message_id: 7,
+      message_id: "7",
       date: 1,
       chat: { id: 42, type: "private" },
       [field]: value,
@@ -72,9 +72,9 @@ describe("bot/handlers/unsupported-message-handler", () => {
     expect(warnMock).toHaveBeenCalledWith(expect.stringContaining("types=video,animation"));
   });
 
-  it("keeps Telegram service messages silent", async () => {
+  it("keeps MAX service messages silent", async () => {
     warnMock.mockClear();
-    const { ctx, reply } = createContext("pinned_message", { message_id: 6 });
+    const { ctx, reply } = createContext("pinned_message", { message_id: "6" });
 
     await expect(handleUnsupportedMessage(ctx)).resolves.toBe(false);
 

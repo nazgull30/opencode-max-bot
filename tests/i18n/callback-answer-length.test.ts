@@ -78,7 +78,7 @@ describe("callback answer length", () => {
     expect(keys.has("common.cancelled")).toBe(true);
   });
 
-  it("keeps every callback answer within the Telegram limit in every locale", () => {
+  it("keeps every callback answer within the MAX limit in every locale", () => {
     const violations: string[] = [];
 
     for (const key of keys) {
@@ -97,6 +97,6 @@ describe("callback answer length", () => {
       }
     }
 
-    expect(violations, "callback answers exceeding the Telegram limit").toEqual([]);
+    expect(violations, "callback answers exceeding the MAX limit").toEqual([]);
   });
 });

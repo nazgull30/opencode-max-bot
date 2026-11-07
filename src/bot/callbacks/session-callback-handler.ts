@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { resolveProjectAgent } from "../../app/services/agent-selection-service.js";
@@ -22,7 +22,7 @@ import {
   AGENT_TEXT_LINK_PREVIEW_OPTIONS,
   sendBotText,
   sendRenderedBotPart,
-} from "../messages/telegram-text.js";
+} from "../messages/max-text.js";
 import {
   buildSessionPickQuote,
   findEligibleReply,
@@ -308,7 +308,7 @@ export async function selectSessionById(
 
   await ctx.answerCallbackQuery();
 
-  let loadingMessageId: number | null = null;
+  let loadingMessageId: string | null = null;
   if (ctx.chat) {
     try {
       const loadingMessage = await ctx.api.sendMessage(ctx.chat.id, t("sessions.loading_context"));
@@ -566,7 +566,7 @@ function waitForSessionPickSend(): Promise<void> {
 
 /**
  * Releases the outbound hold in the background: the deferred live-stream updates are
- * replayed at a send gap, and awaiting that here would block grammY's sequential update
+ * replayed at a send gap, and awaiting that here would block the bot's sequential update
  * loop for as long as the picked session keeps streaming.
  */
 function releaseSessionPickHold(

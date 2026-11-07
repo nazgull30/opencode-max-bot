@@ -1,16 +1,16 @@
-import { InputFile } from "grammy";
+import { InputFile } from "../../max/compat.js";
 import { prepareTtsResponseForSession, type TtsResult } from "../../app/services/tts-service.js";
 import { t } from "../../i18n/index.js";
 import { logger } from "../../utils/logger.js";
 import { getPromptResponseMode } from "./prompt.js";
 
-interface TelegramAudioApi {
+interface MAXAudioApi {
   sendAudio: (chatId: number, audio: InputFile) => Promise<unknown>;
   sendMessage: (chatId: number, text: string) => Promise<unknown>;
 }
 
 interface SendTtsResponseParams {
-  api: TelegramAudioApi;
+  api: MAXAudioApi;
   sessionId: string;
   chatId: number;
   text: string;

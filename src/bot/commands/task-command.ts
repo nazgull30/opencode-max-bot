@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { config } from "../../config.js";
 import { getDateLocale, t } from "../../i18n/index.js";
@@ -31,7 +31,7 @@ interface TaskInteractionMetadata {
   stage: "awaiting_schedule" | "parsing_schedule" | "awaiting_prompt";
   projectId: string;
   projectWorktree: string;
-  previewMessageId?: number;
+  previewMessageId?: string;
 }
 
 function clearTaskInteraction(deps: TaskCommandDeps, reason: string): void {
@@ -226,7 +226,7 @@ function buildTaskInteractionMetadata(
   stage: TaskInteractionMetadata["stage"],
   projectId: string,
   projectWorktree: string,
-  previewMessageId?: number,
+  previewMessageId?: string,
 ): Record<string, unknown> {
   return {
     flow: "task",
@@ -243,9 +243,9 @@ function isTaskInteraction(state: InteractionState | null): boolean {
 
 async function deleteMessageIfPresent(
   ctx: Context,
-  messageId: number | null | undefined,
+  messageId: string | null | undefined,
 ): Promise<void> {
-  if (!ctx.chat || typeof messageId !== "number") {
+  if (!ctx.chat || typeof messageId !== "string") {
     return;
   }
 

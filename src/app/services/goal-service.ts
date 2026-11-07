@@ -28,7 +28,7 @@ type GoalSnapshotListener = () => void | Promise<void>;
 
 /**
  * Reads and changes the followed session's server goal. It decides when a
- * pause or completion should be told; it does not send Telegram messages.
+ * pause or completion should be told; it does not send MAX messages.
  */
 export class GoalService {
   private capability: "unknown" | "supported" | "unsupported" = "unknown";

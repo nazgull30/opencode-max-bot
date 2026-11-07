@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import { commandsCommand } from "../../../src/bot/commands/command-catalog-command.js";
 import {
   handleCommandsCallback,
@@ -106,12 +106,12 @@ vi.mock("../../../src/app/services/attach-service.js", () => ({
 function createCommandContext(messageId: number): Context {
   return {
     chat: { id: 777 },
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 900 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "900" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -123,15 +123,15 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
-    reply: vi.fn().mockResolvedValue({ message_id: 901 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "901" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 902 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "902" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -141,12 +141,12 @@ function createTextContext(text: string): Context {
   return {
     chat: { id: 777 },
     message: { text } as Context["message"],
-    reply: vi.fn().mockResolvedValue({ message_id: 903 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "903" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 904 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "904" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -267,7 +267,7 @@ describe("bot/commands/commands", () => {
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.flow).toBe("commands");
     expect(state?.metadata.stage).toBe("list");
-    expect(state?.metadata.messageId).toBe(123);
+    expect(state?.metadata.messageId).toBe("123");
   });
 
   it("transitions to confirmation step after selecting command", async () => {
@@ -277,7 +277,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "list",
-        messageId: 321,
+        messageId: "321",
         projectDirectory: "D:\\Projects\\Repo",
         commands: [
           { name: "init", description: "create/update AGENTS.md" },
@@ -310,7 +310,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -363,7 +363,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -389,7 +389,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 500,
+        messageId: "500",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -402,7 +402,7 @@ describe("bot/commands/commands", () => {
 
     expect(handled).toBe(true);
     expect(container.interactionManager.getSnapshot()).toBeNull();
-    expect(ctx.api.deleteMessage).toHaveBeenCalledWith(777, 500);
+    expect(ctx.api.deleteMessage).toHaveBeenCalledWith(777, "500");
     expect(ctx.reply).toHaveBeenCalledWith(
       `${t("commands.executing_prefix")}\n/poem about spring`,
       {
@@ -431,7 +431,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -453,7 +453,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -480,7 +480,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -508,7 +508,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -541,7 +541,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -566,7 +566,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         commandName: "poem",
       },
@@ -592,7 +592,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "list",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         commands: [{ name: "init", description: "create/update AGENTS.md" }],
       },
@@ -688,7 +688,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "list",
-        messageId: 800,
+        messageId: "800",
         projectDirectory: "D:\\Projects\\Repo",
         commands,
         page: 0,
@@ -731,7 +731,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "list",
-        messageId: 900,
+        messageId: "900",
         projectDirectory: "D:\\Projects\\Repo",
         commands,
         page: 0,
@@ -760,7 +760,7 @@ describe("bot/commands/commands", () => {
       metadata: {
         flow: "commands",
         stage: "list",
-        messageId: 1000,
+        messageId: "1000",
         projectDirectory: "D:\\Projects\\Repo",
         commands,
         page: 1,

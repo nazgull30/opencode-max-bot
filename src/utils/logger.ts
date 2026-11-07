@@ -23,7 +23,7 @@ let logFilePath: string | null = null;
 let initializePromise: Promise<void> | null = null;
 let cleanupPromise: Promise<void> | null = null;
 let streamErrorReported = false;
-const CONSOLE_BROKEN_KEY = "__opencodeTelegramBotConsoleOutputBroken";
+const CONSOLE_BROKEN_KEY = "__opencodeMAXBotConsoleOutputBroken";
 
 function normalizeLogLevel(value: string): LogLevel {
   if (value in LOG_LEVELS) {
@@ -161,7 +161,7 @@ function isConsoleOutputBroken(): boolean {
 // "error" listener, Node escalates that to an uncaught exception, whose
 // handler logs through this same console — an unbounded loop that grew a
 // log file to 2 GB once. Swallow EPIPE and stop console logging instead.
-const CONSOLE_PIPE_GUARD_KEY = "__opencodeTelegramBotConsolePipeGuardInstalled";
+const CONSOLE_PIPE_GUARD_KEY = "__opencodeMAXBotConsolePipeGuardInstalled";
 
 function installConsolePipeGuard(): void {
   if ((globalThis as Record<string, unknown>)[CONSOLE_PIPE_GUARD_KEY]) {

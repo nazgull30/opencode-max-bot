@@ -17,7 +17,7 @@ export interface TokensInfo {
  * State of the pinned status message
  */
 export interface PinnedMessageState {
-  messageId: number | null;
+  messageId: string | null;
   chatId: number | null;
   sessionId: string | null;
   sessionTitle: string;

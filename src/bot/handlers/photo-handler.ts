@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import { createIncomingPrompt, type IncomingPrompt } from "../../app/types/prompt.js";
 import { flushPendingPrompt } from "./message-merger.js";
 import { processUserPrompt, type ProcessPromptDeps } from "./prompt.js";
@@ -26,14 +26,19 @@ export async function handlePhotoMessage(ctx: Context, deps: PhotoHandlerDeps): 
   const ticket = takeArrivalTicket();
 
   const caption = ctx.message.caption || "";
-  const largestPhoto = photos[photos.length - 1];
-  if (!largestPhoto) {
-    return;
-  }
-  const input = createIncomingPrompt(caption, {
-    photos: [{ fileId: largestPhoto.file_id, filename: "photo.jpg", source: "standalone" }],
-  });
-  if (await rejectQueuedMediaBeforePreparation(ctx, largestPhoto.file_size)) {
+  // MAX delivers several images of one message in a single photo array; each
+  // carries its own encoded file id. Thumbnail size variants share one
+  // image, so keep the largest of those.
+  const maxPhotos = photos.filter((photo) => photo.file_id.startsWith("maxfile:"));
+  const selectedPhotos = maxPhotos.length > 0 ? maxPhotos : photos.slice(-1);
+  const photoInputs = selectedPhotos.map((photo, index) => ({
+    fileId: photo.file_id,
+    filename: selectedPhotos.length > 1 ? `photo-${index + 1}.jpg` : "photo.jpg",
+    source: "standalone" as const,
+  }));
+  const mediaBytes = selectedPhotos.reduce((total, photo) => total + (photo.file_size ?? 0), 0);
+  const input = createIncomingPrompt(caption, { photos: photoInputs });
+  if (await rejectQueuedMediaBeforePreparation(ctx, mediaBytes || undefined)) {
     return;
   }
   if (
@@ -42,7 +47,7 @@ export async function handlePhotoMessage(ctx: Context, deps: PhotoHandlerDeps): 
       {
         ...input,
         displayText: caption.trim() || "[Photo]",
-        ...(largestPhoto.file_size === undefined ? {} : { mediaBytes: largestPhoto.file_size }),
+        ...(mediaBytes > 0 ? { mediaBytes } : {}),
       },
       ticket,
     )

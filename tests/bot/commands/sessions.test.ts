@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import {
   handleBackgroundSessionOpen,
   handleSessionSearchCallback,
@@ -145,11 +145,11 @@ function createSessionMessage(
 function createCommandContext(): Context {
   return {
     chat: { id: 111 },
-    reply: vi.fn().mockResolvedValue({ message_id: 456 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "456" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 999 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "999" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
       editMessageText: vi.fn().mockResolvedValue(true),
     },
@@ -162,7 +162,7 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
@@ -171,7 +171,7 @@ function createCallbackContext(data: string, messageId: number): Context {
     editMessageReplyMarkup: vi.fn().mockResolvedValue(undefined),
     reply: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 888 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "888" }),
       sendRichMessage: vi
         .fn()
         .mockRejectedValue(
@@ -291,7 +291,7 @@ describe("bot/commands/sessions", () => {
     startInteractionForTest(container.interactionManager, {
       kind: "inline",
       expectedInput: "callback",
-      metadata: { menuKind: "session", messageId: 456 },
+      metadata: { menuKind: "session", messageId: "456" },
     });
     const search = createCallbackContext("session:search", 456);
     await handleSessionSearchCallback(search, createDeps());
@@ -405,7 +405,7 @@ describe("bot/commands/sessions", () => {
     startInteractionForTest(container.interactionManager, {
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "model-search", stage: "results", messageId: 456 },
+      metadata: { flow: "model-search", stage: "results", messageId: "456" },
     });
 
     const ctx = createCallbackContext("session:search:result:0", 456);
@@ -508,7 +508,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -544,7 +544,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -579,7 +579,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -604,7 +604,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -631,7 +631,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -656,7 +656,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -737,7 +737,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -804,7 +804,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -865,7 +865,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -924,7 +924,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -964,7 +964,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -1012,7 +1012,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -1049,7 +1049,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -1072,7 +1072,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -1092,7 +1092,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -1114,14 +1114,14 @@ describe("bot/commands/sessions", () => {
       startInteractionForTest(container.interactionManager, {
         kind: "inline",
         expectedInput: "callback",
-        metadata: { menuKind: "session", messageId: 456 },
+        metadata: { menuKind: "session", messageId: "456" },
       });
 
       await handleSessionSelect(createCallbackContext("session:session-1", 456), createDeps());
     }
 
     it("redraws the dashboard of the re-selected session when the pull changed the model", async () => {
-      mocked.pinnedGetStateMock.mockReturnValue({ sessionId: "session-1", messageId: 999 });
+      mocked.pinnedGetStateMock.mockReturnValue({ sessionId: "session-1", messageId: "999" });
       mocked.applySessionSettingsMock.mockResolvedValue(true);
 
       await selectSessionOne();
@@ -1133,7 +1133,7 @@ describe("bot/commands/sessions", () => {
     });
 
     it("leaves the dashboard of the re-selected session alone when the model did not change", async () => {
-      mocked.pinnedGetStateMock.mockReturnValue({ sessionId: "session-1", messageId: 999 });
+      mocked.pinnedGetStateMock.mockReturnValue({ sessionId: "session-1", messageId: "999" });
 
       await selectSessionOne();
 
@@ -1141,7 +1141,7 @@ describe("bot/commands/sessions", () => {
     });
 
     it("leaves a switch to another session to the attach", async () => {
-      mocked.pinnedGetStateMock.mockReturnValue({ sessionId: "session-other", messageId: 999 });
+      mocked.pinnedGetStateMock.mockReturnValue({ sessionId: "session-other", messageId: "999" });
       mocked.applySessionSettingsMock.mockResolvedValue(true);
 
       await selectSessionOne();
@@ -1171,7 +1171,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "session",
-        messageId: 456,
+        messageId: "456",
       },
     });
 
@@ -1314,7 +1314,7 @@ describe("bot/commands/sessions", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "model",
-        messageId: 999,
+        messageId: "999",
       },
     });
 

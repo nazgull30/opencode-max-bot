@@ -1,4 +1,4 @@
-import { Context } from "grammy";
+import { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { setCurrentSession } from "../../app/services/session-service.js";
@@ -7,14 +7,14 @@ import { t } from "../../i18n/index.js";
 import { cancelPrompt } from "./feedback.js";
 import { RENAME_CANCEL_CALLBACK } from "../menus/rename-menu.js";
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 export type RenameCallbackDeps = Pick<

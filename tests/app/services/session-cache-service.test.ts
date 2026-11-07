@@ -73,8 +73,8 @@ describe("session-cache-service", () => {
   let tempHome: string;
 
   beforeEach(async () => {
-    tempHome = await createTestHome("opencode-telegram-cache-");
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", tempHome);
+    tempHome = await createTestHome("opencode-max-cache-");
+    vi.stubEnv("OPENCODE_MAX_HOME", tempHome);
     setRuntimeMode("installed");
     await loadSettings();
     sessionListMock.mockReset();

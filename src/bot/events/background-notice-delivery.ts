@@ -2,7 +2,7 @@ import { getShowBackgroundSessionNotifications } from "../../app/stores/settings
 import { t } from "../../i18n/index.js";
 import type { BackgroundSessionNotification } from "../../app/managers/background-session-manager.js";
 import { buildBackgroundSessionOpenKeyboard } from "../menus/session-selection-menu.js";
-import type { SessionTargetPolicy, TelegramEventDelivery } from "./telegram-event-delivery.js";
+import type { SessionTargetPolicy, MaxEventDelivery } from "./max-event-delivery.js";
 
 function formatShortSessionId(sessionId: string): string {
   return sessionId.length <= 8 ? sessionId : sessionId.slice(0, 8);
@@ -35,7 +35,7 @@ function formatBackgroundSessionNotification(notification: BackgroundSessionNoti
 /** Sends a background-session notice to the destination of its own session. */
 export function createBackgroundNoticeDelivery(
   policy: Pick<SessionTargetPolicy, "getDestination">,
-  delivery: TelegramEventDelivery,
+  delivery: MaxEventDelivery,
 ): (notification: BackgroundSessionNotification) => Promise<void> {
   return async (notification) => {
     if (!getShowBackgroundSessionNotifications()) {
