@@ -55,8 +55,8 @@ describe("app/stores/scheduled-task-store", () => {
   let tempHome: string;
 
   beforeEach(async () => {
-    tempHome = await createTestHome("opencode-telegram-task-store-");
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", tempHome);
+    tempHome = await createTestHome("opencode-max-task-store-");
+    vi.stubEnv("OPENCODE_MAX_HOME", tempHome);
     setRuntimeMode("installed");
     __resetSettingsForTests();
     await loadSettings();

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { renameCommand } from "../../../src/bot/commands/rename-command.js";
 import {
   handleRenameCancel,
@@ -37,7 +37,7 @@ vi.mock("../../../src/app/services/session-service.js", () => ({
 
 function createRenameCommandContext(messageId: number): Context {
   return {
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
   } as unknown as Context;
 }
 
@@ -57,7 +57,7 @@ function createRenameCallbackContext(messageId: number): Context {
     callbackQuery: {
       data: "rename:cancel",
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
@@ -109,13 +109,13 @@ describe("bot/commands/rename", () => {
     await renameCommand(ctx as never, createDeps());
 
     expect(container.renameManager.isWaitingForName()).toBe(true);
-    expect(container.renameManager.getMessageId()).toBe(555);
+    expect(container.renameManager.getMessageId()).toBe("555");
 
     const interactionState = container.interactionManager.getSnapshot();
     expect(interactionState?.kind).toBe("rename");
     expect(interactionState?.expectedInput).toBe("text");
     expect(interactionState?.metadata.sessionId).toBe("session-1");
-    expect(interactionState?.metadata.messageId).toBe(555);
+    expect(interactionState?.metadata.messageId).toBe("555");
   });
 
   it("prompts with the title OpenCode has for the session now", async () => {
@@ -145,10 +145,10 @@ describe("bot/commands/rename", () => {
 
   it("renames session on valid text and clears states", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.transition({
       expectedInput: "text",
-      metadata: { sessionId: "session-1", messageId: 555 },
+      metadata: { sessionId: "session-1", messageId: "555" },
     });
 
     const ctx = createRenameTextContext("  New title  ");
@@ -165,7 +165,7 @@ describe("bot/commands/rename", () => {
       title: "New title",
       directory: "D:/repo",
     });
-    expect(ctx.api.deleteMessage).toHaveBeenCalledWith(101, 555);
+    expect(ctx.api.deleteMessage).toHaveBeenCalledWith(101, "555");
     expect(ctx.reply).toHaveBeenCalledWith(t("rename.success", { title: "New title" }));
     expect(container.renameManager.isWaitingForName()).toBe(false);
     expect(container.interactionManager.getSnapshot()).toBeNull();
@@ -173,10 +173,10 @@ describe("bot/commands/rename", () => {
 
   it("keeps rename flow active on empty title", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.transition({
       expectedInput: "text",
-      metadata: { sessionId: "session-1", messageId: 555 },
+      metadata: { sessionId: "session-1", messageId: "555" },
     });
 
     const ctx = createRenameTextContext("   ");
@@ -191,10 +191,10 @@ describe("bot/commands/rename", () => {
 
   it("keeps rename flow active on a present empty rich title", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.transition({
       expectedInput: "text",
-      metadata: { sessionId: "session-1", messageId: 555 },
+      metadata: { sessionId: "session-1", messageId: "555" },
     });
 
     const ctx = createRenameTextContext("");
@@ -207,10 +207,10 @@ describe("bot/commands/rename", () => {
 
   it("rejects stale rename cancel callback", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.transition({
       expectedInput: "text",
-      metadata: { sessionId: "session-1", messageId: 555 },
+      metadata: { sessionId: "session-1", messageId: "555" },
     });
 
     const ctx = createRenameCallbackContext(999);
@@ -227,10 +227,10 @@ describe("bot/commands/rename", () => {
 
   it("cancels active rename and clears states", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.transition({
       expectedInput: "text",
-      metadata: { sessionId: "session-1", messageId: 555 },
+      metadata: { sessionId: "session-1", messageId: "555" },
     });
 
     const ctx = createRenameCallbackContext(555);
@@ -246,10 +246,10 @@ describe("bot/commands/rename", () => {
   it("does not forward the title as a prompt when session info is missing", async () => {
     // Waiting for a name, but the session behind it is gone.
     container.renameManager.startWaiting("", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.transition({
       expectedInput: "text",
-      metadata: { sessionId: "session-1", messageId: 555 },
+      metadata: { sessionId: "session-1", messageId: "555" },
     });
 
     const ctx = createRenameTextContext("New title");
@@ -265,7 +265,7 @@ describe("bot/commands/rename", () => {
 
   it("closes the rename flow when another interaction takes the slot", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.start({ kind: "inline", expectedInput: "callback" });
 
     const ctx = createRenameTextContext("New title");
@@ -279,7 +279,7 @@ describe("bot/commands/rename", () => {
 
   it("answers a preempted rename cancel button as inactive", async () => {
     container.renameManager.startWaiting("session-1", "D:/repo", "Old title");
-    container.renameManager.setMessageId(555);
+    container.renameManager.setMessageId("555");
     container.interactionManager.start({ kind: "inline", expectedInput: "callback" });
 
     const ctx = createRenameCallbackContext(555);

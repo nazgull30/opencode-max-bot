@@ -1,4 +1,4 @@
-import { InlineKeyboard, type Context } from "grammy";
+import { InlineKeyboard, type Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import {
   getProjectRoot,

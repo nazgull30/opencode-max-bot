@@ -9,7 +9,7 @@ import { promptQueue, type QueuedPrompt } from "../../../app/managers/prompt-que
 import { promptHandover } from "../../../app/managers/prompt-handover-manager.js";
 import { buildExternalUserInputNotification } from "../../../app/services/external-user-input-service.js";
 import { getCurrentSession } from "../../../app/services/session-service.js";
-import { sendBotText } from "../../messages/telegram-text.js";
+import { sendBotText } from "../../messages/max-text.js";
 import { closeForegroundRun } from "./run-close.js";
 import { finalizeAssistantResponse } from "../../streaming/finalize-assistant-response.js";
 import { sendTtsResponseForSession } from "../../handlers/tts-response-handler.js";
@@ -21,8 +21,6 @@ import {
 } from "../../messages/assistant-rendering.js";
 import { prepareThinkingPayload } from "../../messages/thinking-rendering.js";
 import { deliverExternalUserInputNotification } from "../../messages/external-user-input-notification.js";
-import { telegramOutageNoticeService } from "../../../app/services/telegram-outage-notice-service.js";
-import { flushTelegramOutageNotices } from "../../telegram-outage-notices.js";
 import { getThinkingStreamId, type SessionRuntimeState } from "../session-runtime-state.js";
 import type { StreamingMessagePayload } from "../../streaming/response-streamer.js";
 import {
@@ -479,13 +477,8 @@ export function registerAssistantResponseHandlers(deps: AssistantResponseDeps): 
         });
       } catch (err) {
         dropSessionOutput("assistant_finalize_failed");
-        logger.error("Failed to send message to Telegram:", err);
+        logger.error("Failed to send message to MAX:", err);
         logger.error(`[Bot] Dropped the assistant response for session ${sessionId}`);
-        telegramOutageNoticeService.markAssistantReplyUndelivered();
-        await flushTelegramOutageNotices({
-          api: destination.api,
-          chatId: destination.chatId,
-        });
       } finally {
         await deps.scheduledTaskRuntime.flushDeferredDeliveries();
       }
@@ -522,7 +515,7 @@ export function registerAssistantResponseHandlers(deps: AssistantResponseDeps): 
             deps.externalUserInputSuppressionManager.consume(incomingSessionId, incomingText),
         });
       } catch (err) {
-        logger.error("[Bot] Failed to deliver external user input to Telegram:", err);
+        logger.error("[Bot] Failed to deliver external user input to MAX:", err);
       }
     });
   });

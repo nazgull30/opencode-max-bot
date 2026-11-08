@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import { getGitWorktreeContext } from "../../app/services/worktree-service.js";
 import { t } from "../../i18n/index.js";
 import { getCurrentProject } from "../../app/stores/settings-store.js";

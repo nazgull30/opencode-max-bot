@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
 import { recentCommand } from "../../../src/bot/commands/recent-command.js";
 import { handleRecentSelect } from "../../../src/bot/callbacks/recent-callback-handler.js";
@@ -18,8 +18,8 @@ vi.mock("../../../src/bot/callbacks/session-callback-handler.js", () => ({ selec
 function context(data?: string): Context {
   return {
     chat: { id: 1 },
-    callbackQuery: data ? { data, message: { message_id: 20 } } : undefined,
-    reply: vi.fn().mockResolvedValue({ message_id: 20 }),
+    callbackQuery: data ? { data, message: { message_id: "20" } } : undefined,
+    reply: vi.fn().mockResolvedValue({ message_id: "20" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
   } as unknown as Context;
@@ -49,7 +49,7 @@ describe("/recent and picker", () => {
     const deps = createTestAppContainer();
     startInteractionForTest(deps.interactionManager, {
       kind: "inline", expectedInput: "callback",
-      metadata: { menuKind: "recent", messageId: 20, sessionIds: ["s1"], directories: ["/linked"] },
+      metadata: { menuKind: "recent", messageId: "20", sessionIds: ["s1"], directories: ["/linked"] },
     });
     mocked.get.mockResolvedValue({ data: { id: "s1", projectID: "project", directory: "/linked", time: { updated: 10 } }, error: null });
     const ctx = context("recent:0");
@@ -62,7 +62,7 @@ describe("/recent and picker", () => {
     const deps = createTestAppContainer();
     startInteractionForTest(deps.interactionManager, {
       kind: "inline", expectedInput: "callback",
-      metadata: { menuKind: "recent", messageId: 20, sessionIds: ["s1"], directories: ["/gone"] },
+      metadata: { menuKind: "recent", messageId: "20", sessionIds: ["s1"], directories: ["/gone"] },
     });
     mocked.get.mockResolvedValue({ data: null, error: new Error("gone") });
     const ctx = context("recent:0");

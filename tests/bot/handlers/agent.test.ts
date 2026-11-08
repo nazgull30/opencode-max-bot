@@ -88,7 +88,7 @@ function mockContext(overrides: Record<string, unknown> = {}) {
     reply: vi.fn().mockResolvedValue({ message_id: 999 }),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     ...overrides,
-  } as unknown as import("grammy").Context;
+  } as unknown as import("../../../src/max/compat.js").Context;
 }
 
 describe("bot agent selection", () => {

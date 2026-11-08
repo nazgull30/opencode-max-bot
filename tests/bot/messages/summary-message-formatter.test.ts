@@ -44,7 +44,7 @@ describe("bot/messages/summary-message-formatter", () => {
     expect(defined(parts[0]).endsWith("\n```")).toBe(true);
   });
 
-  it("formats markdown summaries for Telegram MarkdownV2 mode", () => {
+  it("formats markdown summaries for MAX MarkdownV2 mode", () => {
     const text = "Check out this **amazing** library with *great* features!";
     const parts = formatSummaryWithMode(text, "markdown");
 
@@ -82,7 +82,7 @@ describe("bot/messages/summary-message-formatter", () => {
     expect(defined(parts[0]).endsWith("\n```")).toBe(true);
   });
 
-  it("adapts headings, quotes, tables and horizontal rules for Telegram", () => {
+  it("adapts headings, quotes, tables and horizontal rules for MAX", () => {
     const text = [
       "# Main heading",
       "",

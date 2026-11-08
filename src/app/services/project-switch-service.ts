@@ -1,10 +1,10 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type {
   ForceReply,
   InlineKeyboardMarkup,
   ReplyKeyboardMarkup,
   ReplyKeyboardRemove,
-} from "grammy/types";
+} from "../../max/compat.js";
 import type { ProjectInfo } from "../types/project.js";
 import type { ModelInfo } from "../types/model.js";
 import { setCurrentProject } from "../stores/settings-store.js";

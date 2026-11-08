@@ -41,13 +41,13 @@ describe("app/managers/prompt-attachment-manager", () => {
 
   it("remembers the confirmation message so its button can be retired later", () => {
     promptAttachment.set("D:\\Repo\\a.ts", "D:\\Repo");
-    promptAttachment.setConfirmationMessageId(555);
+    promptAttachment.setConfirmationMessageId("555");
 
-    expect(promptAttachment.get()?.confirmationMessageId).toBe(555);
+    expect(promptAttachment.get()?.confirmationMessageId).toBe("555");
   });
 
   it("ignores a confirmation id when nothing is attached", () => {
-    promptAttachment.setConfirmationMessageId(555);
+    promptAttachment.setConfirmationMessageId("555");
 
     expect(promptAttachment.get()).toBeNull();
   });

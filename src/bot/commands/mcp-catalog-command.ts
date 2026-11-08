@@ -1,4 +1,4 @@
-import type { CommandContext, Context } from "grammy";
+import type { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { loadMcpCatalog } from "../../app/services/mcp-catalog-service.js";
 import { getCurrentProject } from "../../app/stores/settings-store.js";

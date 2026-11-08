@@ -1,4 +1,4 @@
-import type { Bot, Context, NextFunction } from "grammy";
+import type { Bot, Context, NextFunction } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { config } from "../../config.js";
 import { settingsCommand } from "../commands/settings-command.js";
@@ -47,7 +47,7 @@ export async function ensureCommandsInitialized(
   next: NextFunction,
   localCommandRegistry = LocalCommandRegistry.empty(),
 ): Promise<void> {
-  if (commandsInitialized || !ctx.from || ctx.from.id !== config.telegram.allowedUserId) {
+  if (commandsInitialized || !ctx.from || ctx.from.id !== config.max.allowedUserId) {
     await next();
     return;
   }

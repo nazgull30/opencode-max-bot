@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import {
   getCompactOutputMode,
   getDeleteCompactProgressOnFinish,

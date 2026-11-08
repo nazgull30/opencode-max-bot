@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import { config } from "../../config.js";
 import { t } from "../../i18n/index.js";
 import { logger } from "../../utils/logger.js";
@@ -107,7 +107,7 @@ export class ScheduledTaskRuntime {
 
   async initialize(bot: Bot<Context>, deliverySender?: ScheduledTaskDeliverySender): Promise<void> {
     this.botApi = bot.api;
-    this.chatId = config.telegram.allowedUserId;
+    this.chatId = config.max.allowedUserId;
     this.deliverySender = deliverySender ?? null;
 
     if (this.initialized) {

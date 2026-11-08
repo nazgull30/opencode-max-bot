@@ -32,7 +32,7 @@ const V2_NPM_SHIM = [
 function withTempOpencodeEnv(
   run: (paths: { pathDir: string; homeExe: string; homeDir: string; tempRoot: string }) => void,
 ): void {
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-bot-"));
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-bot-"));
   const pathDir = path.join(tempRoot, "path-bin");
   const homeDir = path.join(tempRoot, "home");
   const homeExe = path.join(homeDir, ".opencode", "bin", "opencode");
@@ -251,7 +251,7 @@ describe("opencode/process", () => {
     }
 
     const originalPath = process.env.PATH;
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-bot-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-bot-"));
     const binDir = path.join(tempRoot, "bin");
     const exePath = path.join(binDir, "opencode.exe");
 
@@ -280,7 +280,7 @@ describe("opencode/process", () => {
     }
 
     const originalPath = process.env.PATH;
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-bot-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-bot-"));
     const binDir = path.join(tempRoot, "bin");
     const exePath = path.join(binDir, "node_modules", "opencode-ai", "bin", "opencode.exe");
     const cmdPath = path.join(binDir, "opencode.cmd");
@@ -326,7 +326,7 @@ describe("opencode/process", () => {
   });
 
   it("reads the exe an npm shim runs", () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-bot-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-bot-"));
     const cmdPath = path.join(tempRoot, "opencode.cmd");
 
     try {
@@ -347,7 +347,7 @@ describe("opencode/process", () => {
     }
 
     const originalPath = process.env.PATH;
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-bot-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-bot-"));
     const binDir = path.join(tempRoot, "bin");
     const v1Exe = path.join(binDir, "node_modules", "opencode-ai", "bin", "opencode.exe");
     const v2Exe = path.join(binDir, "node_modules", "@opencode", "cli", "bin", "opencode.exe");
@@ -381,7 +381,7 @@ describe("opencode/process", () => {
   });
 
   it("records and clears only the stand server pid the launcher asked for", () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-telegram-bot-"));
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-max-bot-"));
     const pidFile = path.join(tempRoot, "opencode-server.pid");
     const previous = process.env.OPENCODE_STAND_PID_FILE;
 

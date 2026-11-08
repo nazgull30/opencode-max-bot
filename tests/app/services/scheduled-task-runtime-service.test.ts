@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import type { ScheduledTask } from "../../../src/app/types/scheduled-task.js";
 import { defined } from "../../helpers/defined.js";
 
@@ -21,7 +21,7 @@ function cloneTask(task: ScheduledTask): ScheduledTask {
 
 vi.mock("../../../src/config.js", () => ({
   config: {
-    telegram: {
+    max: {
       allowedUserId: 777,
     },
     bot: {
@@ -56,7 +56,7 @@ vi.mock("../../../src/app/services/scheduled-task-session-ignore-service.js", ()
   cleanupScheduledTaskSessionIgnores: mocked.cleanupIgnoresMock,
 }));
 
-vi.mock("../../../src/bot/messages/telegram-text.js", () => ({
+vi.mock("../../../src/bot/messages/max-text.js", () => ({
   AGENT_TEXT_LINK_PREVIEW_OPTIONS: { link_preview_options: { is_disabled: false } },
   sendBotText: mocked.sendBotTextMock,
 }));

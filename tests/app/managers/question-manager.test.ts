@@ -58,14 +58,14 @@ describe("questionManager", () => {
     expect(questionManager.getSessionId()).toBe("session-a");
   });
 
-  it("tracks answers sent from Telegram until they fail or the poll is cleared", () => {
+  it("tracks answers sent from MAX until they fail or the poll is cleared", () => {
     questionManager.startQuestions([SINGLE_QUESTION], "req-1", "session-1");
     questionManager.startCustomInput(0);
     expect(questionManager.isAnswering()).toBe(false);
 
     questionManager.startAnswer();
     expect(questionManager.isAnswering()).toBe(true);
-    expect(questionManager.isSettlingFromTelegram()).toBe(true);
+    expect(questionManager.isSettlingFromMAX()).toBe(true);
     expect(questionManager.isWaitingForCustomInput(0)).toBe(false);
 
     questionManager.noteSettledWhileSending("cancelled");
@@ -130,11 +130,11 @@ describe("questionManager", () => {
     questionManager.startQuestions([SINGLE_QUESTION], "req-1", "session-1");
     questionManager.startCustomInput(0);
     expect(questionManager.isDismissing()).toBe(false);
-    expect(questionManager.isSettlingFromTelegram()).toBe(false);
+    expect(questionManager.isSettlingFromMAX()).toBe(false);
 
     questionManager.startDismissal();
     expect(questionManager.isDismissing()).toBe(true);
-    expect(questionManager.isSettlingFromTelegram()).toBe(true);
+    expect(questionManager.isSettlingFromMAX()).toBe(true);
     expect(questionManager.isWaitingForCustomInput(0)).toBe(false);
 
     questionManager.noteSettledWhileSending("answered");
@@ -171,7 +171,7 @@ describe("questionManager", () => {
   it("resets previous active poll when starting a new one", () => {
     questionManager.startQuestions([SINGLE_QUESTION], "req-old", "session-1");
     questionManager.selectOption(0, 1);
-    questionManager.addMessageId(42);
+    questionManager.addMessageId("42");
 
     questionManager.startQuestions([MULTIPLE_QUESTION], "req-new", "session-1");
 
@@ -333,9 +333,9 @@ describe("questionManager", () => {
     expect(questionManager.getActiveMessageId()).toBeNull();
     expect(questionManager.isWaitingForCustomInput(0)).toBe(false);
 
-    questionManager.setActiveMessageId(123);
-    expect(questionManager.isActiveMessage(123)).toBe(true);
-    expect(questionManager.isActiveMessage(999)).toBe(false);
+    questionManager.setActiveMessageId("123");
+    expect(questionManager.isActiveMessage("123")).toBe(true);
+    expect(questionManager.isActiveMessage("999")).toBe(false);
 
     questionManager.startCustomInput(0);
     expect(questionManager.isWaitingForCustomInput(0)).toBe(true);
@@ -347,12 +347,12 @@ describe("questionManager", () => {
 
   it("returns copied message IDs and supports cancel/clear", () => {
     questionManager.startQuestions([SINGLE_QUESTION], "req-4", "session-1");
-    questionManager.addMessageId(10);
-    questionManager.addMessageId(11);
+    questionManager.addMessageId("10");
+    questionManager.addMessageId("11");
 
     const messageIds = questionManager.getMessageIds();
-    messageIds.push(999);
-    expect(questionManager.getMessageIds()).toEqual([10, 11]);
+    messageIds.push("999");
+    expect(questionManager.getMessageIds()).toEqual(["10", "11"]);
 
     questionManager.cancel();
     expect(questionManager.isActive()).toBe(false);

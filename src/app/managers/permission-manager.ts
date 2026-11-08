@@ -27,7 +27,7 @@ function createEmptyState(): PermissionState {
 export class PermissionManager {
   private resolvedRequestIDs = new Set<string>();
   private resolvedGeneration = 0;
-  // Prompts on their way to Telegram, by signature: a second show of the same request
+  // Prompts on their way to MAX, by signature: a second show of the same request
   // waits for the first to land instead of sending its own prompt.
   private presenting = new Map<string, Promise<void>>();
 
@@ -98,9 +98,10 @@ export class PermissionManager {
    */
   startPermission(
     request: PermissionRequest,
-    messageId: number,
+    messageId: string | number,
     generation: number = this.getGeneration(),
   ): StartPermissionResult {
+    messageId = String(messageId);
     logger.debug(
       `[PermissionManager] startPermission: id=${request.id}, permission=${request.permission}, messageId=${messageId}`,
     );
@@ -151,7 +152,7 @@ export class PermissionManager {
   }
 
   /**
-   * Attach an equivalent OpenCode request to an already visible Telegram permission message.
+   * Attach an equivalent OpenCode request to an already visible MAX permission message.
    */
   addEquivalentRequest(
     request: PermissionRequest,
@@ -199,59 +200,59 @@ export class PermissionManager {
   }
 
   /**
-   * Get permission request by Telegram message ID
+   * Get permission request by MAX message ID
    */
-  getRequest(messageId: number | null): PermissionRequest | null {
+  getRequest(messageId: string | number | null): PermissionRequest | null {
     if (messageId === null) {
       return null;
     }
 
-    return this.state?.requestsByMessageId.get(messageId) ?? null;
+    return this.state?.requestsByMessageId.get(String(messageId)) ?? null;
   }
 
   /**
-   * Get request ID for API reply by Telegram message ID
+   * Get request ID for API reply by MAX message ID
    */
-  getRequestID(messageId: number | null): string | null {
+  getRequestID(messageId: string | number | null): string | null {
     return this.getRequest(messageId)?.id ?? null;
   }
 
   /**
-   * Get all OpenCode request IDs grouped behind a Telegram message.
+   * Get all OpenCode request IDs grouped behind a MAX message.
    */
-  getRequestIDs(messageId: number | null): string[] {
+  getRequestIDs(messageId: string | number | null): string[] {
     if (messageId === null) {
       return [];
     }
 
-    return [...(this.state?.requestIdsByMessageId.get(messageId) ?? [])];
+    return [...(this.state?.requestIdsByMessageId.get(String(messageId)) ?? [])];
   }
 
   /**
    * Get permission type (bash, edit, etc.) by message ID
    */
-  getPermissionType(messageId: number | null): string | null {
+  getPermissionType(messageId: string | number | null): string | null {
     return this.getRequest(messageId)?.permission ?? null;
   }
 
   /**
    * Get patterns (commands/files) by message ID
    */
-  getPatterns(messageId: number | null): string[] {
+  getPatterns(messageId: string | number | null): string[] {
     return this.getRequest(messageId)?.patterns ?? [];
   }
 
   /**
    * Check if callback message ID belongs to active permission request
    */
-  isActiveMessage(messageId: number | null): boolean {
-    return messageId !== null && (this.state?.requestsByMessageId.has(messageId) ?? false);
+  isActiveMessage(messageId: string | number | null): boolean {
+    return messageId !== null && (this.state?.requestsByMessageId.has(String(messageId)) ?? false);
   }
 
   /**
-   * Get latest Telegram message ID
+   * Get latest MAX message ID
    */
-  getMessageId(): number | null {
+  getMessageId(): string | null {
     const messageIds = this.getMessageIds();
     if (messageIds.length === 0) {
       return null;
@@ -261,16 +262,17 @@ export class PermissionManager {
   }
 
   /**
-   * Get Telegram message IDs for all active requests
+   * Get MAX message IDs for all active requests
    */
-  getMessageIds(): number[] {
+  getMessageIds(): string[] {
     return Array.from(this.state?.requestsByMessageId.keys() ?? []);
   }
 
   /**
    * Record the answer tapped on a prompt as being sent. False when one is already on its way.
    */
-  markSending(messageId: number, reply: PermissionReply, settlesSession: boolean): boolean {
+  markSending(messageId: string | number, reply: PermissionReply, settlesSession: boolean): boolean {
+    messageId = String(messageId);
     const state = this.state;
     const requestIds = state?.requestIdsByMessageId.get(messageId);
     if (!state || !requestIds || state.sendsByMessageId.has(messageId)) {
@@ -281,15 +283,16 @@ export class PermissionManager {
     return true;
   }
 
-  isSending(messageId: number | null): boolean {
-    return messageId !== null && (this.state?.sendsByMessageId.has(messageId) ?? false);
+  isSending(messageId: string | number | null): boolean {
+    return messageId !== null && (this.state?.sendsByMessageId.has(String(messageId)) ?? false);
   }
 
   /**
    * The answer did not get through for every request: the ones OpenCode took leave the
    * prompt, the rest stay open and answerable again
    */
-  failSending(messageId: number, acceptedRequestIds: string[]): PermissionPromptChange | null {
+  failSending(messageId: string | number, acceptedRequestIds: string[]): PermissionPromptChange | null {
+    messageId = String(messageId);
     const state = this.state;
     const request = state?.requestsByMessageId.get(messageId);
     const send = state?.sendsByMessageId.get(messageId);
@@ -317,7 +320,8 @@ export class PermissionManager {
   /**
    * End a prompt with an outcome, settling every request it still has open
    */
-  endPrompt(messageId: number, outcome: PermissionOutcome): PermissionPromptChange | null {
+  endPrompt(messageId: string | number, outcome: PermissionOutcome): PermissionPromptChange | null {
+    messageId = String(messageId);
     const state = this.state;
     const request = state?.requestsByMessageId.get(messageId);
     if (!state || !request) {
@@ -434,12 +438,12 @@ export class PermissionManager {
   }
 
   /**
-   * Whose answer settled a prompt: the one being sent from Telegram (on V2 a reject being
-   * sent settles its whole session), otherwise an answer given outside Telegram
+   * Whose answer settled a prompt: the one being sent from MAX (on V2 a reject being
+   * sent settles its whole session), otherwise an answer given outside MAX
    */
   private getSettledOutcome(
     state: PermissionState,
-    messageId: number,
+    messageId: string,
     request: PermissionRequest,
     requestID: string,
     reply: PermissionReply | null,
@@ -464,7 +468,7 @@ export class PermissionManager {
     return reply ? { kind: "replied", reply, outside: true } : { kind: "settled_outside" };
   }
 
-  private removePrompt(state: PermissionState, messageId: number, request: PermissionRequest): void {
+  private removePrompt(state: PermissionState, messageId: string, request: PermissionRequest): void {
     state.requestsByMessageId.delete(messageId);
     state.requestIdsByMessageId.delete(messageId);
     state.sendsByMessageId.delete(messageId);

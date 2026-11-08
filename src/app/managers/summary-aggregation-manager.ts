@@ -1,5 +1,5 @@
 import { Event, ToolState } from "@opencode-ai/sdk/v2";
-import type { Bot } from "grammy";
+import type { Bot } from "../../max/compat.js";
 import type { CodeFileData } from "../formatters/summary-formatter.js";
 import {
   formatPatchFileLine,
@@ -2297,7 +2297,7 @@ export class SummaryAggregator {
           };
 
           logger.debug(
-            `[Aggregator] Sending tool notification to Telegram: tool=${part.tool}, title=${title || "N/A"}`,
+            `[Aggregator] Sending tool notification to MAX: tool=${part.tool}, title=${title || "N/A"}`,
           );
 
           if (this.onToolCallback) {

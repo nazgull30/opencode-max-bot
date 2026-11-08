@@ -1,4 +1,4 @@
-import { Context } from "grammy";
+import { Context } from "../../max/compat.js";
 import { t } from "../../i18n/index.js";
 import { getLocalizedBotCommands } from "./definitions.js";
 

@@ -304,11 +304,11 @@ export function clearCurrentModel(): void {
   void writeSettingsFile(currentSettings);
 }
 
-export function getPinnedMessageId(): number | undefined {
+export function getPinnedMessageId(): string | undefined {
   return currentSettings.pinnedMessageId;
 }
 
-export function setPinnedMessageId(messageId: number): void {
+export function setPinnedMessageId(messageId: string): void {
   currentSettings.pinnedMessageId = messageId;
   void writeSettingsFile(currentSettings);
 }

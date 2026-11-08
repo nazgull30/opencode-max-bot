@@ -1,4 +1,4 @@
-import type { CommandContext, Context } from "grammy";
+import type { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { getBrowserRoots } from "../../app/services/file-browser-service.js";
 import { isForegroundBusy } from "../../app/services/run-control-service.js";

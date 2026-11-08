@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 
-export const OPENCODE_TELEGRAM_CONTAINER_ENV = "OPENCODE_TELEGRAM_CONTAINER";
+export const OPENCODE_MAX_CONTAINER_ENV = "OPENCODE_MAX_CONTAINER";
 
 export interface ContainerRuntimeOptions {
   env?: NodeJS.ProcessEnv;
@@ -18,7 +18,7 @@ function isEnabledFlag(value: string | undefined): boolean {
 
 export function isContainerRuntime(options?: ContainerRuntimeOptions): boolean {
   const env = options?.env ?? process.env;
-  if (isEnabledFlag(env[OPENCODE_TELEGRAM_CONTAINER_ENV])) {
+  if (isEnabledFlag(env[OPENCODE_MAX_CONTAINER_ENV])) {
     return true;
   }
 

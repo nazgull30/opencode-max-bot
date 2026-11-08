@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { convertToTelegramMarkdownV2 } from "../../../src/bot/render/markdown-to-telegram-v2.js";
+import { convertToMaxMarkdown } from "../../../src/bot/render/markdown-to-max.js";
 
-describe("summary/markdown-to-telegram-v2", () => {
-  it("converts common inline markdown and escapes Telegram MarkdownV2 text", () => {
-    expect(convertToTelegramMarkdownV2("Use **bold** and *italic* with a+b!")).toBe(
+describe("summary/markdown-to-max-v2", () => {
+  it("converts common inline markdown and escapes MAX MarkdownV2 text", () => {
+    expect(convertToMaxMarkdown("Use **bold** and *italic* with a+b!")).toBe(
       "Use *bold* and _italic_ with a\\+b\\!",
     );
   });
 
   it("escapes code and link delimiters that would break MarkdownV2", () => {
-    const output = convertToTelegramMarkdownV2(
+    const output = convertToMaxMarkdown(
       "Use `C:\\temp` and [docs](https://example.com/a_(b))",
     );
 
@@ -17,8 +17,8 @@ describe("summary/markdown-to-telegram-v2", () => {
     expect(output).toContain("[docs](https://example.com/a_(b\\))");
   });
 
-  it("renders lists and tables as escaped plain Telegram MarkdownV2 text", () => {
-    const output = convertToTelegramMarkdownV2(
+  it("renders lists and tables as escaped plain MAX MarkdownV2 text", () => {
+    const output = convertToMaxMarkdown(
       ["- item", "", "| A | B |", "| --- | --- |", "| C | D |"].join("\n"),
     );
 
@@ -35,9 +35,9 @@ describe("summary/markdown-to-telegram-v2", () => {
       "[broken](https://example.com/foo",
     ].join("\n\n");
 
-    expect(() => convertToTelegramMarkdownV2(input)).not.toThrow();
+    expect(() => convertToMaxMarkdown(input)).not.toThrow();
 
-    const output = convertToTelegramMarkdownV2(input);
+    const output = convertToMaxMarkdown(input);
     expect(output).toContain("text");
     expect(output).toContain("value");
     expect(output).toContain("raw\\_html");

@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { fetchSessionTitle, getCurrentSession } from "../../app/services/session-service.js";
 import { formatSessionTitle } from "../../app/formatters/session-title-formatter.js";

@@ -1,10 +1,10 @@
 import { config } from "../../config.js";
 import type { MessageFormatMode } from "../../config.js";
 import { logger } from "../../utils/logger.js";
-import { normalizeMarkdownForTelegramRendering } from "../render/markdown-normalizer.js";
-import { convertToTelegramMarkdownV2 } from "../render/markdown-to-telegram-v2.js";
+import { normalizeMarkdownForMAXRendering } from "../render/markdown-normalizer.js";
+import { convertToMaxMarkdown } from "../render/markdown-to-max.js";
 
-const TELEGRAM_MESSAGE_LIMIT = 4096;
+const MAX_MESSAGE_LIMIT = 4096;
 
 interface SplitTextOptions {
   avoidTrailingMarkdownEscape?: boolean;
@@ -76,10 +76,10 @@ export function formatSummary(text: string): string[] {
   return formatSummaryWithMode(text, config.bot.messageFormatMode);
 }
 
-function formatMarkdownForTelegram(text: string): string {
+function formatMarkdownForMAX(text: string): string {
   try {
-    const preprocessed = normalizeMarkdownForTelegramRendering(text);
-    return escapeMarkdownV2PipesOutsideCode(convertToTelegramMarkdownV2(preprocessed));
+    const preprocessed = normalizeMarkdownForMAXRendering(text);
+    return escapeMarkdownV2PipesOutsideCode(convertToMaxMarkdown(preprocessed));
   } catch (error) {
     logger.warn("[Formatter] Failed to convert markdown summary, falling back to raw text", error);
     return text;
@@ -125,7 +125,7 @@ function escapeMarkdownV2PipesOutsideCode(text: string): string {
 export function formatSummaryWithMode(
   text: string,
   mode: MessageFormatMode,
-  maxLength: number = TELEGRAM_MESSAGE_LIMIT,
+  maxLength: number = MAX_MESSAGE_LIMIT,
 ): string[] {
   if (!text || text.trim().length === 0) {
     return [];
@@ -144,7 +144,7 @@ export function formatSummaryWithMode(
     }
 
     if (mode === "markdown") {
-      const converted = formatMarkdownForTelegram(trimmed);
+      const converted = formatMarkdownForMAX(trimmed);
       const convertedParts = splitText(converted, normalizedMaxLength, {
         avoidTrailingMarkdownEscape: true,
       });

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context, InlineKeyboard } from "grammy";
+import type { Context, InlineKeyboard } from "../../../src/max/compat.js";
 
 const mocked = vi.hoisted(() => ({
   getAvailableVariantsMock: vi.fn(),
@@ -35,7 +35,7 @@ import { defined } from "../../helpers/defined.js";
 function mockContext() {
   return {
     chat: { id: 123 },
-    reply: vi.fn().mockResolvedValue({ message_id: 42 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "42" }),
   } as unknown as Context;
 }
 

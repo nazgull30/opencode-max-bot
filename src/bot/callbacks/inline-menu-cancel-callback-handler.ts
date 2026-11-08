@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import {
   clearActiveInlineMenu,
   ensureActiveInlineMenu,

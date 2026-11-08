@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFunction } from "../../../src/max/compat.js";
 import { defined } from "../../helpers/defined.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
 
@@ -111,7 +111,7 @@ describe("bot/routers/command-router", () => {
   it("initializes commands for the authorized chat", async () => {
     const next: NextFunction = vi.fn();
     const ctx = {
-      from: { id: config.telegram.allowedUserId },
+      from: { id: config.max.allowedUserId },
       chat: { id: 123 },
       api: { setMyCommands: vi.fn() },
     } as unknown as Context;

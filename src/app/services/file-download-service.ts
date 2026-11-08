@@ -1,12 +1,7 @@
-import nodeFetch, { type RequestInit as NodeFetchRequestInit } from "node-fetch";
-import type { Api } from "grammy";
-import { Agent as HttpsAgent } from "https";
-import { config } from "../../config.js";
+import type { Api } from "../../max/compat.js";
 import { logger } from "../../utils/logger.js";
-import { withTelegramRateLimitRetry } from "../../utils/telegram-rate-limit-retry.js";
 
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
-const DEFAULT_TELEGRAM_API_ROOT = "https://api.telegram.org";
 
 export interface DownloadedFile {
   buffer: Buffer;
@@ -14,139 +9,33 @@ export interface DownloadedFile {
   mimeType?: string;
 }
 
-function telegramFileUrlBase(): string {
-  const apiRoot = config.telegram.apiRoot
-    ? config.telegram.apiRoot.replace(/\/+$/, "")
-    : DEFAULT_TELEGRAM_API_ROOT;
-
-  return `${apiRoot}/file/bot`;
+/** Kept as an identity helper for callers that still name a file URL. */
+export function buildMAXFileUrl(filePath: string): string {
+  return filePath;
 }
 
-export function buildTelegramFileUrl(filePath: string): string {
-  return `${telegramFileUrlBase()}${config.telegram.token}/${filePath}`;
-}
-
-class TelegramFileDownloadResponseError extends Error {
-  readonly status: number;
-  readonly parameters?: { retry_after: number };
-
-  constructor(status: number, statusText: string, retryAfterSeconds: number | null) {
-    super(`Failed to download file: ${status} ${statusText}`);
-    this.status = status;
-    if (retryAfterSeconds !== null) {
-      this.parameters = { retry_after: retryAfterSeconds };
-    }
-  }
-}
-
-function redactBotToken(value: string): string {
-  return config.telegram.token ? value.replaceAll(config.telegram.token, "***") : value;
-}
-
-function sanitizeTelegramFileDownloadError(error: unknown): Error {
-  if (!(error instanceof Error)) {
-    return new Error(redactBotToken(String(error)));
-  }
-
-  const sanitized = new Error(redactBotToken(error.message));
-  sanitized.name = error.name;
-  if (error.stack) {
-    sanitized.stack = redactBotToken(error.stack);
-  }
-
-  for (const field of ["code", "errno", "status", "type"] as const) {
-    const value = Reflect.get(error, field);
-    if (typeof value === "string" || typeof value === "number") {
-      Reflect.set(sanitized, field, value);
-    }
-  }
-
-  return sanitized;
-}
-
-function getRetryAfterSeconds(response: Awaited<ReturnType<typeof nodeFetch>>): number | null {
-  const value = response.headers.get("retry-after");
-  if (!value) {
-    return null;
-  }
-  const seconds = Number.parseInt(value, 10);
-  return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
-}
-
-export async function downloadTelegramFile(api: Api, fileId: string): Promise<DownloadedFile> {
+export async function downloadMAXFile(api: Api, fileId: string): Promise<DownloadedFile> {
   logger.debug(`[FileDownload] Getting file info for fileId=${fileId}`);
 
   const file = await api.getFile(fileId);
-
   if (!file.file_path) {
-    throw new Error("File path not available from Telegram");
+    throw new Error("File URL not available from MAX");
   }
 
-  if (file.file_size && file.file_size > MAX_FILE_SIZE_BYTES) {
-    const sizeMb = (file.file_size / (1024 * 1024)).toFixed(2);
+  const response = await fetch(file.file_path);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.status} ${response.statusText}`);
+  }
+
+  const declaredLength = Number(response.headers.get("content-length") ?? "0");
+  if (declaredLength > MAX_FILE_SIZE_BYTES) {
+    const sizeMb = (declaredLength / (1024 * 1024)).toFixed(2);
     throw new Error(`File too large: ${sizeMb}MB (max 20MB)`);
   }
 
-  const fileUrl = buildTelegramFileUrl(file.file_path);
-  logger.debug(`[FileDownload] Downloading from ${fileUrl.replace(config.telegram.token, "***")}`);
-
-  const fetchOptions: NodeFetchRequestInit = {};
-
-  if (config.telegram.proxyUrl) {
-    const proxyUrl = config.telegram.proxyUrl;
-    if (proxyUrl.startsWith("socks")) {
-      const { SocksProxyAgent } = await import("socks-proxy-agent");
-      fetchOptions.agent = new SocksProxyAgent(proxyUrl);
-    } else {
-      const { HttpsProxyAgent } = await import("https-proxy-agent");
-      fetchOptions.agent = new HttpsProxyAgent(proxyUrl);
-    }
-  } else if (config.telegram.forceIpv4) {
-    fetchOptions.agent = new HttpsAgent({ family: 4, keepAlive: true });
-  }
-
-  if (config.telegram.proxySecret) {
-    fetchOptions.headers = {
-      ...(fetchOptions.headers as Record<string, string> | undefined),
-      "X-Proxy-Secret": config.telegram.proxySecret,
-    };
-  }
-
-  let buffer: Buffer;
-  try {
-    buffer = await withTelegramRateLimitRetry(
-      async () => {
-        const response = await nodeFetch(fileUrl, fetchOptions);
-        if (!response.ok) {
-          throw new TelegramFileDownloadResponseError(
-            response.status,
-            response.statusText,
-            getRetryAfterSeconds(response),
-          );
-        }
-        return Buffer.from(await response.arrayBuffer());
-      },
-      {
-        maxRetries: 3,
-        retryTransientServerErrors: true,
-        retryTransientNetworkErrors: true,
-        onRetry: ({ attempt, retryAfterMs }) => {
-          logger.warn(
-            `[FileDownload] Transient Telegram file download failure; retrying in ${retryAfterMs}ms (attempt=${attempt})`,
-          );
-        },
-      },
-    );
-  } catch (error) {
-    throw sanitizeTelegramFileDownloadError(error);
-  }
-
+  const buffer = Buffer.from(await response.arrayBuffer());
   logger.debug(`[FileDownload] Downloaded ${buffer.length} bytes`);
-
-  return {
-    buffer,
-    filePath: file.file_path,
-  };
+  return { buffer, filePath: file.file_path };
 }
 
 export function toDataUri(buffer: Buffer, mimeType: string): string {
@@ -254,7 +143,7 @@ const TEXT_FILE_NAMES = new Set([
 /**
  * Whether a local file looks like text, judging by its name alone.
  *
- * Files picked from the /ls browser carry no MIME type - Telegram only provides one for
+ * Files picked from the /ls browser carry no MIME type - MAX only provides one for
  * uploaded documents - so `isTextMimeType` cannot be used for them.
  */
 export function isTextFileName(filename: string): boolean {

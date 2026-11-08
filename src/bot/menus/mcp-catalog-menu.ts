@@ -1,5 +1,5 @@
 import type { McpStatus } from "@opencode-ai/sdk/v2";
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import type { McpCatalogServerItem } from "../../app/services/mcp-catalog-service.js";
 import { t } from "../../i18n/index.js";
 

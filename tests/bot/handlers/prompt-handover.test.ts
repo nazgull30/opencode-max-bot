@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { createIncomingPrompt } from "../../../src/app/types/prompt.js";
 
 const mocked = vi.hoisted(() => ({
@@ -211,7 +211,7 @@ describe("bot/handlers/prompt-handover", () => {
 
       expect(sentTexts()).toEqual(["fails", "goes"]);
       expect(sendMessageMock).toHaveBeenCalledWith(
-        config.telegram.allowedUserId,
+        config.max.allowedUserId,
         t("bot.prompt_send_error"),
       );
     });

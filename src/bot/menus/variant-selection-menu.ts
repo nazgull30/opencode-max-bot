@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import { getStoredModel } from "../../app/services/model-selection-service.js";
 import {
   formatVariantForDisplay,
@@ -54,7 +54,7 @@ export async function buildVariantSelectionMenu(
 
 /**
  * Show variant selection menu
- * @param ctx grammY context
+ * @param ctx MAX context
  */
 export async function showVariantSelectionMenu(
   ctx: Context,
@@ -98,7 +98,7 @@ export async function showVariantSelectionMenu(
  * Show the variant selection menu right after a model was picked.
  * Opens only when the model offers more than one selectable variant; any failure
  * leaves the flow at the model confirmation instead of surfacing an error.
- * @param ctx grammY context
+ * @param ctx MAX context
  * @param model Model that was just applied
  */
 export async function showVariantSelectionMenuAfterModelChange(

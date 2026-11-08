@@ -1,11 +1,11 @@
-import type { Api, RawApi } from "grammy";
+import type { Api } from "../../max/compat.js";
 import {
   buildExternalUserInputNotification,
   type ExternalUserInputNotification,
 } from "../../app/services/external-user-input-service.js";
-import { sendBotText } from "./telegram-text.js";
+import { sendBotText } from "./max-text.js";
 
-type SendMessageApi = Pick<Api<RawApi>, "sendMessage">;
+type SendMessageApi = Api;
 
 interface DeliverExternalUserInputParams {
   api: SendMessageApi;

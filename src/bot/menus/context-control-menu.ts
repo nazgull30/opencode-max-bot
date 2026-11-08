@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import { getCurrentSession } from "../../app/services/session-service.js";
 import { loadLatestAssistantMetrics, type AssistantMessageMetrics } from "../../app/services/message-history-service.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
@@ -53,7 +53,7 @@ export function buildCompactConfirmationMenu(): InlineKeyboard {
 /**
  * Handle context button press (text message from Reply Keyboard)
  * Shows context details with an inline compact action
- * @param ctx grammY context
+ * @param ctx MAX context
  */
 export async function handleContextButtonPress(
   ctx: Context,

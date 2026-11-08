@@ -1,4 +1,4 @@
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFunction } from "../../max/compat.js";
 import {
   resolveInteractionGuardDecision,
   type InteractionGuardDecisionDeps,

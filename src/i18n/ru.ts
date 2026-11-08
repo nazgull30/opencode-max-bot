@@ -63,7 +63,7 @@ export const ru: I18nDictionary = {
   "common.unknown_error": "неизвестная ошибка",
 
   "start.welcome":
-    "👋 Добро пожаловать в OpenCode Telegram Bot!\n\nИспользуйте команды:\n/projects — выбрать проект\n/sessions — список сессий\n/new — новая сессия\n/commands — пользовательские команды\n/skills — каталог скиллов\n/task — задача по расписанию\n/tasklist — список задач по расписанию\n/status — статус\n/help — справка\n\nАгент, модель и вариант выбираются кнопками внизу.",
+    "👋 Добро пожаловать в OpenCode MAX Bot!\n\nИспользуйте команды:\n/projects — выбрать проект\n/sessions — список сессий\n/new — новая сессия\n/commands — пользовательские команды\n/skills — каталог скиллов\n/task — задача по расписанию\n/tasklist — список задач по расписанию\n/status — статус\n/help — справка\n\nАгент, модель и вариант выбираются кнопками внизу.",
   "help.keyboard_hint":
     "💡 Агент, модель, вариант и действия с контекстом доступны через нижние кнопки клавиатуры.",
   "help.text":
@@ -101,7 +101,7 @@ export const ru: I18nDictionary = {
   "bot.assistant_reply_undelivered":
     "⚠️ Последний ответ ассистента не удалось доставить. Отправьте сообщение ещё раз, если оно ещё нужно.",
   "bot.stale_messages_skipped":
-    "⚠️ Некоторые сообщения пропущены, пока не было связи с Telegram. Отправьте их ещё раз.",
+    "⚠️ Некоторые сообщения пропущены, пока не было связи с MAX. Отправьте их ещё раз.",
   "bot.session_retry":
     "🔁 {message}\n\nПровайдер возвращает одну и ту же ошибку при повторных запросах. Используйте /abort для остановки.",
   "bot.external_user_input": "Внешний ввод пользователя",
@@ -422,8 +422,8 @@ export const ru: I18nDictionary = {
   "permission.outcome.once": "✅ Разрешено однократно",
   "permission.outcome.always": "🔓 Разрешено всегда",
   "permission.outcome.reject": "❌ Отклонено",
-  "permission.outcome.outside_suffix": " · ответ дан вне Telegram",
-  "permission.outcome.settled_outside": "☑️ Ответ дан вне Telegram",
+  "permission.outcome.outside_suffix": " · ответ дан вне MAX",
+  "permission.outcome.settled_outside": "☑️ Ответ дан вне MAX",
   "permission.outcome.not_answered": "⏹ Без ответа",
   "permission.delivery_failed": "⚠️ Ответ не дошёл до OpenCode — нажмите ещё раз",
   "permission.name.bash": "Bash",
@@ -444,8 +444,8 @@ export const ru: I18nDictionary = {
   "question.select_one_required_callback": "Выберите хотя бы один вариант",
   "question.enter_custom_callback": "Введите свой ответ сообщением",
   "question.cancelled": "❌ Опрос отменен",
-  "question.settled_outside.answered": "☑️ Ответ дан вне Telegram",
-  "question.settled_outside.cancelled": "❌ Отменено вне Telegram",
+  "question.settled_outside.answered": "☑️ Ответ дан вне MAX",
+  "question.settled_outside.cancelled": "❌ Отменено вне MAX",
   "question.not_answered": "⏹ Без ответа",
   "question.answer_already_received": "Ответ уже получен, подождите...",
   "question.completed_no_answers": "✅ Опрос завершен (без ответов)",
@@ -509,7 +509,7 @@ export const ru: I18nDictionary = {
   "tool.file_header.edit":
     "Edit File/Path: {path}\n============================================================\n\n",
 
-  "runtime.wizard.ask_token": "Введите токен Telegram-бота (получить у @BotFather).\n> ",
+  "runtime.wizard.ask_token": "Введите токен MAX-бота (получить у MAX Business).\n> ",
   "runtime.wizard.ask_language":
     "Выберите язык интерфейса.\nВведите номер языка из списка или код локали.\nНажмите Enter, чтобы оставить язык по умолчанию: {defaultLocale}\n{options}\n> ",
   "runtime.wizard.language_invalid":
@@ -518,7 +518,7 @@ export const ru: I18nDictionary = {
   "runtime.wizard.token_required": "Токен обязателен. Попробуйте еще раз.\n",
   "runtime.wizard.token_invalid":
     "Похоже на невалидный токен (ожидается формат <id>:<secret>). Попробуйте еще раз.\n",
-  "runtime.wizard.ask_user_id": "Введите ваш Telegram User ID (можно узнать у @userinfobot).\n> ",
+  "runtime.wizard.ask_user_id": "Введите ваш MAX User ID (можно узнать у MAX profile).\n> ",
   "runtime.wizard.user_id_invalid": "Введите положительное целое число (> 0).\n",
   "runtime.wizard.ask_api_url":
     "Введите URL OpenCode API (опционально).\nНажмите Enter для значения по умолчанию: {defaultUrl}\n> ",
@@ -538,12 +538,12 @@ export const ru: I18nDictionary = {
     "Введите пароль сервера OpenCode.\nНажмите Enter, чтобы оставить сохранённый пароль.\n> ",
   "runtime.wizard.api_url_invalid":
     "Введите корректный URL (http/https) или нажмите Enter для значения по умолчанию.\n",
-  "runtime.wizard.start": "Настройка OpenCode Telegram Bot.\n",
+  "runtime.wizard.start": "Настройка OpenCode MAX Bot.\n",
   "runtime.wizard.saved": "Конфигурация сохранена:\n- {envPath}\n",
   "runtime.wizard.not_configured_starting":
     "Приложение еще не сконфигурировано. Запускаю wizard...\n",
   "runtime.wizard.tty_required":
-    "Интерактивный wizard требует TTY-терминал. Запустите `opencode-telegram config` в интерактивной оболочке.",
+    "Интерактивный wizard требует TTY-терминал. Запустите `opencode-max config` в интерактивной оболочке.",
   "runtime.container.command_unavailable":
     "⚠️ Эта команда недоступна в Docker-образе.",
 

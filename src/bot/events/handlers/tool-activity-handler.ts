@@ -38,7 +38,7 @@ import {
   type EventHandlerDeps,
 } from "./handler-context.js";
 
-const TELEGRAM_DOCUMENT_CAPTION_MAX_LENGTH = 1024;
+const MAX_DOCUMENT_CAPTION_MAX_LENGTH = 1024;
 
 type ToolActivityDeps = EventHandlerDeps<"summaryAggregator">;
 
@@ -70,11 +70,11 @@ function prepareDocumentCaption(caption: string): string {
     return "";
   }
 
-  if (normalizedCaption.length <= TELEGRAM_DOCUMENT_CAPTION_MAX_LENGTH) {
+  if (normalizedCaption.length <= MAX_DOCUMENT_CAPTION_MAX_LENGTH) {
     return normalizedCaption;
   }
 
-  return `${normalizedCaption.slice(0, TELEGRAM_DOCUMENT_CAPTION_MAX_LENGTH - 3)}...`;
+  return `${normalizedCaption.slice(0, MAX_DOCUMENT_CAPTION_MAX_LENGTH - 3)}...`;
 }
 
 /** Launched in the background: the operation outlives the turn that started it. */
@@ -266,7 +266,7 @@ async function refreshSubagentCards(
   try {
     await renderSubagentCards(runtime, sessionId, subagents);
   } catch (err) {
-    logger.error("Failed to refresh subagent activity for Telegram:", err);
+    logger.error("Failed to refresh subagent activity for MAX:", err);
   }
 }
 
@@ -449,7 +449,7 @@ export function registerToolActivityHandlers(deps: ToolActivityDeps): void {
         unpinLiveToolLine(runtime, toolInfo);
       }
     } catch (err) {
-      logger.error("Failed to send tool notification to Telegram:", err);
+      logger.error("Failed to send tool notification to MAX:", err);
     }
   });
 
@@ -475,7 +475,7 @@ export function registerToolActivityHandlers(deps: ToolActivityDeps): void {
     try {
       await renderSubagentCards(runtime, sessionId, subagents);
     } catch (err) {
-      logger.error("Failed to render subagent activity for Telegram:", err);
+      logger.error("Failed to render subagent activity for MAX:", err);
     }
   });
 
@@ -536,7 +536,7 @@ export function registerToolActivityHandlers(deps: ToolActivityDeps): void {
       }
       await runtime.toolMessageBatcher.flushSession(fileInfo.sessionId, "tool_file_boundary");
     } catch (err) {
-      logger.error("Failed to send file to Telegram:", err);
+      logger.error("Failed to send file to MAX:", err);
     } finally {
       runtime.toolCallStreamer.endDocumentBoundary(fileInfo.sessionId);
     }

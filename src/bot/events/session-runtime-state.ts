@@ -18,17 +18,17 @@ import { CompactProgressStreamer } from "../streaming/compact-progress-streamer.
 import { getSessionStreamThrottleMs } from "../streaming/stream-throttle.js";
 import { setResponseStreamerForReconciliation } from "../../app/services/busy-reconciliation-service.js";
 import {
-  TelegramEventDelivery,
+  MaxEventDelivery,
   type SessionTargetPolicy,
-  type TelegramDestination,
-} from "./telegram-event-delivery.js";
+  type MaxDestination,
+} from "./max-event-delivery.js";
 
 const TOOL_ELAPSED_TICK_INTERVAL_MS = 5000;
 export const TOOL_ELAPSED_MAX_TRACKING_HOURS = 24;
 const TOOL_ELAPSED_MAX_TRACKING_MS = TOOL_ELAPSED_MAX_TRACKING_HOURS * 60 * 60 * 1000;
 
 type ReplyKeyboard = NonNullable<
-  NonNullable<Parameters<TelegramDestination["api"]["sendMessage"]>[2]>["reply_markup"]
+  NonNullable<Parameters<MaxDestination["api"]["sendMessage"]>[2]>["reply_markup"]
 >;
 
 export interface SessionRuntimeStateOptions {
@@ -80,7 +80,7 @@ function deleteSessionKeys(map: Map<string, unknown>, sessionId: string): void {
  * session, so one session can be cleared without touching another.
  */
 export class SessionRuntimeState {
-  readonly delivery = new TelegramEventDelivery();
+  readonly delivery = new MaxEventDelivery();
   readonly assistantEditStreamer: ResponseStreamer;
   readonly assistantDraftStreamer: ResponseStreamer;
   readonly thinkingStreamer: ResponseStreamer;
@@ -174,13 +174,13 @@ export class SessionRuntimeState {
       editText: (sessionId, messageId, text) =>
         this.delivery.editText(
           this.requireForegroundDestination(sessionId, "Compact progress", "edit"),
-          messageId,
+          String(messageId),
           text,
         ),
       deleteText: (sessionId, messageId) =>
         this.delivery.deleteText(
           this.requireForegroundDestination(sessionId, "Compact progress", "delete"),
-          messageId,
+          String(messageId),
         ),
       // A parked card keeps its background operations; the next stretch no longer runs them.
       onPark: (sessionId, callIds) => {
@@ -206,13 +206,13 @@ export class SessionRuntimeState {
       editText: (sessionId, messageId, text) =>
         this.delivery.editText(
           this.requireForegroundDestination(sessionId, "Tool stream", "edit"),
-          messageId,
+          String(messageId),
           text,
         ),
       deleteText: (sessionId, messageId) =>
         this.delivery.deleteText(
           this.requireForegroundDestination(sessionId, "Tool stream", "delete"),
-          messageId,
+          String(messageId),
         ),
     });
   }
@@ -714,7 +714,7 @@ export class SessionRuntimeState {
     return mode === "draft" ? this.assistantDraftStreamer : this.assistantEditStreamer;
   }
 
-  private getForegroundDestination(sessionId: string): TelegramDestination | null {
+  private getForegroundDestination(sessionId: string): MaxDestination | null {
     const destination = this.policy.getDestination(sessionId);
     if (!destination || !this.policy.isForegroundSession(sessionId)) {
       return null;
@@ -723,7 +723,7 @@ export class SessionRuntimeState {
     return destination;
   }
 
-  private requireDestination(sessionId: string, operation: string): TelegramDestination {
+  private requireDestination(sessionId: string, operation: string): MaxDestination {
     const destination = this.policy.getDestination(sessionId);
     if (!destination || destination.chatId <= 0) {
       throw new Error(`Bot context missing for ${operation}`);
@@ -736,7 +736,7 @@ export class SessionRuntimeState {
     sessionId: string,
     stream: string,
     action: string,
-  ): TelegramDestination {
+  ): MaxDestination {
     const destination = this.requireDestination(sessionId, `${stream.toLowerCase()} ${action}`);
     if (!this.policy.isForegroundSession(sessionId)) {
       throw new Error(`${stream} session mismatch for ${action}: ${sessionId}`);
@@ -768,24 +768,9 @@ export class SessionRuntimeState {
   }
 
   private createDraftResponseStreamer(): ResponseStreamer {
-    return new ResponseStreamer({
-      throttleMs: getSessionStreamThrottleMs,
-      sendPart: (part, _options, sessionId) =>
-        this.delivery.sendDraftPart(this.requireDestination(sessionId, "draft send"), part),
-      editPart: (messageId, part, _options, sessionId) =>
-        this.delivery.editDraftPart(
-          this.requireDestination(sessionId, "draft edit"),
-          messageId,
-          part,
-        ),
-      deleteText: async () => {},
-      completePart: (part, options, sessionId) =>
-        this.delivery.completeDraftPart(
-          this.requireDestination(sessionId, "draft complete"),
-          part,
-          options,
-        ),
-    });
+    // MAX has no draft API. A draft is an ordinary message that the edit
+    // streamer sends once and then edits in place.
+    return this.createEditResponseStreamer();
   }
 }
 

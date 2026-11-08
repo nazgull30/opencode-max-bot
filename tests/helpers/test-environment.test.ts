@@ -25,11 +25,11 @@ describe("test app-home isolation", () => {
     const unowned = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-unowned-"));
     const owned = await createTestHome("opencode-owned-");
     try {
-      vi.stubEnv("OPENCODE_TELEGRAM_HOME", unowned);
+      vi.stubEnv("OPENCODE_MAX_HOME", unowned);
       ensureTestEnvironment();
-      expect(process.env.OPENCODE_TELEGRAM_HOME).not.toBe(unowned);
+      expect(process.env.OPENCODE_MAX_HOME).not.toBe(unowned);
 
-      vi.stubEnv("OPENCODE_TELEGRAM_HOME", owned);
+      vi.stubEnv("OPENCODE_MAX_HOME", owned);
       let paths = await import("../../src/runtime/paths.js");
       expect(paths.getRuntimePaths().appHome).toBe(owned);
 
@@ -37,7 +37,7 @@ describe("test app-home isolation", () => {
       paths = await import("../../src/runtime/paths.js");
       expect(paths.getRuntimePaths().appHome).toBe(owned);
 
-      vi.stubEnv("OPENCODE_TELEGRAM_HOME", unowned);
+      vi.stubEnv("OPENCODE_MAX_HOME", unowned);
       vi.restoreAllMocks();
       expect(paths.getRuntimePaths().appHome).not.toBe(unowned);
       expect(await snapshot(unowned)).toEqual({});
@@ -63,7 +63,7 @@ describe("test app-home isolation", () => {
           : platform === "darwin"
             ? path.join(profile, "Library", "Application Support")
             : xdg,
-        "opencode-telegram-bot",
+        "opencode-max-bot",
       );
       const owned = await createTestHome("opencode-isolation-migration-");
       for (const home of [installedHome, sourceHome, customHome]) {
@@ -84,12 +84,12 @@ describe("test app-home isolation", () => {
         vi.spyOn(process, "cwd").mockReturnValue(sourceHome);
         vi.stubEnv("APPDATA", appData);
         vi.stubEnv("XDG_CONFIG_HOME", xdg);
-        vi.stubEnv("OPENCODE_TELEGRAM_HOME", customHome);
+        vi.stubEnv("OPENCODE_MAX_HOME", customHome);
 
         for (const oldValue of [false, true]) {
           vi.resetModules();
           const store = await import("../../src/app/stores/settings-store.js");
-          vi.stubEnv("OPENCODE_TELEGRAM_HOME", owned);
+          vi.stubEnv("OPENCODE_MAX_HOME", owned);
           await fs.writeFile(
             path.join(owned, "settings.json"),
             JSON.stringify({ ttsEnabled: oldValue }),
@@ -100,13 +100,13 @@ describe("test app-home isolation", () => {
           store.__resetSettingsForTests();
 
           for (const mode of ["installed", "sources"]) {
-            vi.stubEnv("OPENCODE_TELEGRAM_RUNTIME_MODE", mode);
-            delete process.env.OPENCODE_TELEGRAM_HOME;
+            vi.stubEnv("OPENCODE_MAX_RUNTIME_MODE", mode);
+            delete process.env.OPENCODE_MAX_HOME;
             store.setCompactOutputMode(true);
             await store.flushSettings();
           }
           // Restoring an inherited override is not permission to write there.
-          vi.stubEnv("OPENCODE_TELEGRAM_HOME", customHome);
+          vi.stubEnv("OPENCODE_MAX_HOME", customHome);
           store.setShowThinkingContent(false);
           await store.flushSettings();
           const log = await import("../../src/utils/logger.js");

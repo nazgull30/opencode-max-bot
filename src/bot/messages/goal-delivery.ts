@@ -1,4 +1,4 @@
-import type { Api, InlineKeyboard, Keyboard } from "grammy";
+import type { Api, InlineKeyboard, Keyboard } from "../../max/compat.js";
 import { chunkPlainText } from "../render/chunker.js";
 
 /** Sends a goal reply through the existing plain-text chunker. */

@@ -22,7 +22,7 @@ describe("bot/routers/message-router", () => {
     };
 
     registerMessageRouter(bot as never, {
-      container: createTestAppContainer({ ensureEventSubscription: vi.fn(), setTelegramContext: vi.fn() }),
+      container: createTestAppContainer({ ensureEventSubscription: vi.fn(), setMAXContext: vi.fn() }),
     });
 
     expect(bot.hears).toHaveBeenCalledTimes(6);
@@ -46,7 +46,7 @@ describe("bot/routers/message-router", () => {
       const bot = { on: vi.fn(), hears: vi.fn() };
 
       registerMessageRouter(bot as never, {
-        container: createTestAppContainer({ ensureEventSubscription: vi.fn(), setTelegramContext: vi.fn() }),
+        container: createTestAppContainer({ ensureEventSubscription: vi.fn(), setMAXContext: vi.fn() }),
       });
 
       return defined(bot.hears.mock.calls[1]?.[1]) as (ctx: unknown, next: () => Promise<void>) => Promise<void>;

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../../src/max/compat.js";
 import { skillsCommand } from "../../../src/bot/commands/skills-catalog-command.js";
 import { handleSkillsCallback } from "../../../src/bot/callbacks/skills-catalog-callback-handler.js";
 import { handleSkillTextArguments } from "../../../src/bot/handlers/text-message-handler.js";
@@ -45,12 +45,12 @@ vi.mock("../../../src/bot/handlers/prompt.js", () => ({
 function createCommandContext(messageId: number): Context {
   return {
     chat: { id: 777 },
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 900 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "900" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -62,15 +62,15 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
-    reply: vi.fn().mockResolvedValue({ message_id: 901 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "901" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 902 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "902" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -80,12 +80,12 @@ function createTextContext(text: string): Context {
   return {
     chat: { id: 777 },
     message: { text } as Context["message"],
-    reply: vi.fn().mockResolvedValue({ message_id: 903 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "903" }),
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
     api: {
-      sendMessage: vi.fn().mockResolvedValue({ message_id: 904 }),
+      sendMessage: vi.fn().mockResolvedValue({ message_id: "904" }),
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
   } as unknown as Context;
@@ -146,7 +146,7 @@ describe("bot/commands/skills", () => {
     expect(state?.expectedInput).toBe("callback");
     expect(state?.metadata.flow).toBe("skills");
     expect(state?.metadata.stage).toBe("list");
-    expect(state?.metadata.messageId).toBe(123);
+    expect(state?.metadata.messageId).toBe("123");
   });
 
   it("filters out non-skill sources from skill list", async () => {
@@ -178,7 +178,7 @@ describe("bot/commands/skills", () => {
       metadata: {
         flow: "skills",
         stage: "list",
-        messageId: 321,
+        messageId: "321",
         projectDirectory: "D:\\Projects\\Repo",
         skills: [
           { name: "borsch", description: "Cook borsch" },
@@ -210,7 +210,7 @@ describe("bot/commands/skills", () => {
       metadata: {
         flow: "skills",
         stage: "confirm",
-        messageId: 400,
+        messageId: "400",
         projectDirectory: "D:\\Projects\\Repo",
         skillName: "borsch",
       },
@@ -236,7 +236,7 @@ describe("bot/commands/skills", () => {
       metadata: {
         flow: "skills",
         stage: "confirm",
-        messageId: 500,
+        messageId: "500",
         projectDirectory: "D:\\Projects\\Repo",
         skillName: "borsch",
       },
@@ -248,7 +248,7 @@ describe("bot/commands/skills", () => {
 
     expect(handled).toBe(true);
     expect(container.interactionManager.getSnapshot()).toBeNull();
-    expect(ctx.api.deleteMessage).toHaveBeenCalledWith(777, 500);
+    expect(ctx.api.deleteMessage).toHaveBeenCalledWith(777, "500");
     expect(ctx.reply).toHaveBeenCalledWith(
       `${t("skills.executing_prefix")}\n/borsch with garlic buns`,
       {
@@ -269,7 +269,7 @@ describe("bot/commands/skills", () => {
       metadata: {
         flow: "skills",
         stage: "list",
-        messageId: 600,
+        messageId: "600",
         projectDirectory: "D:\\Projects\\Repo",
         skills: [{ name: "borsch", description: "Cook borsch" }],
       },
@@ -298,7 +298,7 @@ describe("bot/commands/skills", () => {
       metadata: {
         flow: "skills",
         stage: "list",
-        messageId: 800,
+        messageId: "800",
         projectDirectory: "D:\\Projects\\Repo",
         skills,
         page: 0,

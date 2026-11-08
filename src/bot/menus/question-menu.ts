@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { getCurrentProject } from "../../app/stores/settings-store.js";
@@ -6,8 +6,9 @@ import { getCurrentSession } from "../../app/services/session-service.js";
 import { logger } from "../../utils/logger.js";
 import { safeBackgroundTask } from "../../utils/safe-background-task.js";
 import { t } from "../../i18n/index.js";
-import { editRenderedBotPart, sendRenderedBotPart } from "../messages/telegram-text.js";
-import type { TelegramRenderedPart, TelegramRichBlock } from "../render/types.js";
+import { editRenderedBotPart, sendRenderedBotPart } from "../messages/max-text.js";
+import type { MAXRenderedPart } from "../render/types.js";
+import { escapeHtml } from "../render/blocks-to-html.js";
 import type {
   Question,
   QuestionInFlightEnding,
@@ -18,7 +19,7 @@ import { isOpencodeNotFoundError } from "../../utils/opencode-error.js";
 import { isRecord } from "../../utils/type-guards.js";
 
 const MAX_BUTTON_LENGTH = 60;
-const TELEGRAM_MESSAGE_LIMIT = 4096;
+const MAX_MESSAGE_LIMIT = 3800;
 const TRUNCATION_SUFFIX = "…";
 const QUESTION_EMOJI = "❓";
 const CUSTOM_ANSWER_EMOJI = "✏️";
@@ -62,14 +63,14 @@ function getProgress(deps: QuestionDataDeps): QuestionProgress {
   };
 }
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 export function clearQuestionInteraction(reason: string, deps: QuestionInteractionDeps): void {
@@ -82,7 +83,7 @@ export function clearQuestionInteraction(reason: string, deps: QuestionInteracti
 export function syncQuestionInteractionState(
   expectedInput: "callback" | "mixed",
   questionIndex: number,
-  messageId: number | null,
+  messageId: string | null,
   deps: QuestionStateDeps,
 ): void {
   const metadata: Record<string, unknown> = {
@@ -254,7 +255,7 @@ export async function showNextQuestion(ctx: Context, deps: QuestionMenuDeps): Pr
 async function endLandedPoll(
   bot: Context["api"],
   chatId: number,
-  messageId: number,
+  messageId: string,
   question: Question,
   progress: QuestionProgress,
   ending: QuestionInFlightEnding,
@@ -451,7 +452,7 @@ async function completePoll(
 }
 
 /**
- * Closes the poll on screen after OpenCode settled it outside Telegram: the question
+ * Closes the poll on screen after OpenCode settled it outside MAX: the question
  * message keeps its text, loses its buttons and gets the outcome line, and the slot
  * is released.
  */
@@ -462,7 +463,7 @@ export async function closeQuestionSettledOutside(
   deps: QuestionStateDeps,
 ): Promise<void> {
   logger.info(
-    `[QuestionHandler] Poll settled outside Telegram: requestID=${deps.questionManager.getRequestID()}, outcome=${outcome}`,
+    `[QuestionHandler] Poll settled outside MAX: requestID=${deps.questionManager.getRequestID()}, outcome=${outcome}`,
   );
   await closeQuestionWithLine(
     bot,
@@ -534,7 +535,7 @@ export async function closeQuestionCancelled(
   const { questionManager } = deps;
   const messageId = questionManager.getActiveMessageId();
 
-  // Released before the edit, like a poll settled outside Telegram.
+  // Released before the edit, like a poll settled outside MAX.
   questionManager.cancel();
 
   if (messageId !== null) {
@@ -599,13 +600,13 @@ function segmentToPlainText(segment: QuestionSegment): string {
   return `${segment.label ?? ""}${segment.rest}`;
 }
 
-function segmentToBlock(segment: QuestionSegment): TelegramRichBlock {
+function segmentToHtml(segment: QuestionSegment): string {
   if (!segment.label) {
-    return { type: "paragraph", text: segment.rest };
+    return escapeHtml(segment.rest);
   }
 
-  const bold = { type: "bold" as const, text: segment.label };
-  return { type: "paragraph", text: segment.rest ? [bold, segment.rest] : bold };
+  const label = `<b>${escapeHtml(segment.label)}</b>`;
+  return segment.rest ? `${label}${escapeHtml(segment.rest)}` : label;
 }
 
 function sliceOnSafeBoundary(text: string, maxLength: number): string {
@@ -622,7 +623,7 @@ function appendTruncationSuffix(segment: QuestionSegment): QuestionSegment {
 }
 
 /**
- * Keeps the card within the Telegram message limit by dropping whole segments
+ * Keeps the card within the MAX message limit by dropping whole segments
  * from the tail, cutting only the last one that still partially fits.
  */
 function truncateQuestionSegments(
@@ -680,7 +681,7 @@ function formatQuestionDetailsPart(question: {
   question: string;
   options: Array<{ label: string; description: string }>;
   multiple?: boolean;
-}, progress: QuestionProgress, statusLine?: string): TelegramRenderedPart {
+}, progress: QuestionProgress, statusLine?: string): MAXRenderedPart {
   const progressText = progress.total > 0 ? `${progress.index + 1}/${progress.total}` : "";
 
   const headerTitle = [QUESTION_EMOJI, progressText, question.header].filter(Boolean).join(" ");
@@ -706,16 +707,16 @@ function formatQuestionDetailsPart(question: {
   const reserved = statusSegment ? segmentLength(statusSegment) + 2 : 0;
   const visibleSegments = truncateQuestionSegments(
     segments.filter((segment) => segmentLength(segment) > 0),
-    TELEGRAM_MESSAGE_LIMIT - reserved,
+    MAX_MESSAGE_LIMIT - reserved,
   );
   if (statusSegment) {
     visibleSegments.push(statusSegment);
   }
 
   return {
-    blocks: visibleSegments.map(segmentToBlock),
+    html: visibleSegments.map(segmentToHtml).join("\n\n"),
     fallbackText: visibleSegments.map(segmentToPlainText).join("\n\n"),
-    source: "blocks",
+    source: "html",
   };
 }
 

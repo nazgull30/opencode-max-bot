@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import { t } from "../../i18n/index.js";
 import { logger } from "../../utils/logger.js";
 
@@ -35,7 +35,7 @@ export async function handleUnsupportedMessages(contexts: Context[]): Promise<bo
   );
 
   logger.warn(
-    `[Bot] Unsupported Telegram message: types=${types.join(",")}, fields=${carriedFields.join(",")}, chatId=${replyContext.chat?.id ?? "unknown"}, messageId=${replyContext.message?.message_id ?? "unknown"}`,
+    `[Bot] Unsupported MAX message: types=${types.join(",")}, fields=${carriedFields.join(",")}, chatId=${replyContext.chat?.id ?? "unknown"}, messageId=${replyContext.message?.message_id ?? "unknown"}`,
   );
   await replyContext.reply(t("bot.message_type_unsupported"));
   return true;

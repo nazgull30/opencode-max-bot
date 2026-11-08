@@ -4,7 +4,7 @@ import {
   getDeleteCompactProgressOnFinish,
   getShowAssistantRunFooter,
 } from "../../../app/stores/settings-store.js";
-import type { TelegramDestination } from "../telegram-event-delivery.js";
+import type { MaxDestination } from "../max-event-delivery.js";
 import { getReplyKeyboard, type EventHandlerDeps } from "./handler-context.js";
 
 type RunCloseDeps = EventHandlerDeps<"keyboardManager">;
@@ -16,7 +16,7 @@ type RunCloseDeps = EventHandlerDeps<"keyboardManager">;
 export async function closeForegroundRun(
   deps: RunCloseDeps,
   sessionId: string,
-  destination: TelegramDestination,
+  destination: MaxDestination,
   completedRun: AssistantRunInfo | null,
   reason: string,
 ): Promise<void> {

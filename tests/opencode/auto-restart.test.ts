@@ -141,7 +141,7 @@ describe("opencode/auto-restart", () => {
 
   it("does not spawn a local process in a container when health-check fails", async () => {
     mocked.config.opencode.autoRestartEnabled = true;
-    vi.stubEnv("OPENCODE_TELEGRAM_CONTAINER", "1");
+    vi.stubEnv("OPENCODE_MAX_CONTAINER", "1");
     mocked.healthMock.mockRejectedValue(new Error("offline"));
     const service = new OpencodeAutoRestartService(readyLifecycle);
 
@@ -159,7 +159,7 @@ describe("opencode/auto-restart", () => {
 
   it("still notifies ready in a container when the host server is healthy", async () => {
     mocked.config.opencode.autoRestartEnabled = true;
-    vi.stubEnv("OPENCODE_TELEGRAM_CONTAINER", "1");
+    vi.stubEnv("OPENCODE_MAX_CONTAINER", "1");
     mocked.healthMock.mockResolvedValue(healthyResponse());
     const service = new OpencodeAutoRestartService(readyLifecycle);
 

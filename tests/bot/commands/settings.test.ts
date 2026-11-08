@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { settingsCommand } from "../../../src/bot/commands/settings-command.js";
 import { handleSettingsCallback } from "../../../src/bot/callbacks/settings-callback-handler.js";
 import { t } from "../../../src/i18n/index.js";
@@ -152,7 +152,7 @@ describe("bot/commands/settings-command", () => {
     mocked.getDeleteCompactProgressOnFinishMock.mockReturnValue(true);
     mocked.getShowThinkingContentMock.mockReturnValue(true);
     mocked.getTtsModeMock.mockReturnValue("auto");
-    const replyMock = vi.fn().mockResolvedValue({ message_id: 10 });
+    const replyMock = vi.fn().mockResolvedValue({ message_id: "10" });
     const ctx = {
       chat: { id: 42, type: "private" },
       message: { text: "/settings" },
@@ -165,31 +165,31 @@ describe("bot/commands/settings-command", () => {
     const call = defined(replyMock.mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(opts.reply_markup.inline_keyboard[0][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![0][0].text).toBe(
       `${t("settings.compact_output.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[1][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![1][0].text).toBe(
       `${t("settings.delete_progress_on_finish.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[2][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![2][0].text).toBe(
       `${t("settings.response_streaming.label")}: ${t("settings.response_streaming.edit")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[3][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![3][0].text).toBe(
       `${t("settings.assistant_footer.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[4][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![4][0].text).toBe(
       `${t("settings.pin_session_dashboard.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[5][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![5][0].text).toBe(
       `${t("settings.background_notifications.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[6][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![6][0].text).toBe(
       `${t("settings.tts.label")}: ${t("status.tts.auto")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[7][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![7][0].text).toBe(
       `${t("settings.prompt_queue.label")}: ${t("settings.value.off")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[8][0].text).toBe(t("inline.button.close"));
+    expect(opts.reply_markup.inline_keyboard![8][0].text).toBe(t("inline.button.close"));
   });
 
   it("shows thinking content setting when compact output is disabled", async () => {
@@ -197,7 +197,7 @@ describe("bot/commands/settings-command", () => {
     mocked.getDeleteCompactProgressOnFinishMock.mockReturnValue(false);
     mocked.getShowThinkingContentMock.mockReturnValue(true);
     mocked.getTtsModeMock.mockReturnValue("off");
-    const replyMock = vi.fn().mockResolvedValue({ message_id: 10 });
+    const replyMock = vi.fn().mockResolvedValue({ message_id: "10" });
     const ctx = {
       chat: { id: 42, type: "private" },
       message: { text: "/settings" },
@@ -208,28 +208,28 @@ describe("bot/commands/settings-command", () => {
 
     const call = defined(replyMock.mock.calls[0]);
     const [, opts] = call;
-    expect(opts.reply_markup.inline_keyboard[1][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![1][0].text).toBe(
       `${t("settings.thinking_content.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[2][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![2][0].text).toBe(
       `${t("settings.diff_files.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[3][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![3][0].text).toBe(
       `${t("settings.response_streaming.label")}: ${t("settings.response_streaming.edit")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[4][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![4][0].text).toBe(
       `${t("settings.assistant_footer.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[5][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![5][0].text).toBe(
       `${t("settings.pin_session_dashboard.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[6][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![6][0].text).toBe(
       `${t("settings.background_notifications.label")}: ${t("settings.value.on")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[7][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![7][0].text).toBe(
       `${t("settings.tts.label")}: ${t("status.tts.off")}`,
     );
-    expect(opts.reply_markup.inline_keyboard[8][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![8][0].text).toBe(
       `${t("settings.prompt_queue.label")}: ${t("settings.value.off")}`,
     );
   });
@@ -240,7 +240,7 @@ describe("bot/commands/settings-command", () => {
     mocked.getShowThinkingContentMock.mockReturnValue(true);
     mocked.getResponseStreamingModeMock.mockReturnValue("draft");
     mocked.getTtsModeMock.mockReturnValue("off");
-    const replyMock = vi.fn().mockResolvedValue({ message_id: 10 });
+    const replyMock = vi.fn().mockResolvedValue({ message_id: "10" });
     const ctx = {
       chat: { id: 42, type: "private" },
       message: { text: "/settings" },
@@ -251,7 +251,7 @@ describe("bot/commands/settings-command", () => {
 
     const call = defined(replyMock.mock.calls[0]);
     const [, opts] = call;
-    expect(opts.reply_markup.inline_keyboard[3][0].text).toBe(
+    expect(opts.reply_markup.inline_keyboard![3][0].text).toBe(
       `${t("settings.response_streaming.label")}: ${t("settings.response_streaming.draft")}`,
     );
   });
@@ -297,14 +297,14 @@ describe("bot/callbacks/settings-callback-handler", () => {
       expectedInput: "callback",
       metadata: {
         menuKind: "settings",
-        messageId: 10,
+        messageId: "10",
       },
     });
   }
 
   function createCallbackContext(data: string): Context {
     return {
-      callbackQuery: { data, message: { message_id: 10 } },
+      callbackQuery: { data, message: { message_id: "10" } },
       answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
       editMessageText: vi.fn().mockResolvedValue(undefined),
     } as unknown as Context;
@@ -326,25 +326,25 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[0]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![0]?.[0]).text).toBe(
       `${t("settings.compact_output.label")}: ${t("settings.value.on")}`,
     );
-    expect(defined(opts?.reply_markup?.inline_keyboard[1]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![1]?.[0]).text).toBe(
       `${t("settings.delete_progress_on_finish.label")}: ${t("settings.value.off")}`,
     );
-    expect(defined(opts?.reply_markup?.inline_keyboard[2]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![2]?.[0]).text).toBe(
       `${t("settings.response_streaming.label")}: ${t("settings.response_streaming.edit")}`,
     );
-    expect(defined(opts?.reply_markup?.inline_keyboard[3]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![3]?.[0]).text).toBe(
       `${t("settings.assistant_footer.label")}: ${t("settings.value.on")}`,
     );
-    expect(defined(opts?.reply_markup?.inline_keyboard[4]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![4]?.[0]).text).toBe(
       `${t("settings.pin_session_dashboard.label")}: ${t("settings.value.on")}`,
     );
-    expect(defined(opts?.reply_markup?.inline_keyboard[5]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![5]?.[0]).text).toBe(
       `${t("settings.background_notifications.label")}: ${t("settings.value.on")}`,
     );
-    expect(defined(opts?.reply_markup?.inline_keyboard[6]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![6]?.[0]).text).toBe(
       `${t("settings.tts.label")}: ${t("status.tts.off")}`,
     );
   });
@@ -366,7 +366,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[1]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![1]?.[0]).text).toBe(
       `${t("settings.delete_progress_on_finish.label")}: ${t("settings.value.on")}`,
     );
   });
@@ -386,7 +386,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[1]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![1]?.[0]).text).toBe(
       `${t("settings.thinking_content.label")}: ${t("settings.value.off")}`,
     );
   });
@@ -407,7 +407,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[2]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![2]?.[0]).text).toBe(
       `${t("settings.diff_files.label")}: ${t("settings.value.off")}`,
     );
   });
@@ -428,7 +428,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[3]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![3]?.[0]).text).toBe(
       `${t("settings.response_streaming.label")}: ${t("settings.response_streaming.draft")}`,
     );
   });
@@ -449,7 +449,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[4]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![4]?.[0]).text).toBe(
       `${t("settings.assistant_footer.label")}: ${t("settings.value.off")}`,
     );
   });
@@ -472,7 +472,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[6]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![6]?.[0]).text).toBe(
       `${t("settings.background_notifications.label")}: ${t("settings.value.off")}`,
     );
   });
@@ -493,7 +493,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[8]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![8]?.[0]).text).toBe(
       `${t("settings.prompt_queue.label")}: ${t("settings.value.on")}`,
     );
   });
@@ -565,7 +565,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [text, opts] = call;
     expect(text).toBe(t("settings.menu.title"));
-    expect(defined(opts?.reply_markup?.inline_keyboard[7]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![7]?.[0]).text).toBe(
       `${t("settings.tts.label")}: ${t("status.tts.all")}`,
     );
   });
@@ -619,7 +619,7 @@ describe("bot/callbacks/settings-callback-handler", () => {
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: t("settings.saved") });
     const call = defined(vi.mocked(ctx.editMessageText).mock.calls[0]);
     const [, opts] = call;
-    expect(defined(opts?.reply_markup?.inline_keyboard[5]?.[0]).text).toBe(
+    expect(defined(opts?.reply_markup?.inline_keyboard![5]?.[0]).text).toBe(
       `${t("settings.pin_session_dashboard.label")}: ${t("settings.value.off")}`,
     );
   });

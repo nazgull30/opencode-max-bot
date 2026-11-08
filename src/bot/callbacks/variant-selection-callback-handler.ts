@@ -1,4 +1,4 @@
-import { Context } from "grammy";
+import { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { getStoredAgent, resolveProjectAgent } from "../../app/services/agent-selection-service.js";
 import { getStoredModel } from "../../app/services/model-selection-service.js";
@@ -15,7 +15,7 @@ import { clearActiveInlineMenu, ensureActiveInlineMenu } from "../menus/inline-m
 
 /**
  * Handle variant selection callback
- * @param ctx grammY context
+ * @param ctx MAX context
  * @returns true if handled, false otherwise
  */
 export type VariantSelectDeps = Pick<

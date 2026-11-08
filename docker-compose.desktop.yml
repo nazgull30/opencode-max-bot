@@ -5,4 +5,4 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       OPENCODE_API_URL: http://host.docker.internal:4096
-      OPENCODE_TELEGRAM_CONTAINER: "1"
+      OPENCODE_MAX_CONTAINER: "1"

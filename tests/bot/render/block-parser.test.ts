@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { parseTelegramBlocks } from "../../../src/bot/render/block-parser.js";
+import { parseMAXBlocks } from "../../../src/bot/render/block-parser.js";
 
 describe("bot/render/block-parser", () => {
   it("parses paragraphs with inline formatting", () => {
     expect(
-      parseTelegramBlocks("Hello **bold** *italic* ~~strike~~ `code` [site](https://example.com)"),
+      parseMAXBlocks("Hello **bold** *italic* ~~strike~~ `code` [site](https://example.com)"),
     ).toEqual([
       {
         type: "paragraph",
@@ -31,7 +31,7 @@ describe("bot/render/block-parser", () => {
   it("parses headings, rules, and code blocks", () => {
     const input = ["## Title", "", "---", "", "```ts", "const a = 1;", "```"].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "heading",
         level: 2,
@@ -51,7 +51,7 @@ describe("bot/render/block-parser", () => {
       "\n",
     );
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "list",
         ordered: false,
@@ -90,7 +90,7 @@ describe("bot/render/block-parser", () => {
   it("parses simple blockquotes with normalized lazy continuation", () => {
     const input = ["> quoted line", "Quote continues", "", "> second quote"].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "blockquote",
         blocks: [
@@ -115,7 +115,7 @@ describe("bot/render/block-parser", () => {
       "| **bold** | `code` |",
     ].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "table",
         rows: [
@@ -129,11 +129,11 @@ describe("bot/render/block-parser", () => {
   });
 
   it("returns empty blocks for whitespace-only input", () => {
-    expect(parseTelegramBlocks(" \n\n ")).toEqual([]);
+    expect(parseMAXBlocks(" \n\n ")).toEqual([]);
   });
 
   it("keeps malformed emphasis as paragraph text instead of throwing", () => {
-    const blocks = parseTelegramBlocks("*text: *value**");
+    const blocks = parseMAXBlocks("*text: *value**");
 
     expect(blocks).toHaveLength(1);
     expect(blocks[0]).toEqual({
@@ -153,7 +153,7 @@ describe("bot/render/block-parser", () => {
   it("keeps lists nested inside a quote instead of degrading the whole quote", () => {
     const input = ["> intro", "> - item 1", "> - item 2"].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "blockquote",
         blocks: [
@@ -174,7 +174,7 @@ describe("bot/render/block-parser", () => {
   it("keeps a quote nested inside a quote", () => {
     const input = ["> outer", ">", "> > inner"].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "blockquote",
         blocks: [
@@ -191,7 +191,7 @@ describe("bot/render/block-parser", () => {
   it("keeps column alignment declared in the table delimiter row", () => {
     const input = ["| a | b | c |", "|:--|:-:|--:|", "| 1 | 2 | 3 |"].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "table",
         rows: [
@@ -206,7 +206,7 @@ describe("bot/render/block-parser", () => {
   it("keeps a nested list inside its parent item", () => {
     const input = ["- parent", "  - child"].join("\n");
 
-    expect(parseTelegramBlocks(input)).toEqual([
+    expect(parseMAXBlocks(input)).toEqual([
       {
         type: "list",
         ordered: false,
@@ -228,9 +228,9 @@ describe("bot/render/block-parser", () => {
     ]);
   });
 
-  it("parses inline html tags Telegram can express", () => {
+  it("parses inline html tags MAX can express", () => {
     expect(
-      parseTelegramBlocks("H<sub>2</sub>O, м<sup>2</sup>, <mark>note</mark>, <u>under</u>"),
+      parseMAXBlocks("H<sub>2</sub>O, м<sup>2</sup>, <mark>note</mark>, <u>under</u>"),
     ).toEqual([
       {
         type: "paragraph",
@@ -249,7 +249,7 @@ describe("bot/render/block-parser", () => {
   });
 
   it("marks text written with the double equals syntax", () => {
-    expect(parseTelegramBlocks("Take ==this== seriously")).toEqual([
+    expect(parseMAXBlocks("Take ==this== seriously")).toEqual([
       {
         type: "paragraph",
         inlines: [
@@ -262,13 +262,13 @@ describe("bot/render/block-parser", () => {
   });
 
   it("leaves a comparison written with spaced equals alone", () => {
-    expect(parseTelegramBlocks("check a == b == c")).toEqual([
+    expect(parseMAXBlocks("check a == b == c")).toEqual([
       { type: "paragraph", inlines: [{ type: "text", text: "check a == b == c" }] },
     ]);
   });
 
-  it("writes a keyboard tag as monowidth, the closest thing Telegram draws", () => {
-    expect(parseTelegramBlocks("Press <kbd>Ctrl</kbd>")).toEqual([
+  it("writes a keyboard tag as monowidth, the closest thing MAX draws", () => {
+    expect(parseMAXBlocks("Press <kbd>Ctrl</kbd>")).toEqual([
       {
         type: "paragraph",
         inlines: [
@@ -280,7 +280,7 @@ describe("bot/render/block-parser", () => {
   });
 
   it("shows an inline tag it cannot express as written", () => {
-    expect(parseTelegramBlocks("A <abbr title='x'>term</abbr> here")).toEqual([
+    expect(parseMAXBlocks("A <abbr title='x'>term</abbr> here")).toEqual([
       {
         type: "paragraph",
         inlines: [{ type: "text", text: "A <abbr title='x'>term</abbr> here" }],
@@ -289,25 +289,25 @@ describe("bot/render/block-parser", () => {
   });
 
   it("shows an inline tag that is never closed as written", () => {
-    expect(parseTelegramBlocks("Broken <mark>tail")).toEqual([
+    expect(parseMAXBlocks("Broken <mark>tail")).toEqual([
       { type: "paragraph", inlines: [{ type: "text", text: "Broken <mark>tail" }] },
     ]);
   });
 
   it("shows a closing tag that opens nothing as written", () => {
-    expect(parseTelegramBlocks("Stray </mark> tag")).toEqual([
+    expect(parseMAXBlocks("Stray </mark> tag")).toEqual([
       { type: "paragraph", inlines: [{ type: "text", text: "Stray </mark> tag" }] },
     ]);
   });
 
   it("turns a line break tag into a newline", () => {
-    expect(parseTelegramBlocks("first<br>second")).toEqual([
+    expect(parseMAXBlocks("first<br>second")).toEqual([
       { type: "paragraph", inlines: [{ type: "text", text: "first\nsecond" }] },
     ]);
   });
 
   it("degrades unsupported html blocks to plain text", () => {
-    expect(parseTelegramBlocks("<div>hello</div>")).toEqual([
+    expect(parseMAXBlocks("<div>hello</div>")).toEqual([
       {
         type: "plain",
         text: "<div>hello</div>",

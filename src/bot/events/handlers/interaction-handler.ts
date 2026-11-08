@@ -240,8 +240,8 @@ export function registerInteractionHandlers(deps: InteractionDeps): void {
       return;
     }
 
-    // A dismissal or answers sent from Telegram fail or end the tool: the poll is left to them.
-    if (questionManager.isSettlingFromTelegram()) {
+    // A dismissal or answers sent from MAX fail or end the tool: the poll is left to them.
+    if (questionManager.isSettlingFromMAX()) {
       return;
     }
 
@@ -274,7 +274,7 @@ export function registerInteractionHandlers(deps: InteractionDeps): void {
     }
 
     // The answers or the dismissal are on their way: their result decides how the poll ends.
-    if (questionManager.isSettlingFromTelegram()) {
+    if (questionManager.isSettlingFromMAX()) {
       questionManager.noteSettledWhileSending(outcome);
       return;
     }

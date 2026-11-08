@@ -76,7 +76,7 @@ export class TaskCreationManager {
   setParsedSchedule(
     scheduleText: string,
     parsedSchedule: ParsedTaskSchedule,
-    previewMessageId: number,
+    previewMessageId: string,
   ): TaskCreationState | null {
     const state = this.update({
       stage: "awaiting_prompt",
@@ -104,11 +104,11 @@ export class TaskCreationManager {
     return state;
   }
 
-  setPromptRequestMessageId(messageId: number): TaskCreationState | null {
+  setPromptRequestMessageId(messageId: string): TaskCreationState | null {
     return this.update({ promptRequestMessageId: messageId });
   }
 
-  setScheduleRequestMessageId(messageId: number): TaskCreationState | null {
+  setScheduleRequestMessageId(messageId: string): TaskCreationState | null {
     return this.update({ scheduleRequestMessageId: messageId });
   }
 

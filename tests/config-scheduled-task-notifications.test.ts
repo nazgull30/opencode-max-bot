@@ -8,8 +8,8 @@ async function loadConfig() {
 
 describe("config scheduled task notifications", () => {
   beforeEach(() => {
-    vi.stubEnv("TELEGRAM_BOT_TOKEN", "test-telegram-token");
-    vi.stubEnv("TELEGRAM_ALLOWED_USER_ID", "123456789");
+    vi.stubEnv("MAX_BOT_TOKEN", "test-max-token");
+    vi.stubEnv("MAX_ALLOWED_USER_ID", "123456789");
     vi.stubEnv("OPENCODE_MODEL_PROVIDER", "test-provider");
     vi.stubEnv("OPENCODE_MODEL_ID", "test-model");
     vi.stubEnv("SCHEDULED_TASK_DISABLE_NOTIFICATION", "");

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 
 const flushPendingPromptMock = vi.hoisted(() => vi.fn());
 
@@ -29,7 +29,7 @@ function createDocumentContext(overrides: Partial<Context["message"]> = {}): {
   ctx: Context;
   replyMock: ReturnType<typeof vi.fn>;
 } {
-  const replyMock = vi.fn().mockResolvedValue({ message_id: 101 });
+  const replyMock = vi.fn().mockResolvedValue({ message_id: "101" });
 
   const ctx = {
     chat: { id: 777 },

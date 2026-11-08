@@ -1,4 +1,4 @@
-import { escapePlainTextForTelegramMarkdownV2 } from "../../utils/telegram-markdown.js";
+import { escapePlainTextForMarkdown } from "../../utils/markdown-escape.js";
 
 export interface QuotedNotification {
   text: string;
@@ -16,7 +16,7 @@ function buildQuotedMarkdownText(text: string): string {
   return text
     .split("\n")
     .map((line) =>
-      line.length > 0 ? `> ${escapePlainTextForTelegramMarkdownV2(line)}` : ">",
+      line.length > 0 ? `> ${escapePlainTextForMarkdown(line)}` : ">",
     )
     .join("\n");
 }
@@ -28,7 +28,7 @@ export function buildQuotedNotification(
 ): QuotedNotification {
   const separator = options?.blankLineAfterTitle === false ? "\n" : "\n\n";
   return {
-    text: `${escapePlainTextForTelegramMarkdownV2(title)}${separator}${buildQuotedMarkdownText(body)}`,
+    text: `${escapePlainTextForMarkdown(title)}${separator}${buildQuotedMarkdownText(body)}`,
     rawFallbackText: `${title}${separator}${buildQuotedPlainText(body)}`,
   };
 }

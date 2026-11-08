@@ -4,7 +4,7 @@ import { t } from "../../i18n/index.js";
 
 /**
  * Centralized bot commands definitions
- * Used for both Telegram API setMyCommands and command handler registration
+ * Used for both MAX API setMyCommands and command handler registration
  */
 
 export interface BotCommandDefinition {

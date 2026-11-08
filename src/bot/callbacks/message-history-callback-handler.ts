@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { config } from "../../config.js";
 import type { InteractionState } from "../../app/types/interaction.js";
@@ -22,7 +22,7 @@ import { replyBusyBlocked } from "../messages/busy-blocked-renderer.js";
 import {
   AGENT_TEXT_LINK_PREVIEW_OPTIONS,
   sendRenderedBotPart,
-} from "../messages/telegram-text.js";
+} from "../messages/max-text.js";
 import {
   buildMessageDetailKeyboard,
   buildMessagesListKeyboard,
@@ -36,7 +36,7 @@ import {
   MESSAGES_CALLBACK_REVERT,
   parseMessagePageCallback,
   parseMessageSelectCallback,
-  TELEGRAM_MESSAGE_LIMIT,
+  MAX_MESSAGE_LIMIT,
   truncateMessageHistoryText,
 } from "../menus/message-history-menu.js";
 
@@ -58,7 +58,7 @@ export type MessagesCallbackDeps = Pick<
 interface MessagesListMetadata {
   flow: "messages";
   stage: "list";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   sessionId: string;
   messages: UserMessageItem[];
@@ -68,7 +68,7 @@ interface MessagesListMetadata {
 interface MessagesDetailMetadata {
   flow: "messages";
   stage: "detail";
-  messageId: number;
+  messageId: string;
   projectDirectory: string;
   sessionId: string;
   messages: UserMessageItem[];
@@ -78,14 +78,14 @@ interface MessagesDetailMetadata {
 
 type MessagesMetadata = MessagesListMetadata | MessagesDetailMetadata;
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 function parseMessages(value: unknown): UserMessageItem[] | null {
@@ -131,7 +131,7 @@ function parseMessagesMetadata(state: InteractionState | null): MessagesMetadata
 
   if (
     flow !== "messages" ||
-    typeof messageId !== "number" ||
+    typeof messageId !== "string" ||
     typeof projectDirectory !== "string" ||
     typeof sessionId !== "string" ||
     !messages
@@ -246,7 +246,7 @@ export async function handleMessagesCallback(
         });
 
         const successText = t("messages.revert_success", { text: selectedMessage.text });
-        await ctx.editMessageText(truncateMessageHistoryText(successText, TELEGRAM_MESSAGE_LIMIT));
+        await ctx.editMessageText(truncateMessageHistoryText(successText, MAX_MESSAGE_LIMIT));
         clearMessagesInteraction(deps, "messages_revert_success");
       } catch (error) {
         logger.error("[Messages] Error reverting message:", error);
@@ -308,7 +308,7 @@ export async function handleMessagesCallback(
         });
 
         const successText = t("messages.fork_success", { text: selectedMessage.text });
-        await ctx.editMessageText(truncateMessageHistoryText(successText, TELEGRAM_MESSAGE_LIMIT));
+        await ctx.editMessageText(truncateMessageHistoryText(successText, MAX_MESSAGE_LIMIT));
         clearMessagesInteraction(deps, "messages_fork_success");
 
         safeBackgroundTask({

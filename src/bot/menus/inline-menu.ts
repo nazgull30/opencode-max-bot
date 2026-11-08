@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from "grammy";
+import { Context, InlineKeyboard } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import type { InteractionMetadata, InteractionState } from "../../app/types/interaction.js";
 import { logger } from "../../utils/logger.js";
@@ -27,7 +27,7 @@ export type InlineMenuDeps = Pick<AppContainer, "interactionManager">;
 
 interface ActiveInlineMenuMetadata {
   menuKind: InlineMenuKind;
-  messageId: number;
+  messageId: string;
 }
 
 interface InlineMenuReplyOptions {
@@ -43,14 +43,14 @@ export function isInlineMenuKind(value: string): value is InlineMenuKind {
   return INLINE_MENU_KINDS.includes(value as InlineMenuKind);
 }
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 function getActiveInlineMenuMetadata(
@@ -67,7 +67,7 @@ function getActiveInlineMenuMetadata(
     return null;
   }
 
-  if (typeof messageId !== "number") {
+  if (typeof messageId !== "string") {
     return null;
   }
 
@@ -106,7 +106,7 @@ export async function replyWithInlineMenu(
   ctx: Context,
   options: InlineMenuReplyOptions,
   deps: InlineMenuDeps,
-): Promise<number> {
+): Promise<string> {
   const keyboard = appendInlineMenuCancelButton(
     options.keyboard,
     options.menuKind,

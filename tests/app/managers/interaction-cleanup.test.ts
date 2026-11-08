@@ -77,7 +77,7 @@ describe("app/managers/interaction-cleanup", () => {
     interactionManager.start({
       kind: "inline",
       expectedInput: "callback",
-      metadata: { menuKind: "model", messageId: 1 },
+      metadata: { menuKind: "model", messageId: "1" },
     });
 
     interactionManager.reset("first_cleanup");

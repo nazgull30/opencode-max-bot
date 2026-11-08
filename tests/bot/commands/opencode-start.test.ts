@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ChildProcess } from "node:child_process";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { t } from "../../../src/i18n/index.js";
 
 const mocked = vi.hoisted(() => ({
@@ -50,7 +50,7 @@ vi.mock("../../../src/opencode/process.js", () => ({
   startLocalOpencodeServer: mocked.startLocalOpencodeServerMock,
 }));
 
-vi.mock("../../../src/bot/messages/telegram-text.js", () => ({
+vi.mock("../../../src/bot/messages/max-text.js", () => ({
   editBotText: mocked.editBotTextMock,
 }));
 
@@ -70,7 +70,7 @@ function createContext(): Context {
   return {
     chat: { id: 42, type: "private" },
     api: {},
-    reply: vi.fn().mockResolvedValue({ message_id: 10 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "10" }),
   } as unknown as Context;
 }
 
@@ -121,7 +121,7 @@ describe("bot/commands/opencode-start-command", () => {
 
   it("warns when running in a container even if the API URL is local", async () => {
     const ctx = createContext();
-    vi.stubEnv("OPENCODE_TELEGRAM_CONTAINER", "1");
+    vi.stubEnv("OPENCODE_MAX_CONTAINER", "1");
 
     await opencodeStartCommand(ctx as never, createDeps());
 

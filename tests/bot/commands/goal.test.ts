@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { CommandContext, Context } from "grammy";
+import type { CommandContext, Context } from "../../../src/max/compat.js";
 import type { GoalState } from "../../../src/app/types/goal.js";
 import {
   goalCommand,
@@ -82,7 +82,7 @@ function setup(goal: GoalState | null = null) {
   deps.goalManager.follow("s1");
   deps.goalManager.apply("s1", goal, false);
   const api = {
-    sendMessage: vi.fn().mockResolvedValue({ message_id: 99 }),
+    sendMessage: vi.fn().mockResolvedValue({ message_id: "99" }),
     editMessageText: vi.fn().mockResolvedValue(undefined),
   };
   deps.keyboardManager.initialize(api as never, 1);
@@ -92,8 +92,8 @@ function setup(goal: GoalState | null = null) {
       match: "",
       chat: { id: 1 },
       message: { text },
-      ...(data ? { callbackQuery: { data, message: { message_id: 42 } } } : {}),
-      reply: vi.fn().mockResolvedValue({ message_id: 42 }),
+      ...(data ? { callbackQuery: { data, message: { message_id: "42" } } } : {}),
+      reply: vi.fn().mockResolvedValue({ message_id: "42" }),
       answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
       deleteMessage: vi.fn().mockResolvedValue(undefined),
       editMessageText: vi.fn().mockResolvedValue(undefined),
@@ -369,7 +369,7 @@ describe("guided session goal", () => {
     expect(command).not.toHaveBeenCalled();
   });
 
-  it("does not create over a goal added outside Telegram during objective input", async () => {
+  it("does not create over a goal added outside MAX during objective input", async () => {
     const { deps, remote, context, command } = setup();
     await goalCommand(context(), deps);
     remote.goal = initialGoal;

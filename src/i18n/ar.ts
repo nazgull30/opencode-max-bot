@@ -1,7 +1,7 @@
 import { projectSearchFallback, type I18nDictionary } from "./en.js";
 
 /**
- * Arabic localization for OpenCode Telegram Bot.
+ * Arabic localization for OpenCode MAX Bot.
  *
  * Keep upstream emoji and technical terms where they help recognition.
  * Prefer natural Arabic wording over literal translation.
@@ -68,7 +68,7 @@ export const ar: I18nDictionary = {
   "common.unknown_error": "خطأ غير معروف",
 
   "start.welcome":
-    "👋 أهلًا بك في OpenCode Telegram Bot!\n\nالأوامر الأساسية:\n/projects — اختيار مشروع\n/sessions — عرض الجلسات\n/new — بدء جلسة جديدة\n/commands — الأوامر المخصصة\n/skills — قائمة المهارات\n/task — إنشاء مهمة مجدولة\n/tasklist — عرض المهام المجدولة\n/status — حالة الخادم والجلسة\n/help — المساعدة\n\nاستخدم الأزرار السفلية للتبديل بين الوكيل والنموذج وخيارات التشغيل.",
+    "👋 أهلًا بك في OpenCode MAX Bot!\n\nالأوامر الأساسية:\n/projects — اختيار مشروع\n/sessions — عرض الجلسات\n/new — بدء جلسة جديدة\n/commands — الأوامر المخصصة\n/skills — قائمة المهارات\n/task — إنشاء مهمة مجدولة\n/tasklist — عرض المهام المجدولة\n/status — حالة الخادم والجلسة\n/help — المساعدة\n\nاستخدم الأزرار السفلية للتبديل بين الوكيل والنموذج وخيارات التشغيل.",
   "help.keyboard_hint":
     "💡 استخدم الأزرار السفلية للتبديل بين الوكيل والنموذج وخيارات التشغيل وإدارة السياق.",
   "help.text":
@@ -106,7 +106,7 @@ export const ar: I18nDictionary = {
   "bot.assistant_reply_undelivered":
     "⚠️ The last assistant reply could not be delivered. Send your message again if you still need it.",
   "bot.stale_messages_skipped":
-    "⚠️ Some messages were skipped while Telegram was unreachable. Please send them again.",
+    "⚠️ Some messages were skipped while MAX was unreachable. Please send them again.",
   "bot.session_retry":
     "🔁 {message}\n\nاستمر مزوّد الخدمة في إرجاع الخطأ نفسه بعد عدة محاولات. استخدم /abort لإيقاف المهمة.",
   "bot.external_user_input": "رسالة واردة من واجهة أخرى",
@@ -396,8 +396,8 @@ export const ar: I18nDictionary = {
   "permission.outcome.once": "✅ Allowed once",
   "permission.outcome.always": "🔓 Allowed always",
   "permission.outcome.reject": "❌ Rejected",
-  "permission.outcome.outside_suffix": " · answered outside Telegram",
-  "permission.outcome.settled_outside": "☑️ Answered outside Telegram",
+  "permission.outcome.outside_suffix": " · answered outside MAX",
+  "permission.outcome.settled_outside": "☑️ Answered outside MAX",
   "permission.outcome.not_answered": "⏹ Not answered",
   "permission.delivery_failed": "⚠️ The answer did not reach OpenCode — tap again",
   "permission.name.bash": "تشغيل أمر Bash",
@@ -418,8 +418,8 @@ export const ar: I18nDictionary = {
   "question.select_one_required_callback": "اختر خيارًا واحدًا على الأقل",
   "question.enter_custom_callback": "أرسل إجابتك المخصصة كرسالة",
   "question.cancelled": "❌ تم إلغاء الاستبيان",
-  "question.settled_outside.answered": "☑️ Answered outside Telegram",
-  "question.settled_outside.cancelled": "❌ Cancelled outside Telegram",
+  "question.settled_outside.answered": "☑️ Answered outside MAX",
+  "question.settled_outside.cancelled": "❌ Cancelled outside MAX",
   "question.not_answered": "⏹ Not answered",
   "question.answer_already_received": "تم استلام الإجابة بالفعل، يرجى الانتظار...",
   "question.completed_no_answers": "✅ اكتمل الاستبيان (بدون إجابات)",
@@ -483,7 +483,7 @@ export const ar: I18nDictionary = {
   "tool.file_header.edit":
     "تعديل ملف/مسار: {path}\n============================================================\n\n",
 
-  "runtime.wizard.ask_token": "أدخل رمز بوت Telegram الذي حصلت عليه من @BotFather.\n> ",
+  "runtime.wizard.ask_token": "أدخل رمز بوت MAX الذي حصلت عليه من MAX Business.\n> ",
   "runtime.wizard.ask_language":
     "اختر لغة الواجهة.\nأدخل رقم اللغة من القائمة أو رمز اللغة.\nاضغط Enter لاستخدام اللغة الافتراضية: {defaultLocale}\n{options}\n> ",
   "runtime.wizard.language_invalid": "أدخل رقمًا من القائمة أو رمز لغة مدعومًا.\n",
@@ -492,7 +492,7 @@ export const ar: I18nDictionary = {
   "runtime.wizard.token_invalid":
     "صيغة رمز البوت غير صحيحة. الصيغة المتوقعة: <id>:<secret>. حاول مرة أخرى.\n",
   "runtime.wizard.ask_user_id":
-    "أدخل معرّف حسابك في Telegram. يمكنك الحصول عليه من @userinfobot.\n> ",
+    "أدخل معرّف حسابك في MAX. يمكنك الحصول عليه من MAX profile.\n> ",
   "runtime.wizard.user_id_invalid": "أدخل رقمًا صحيحًا موجبًا أكبر من صفر.\n",
   "runtime.wizard.ask_api_url":
     "أدخل رابط OpenCode API، أو اضغط Enter لاستخدام الرابط الافتراضي: {defaultUrl}\n> ",
@@ -511,12 +511,12 @@ export const ar: I18nDictionary = {
     "Enter OpenCode server password.\nPress Enter to keep the saved password.\n> ",
   "runtime.wizard.api_url_invalid":
     "أدخل رابطًا صالحًا (http/https) أو اضغط Enter لاستخدام الافتراضي.\n",
-  "runtime.wizard.start": "إعداد OpenCode Telegram Bot.\n",
+  "runtime.wizard.start": "إعداد OpenCode MAX Bot.\n",
   "runtime.wizard.saved": "تم حفظ الإعدادات في:\n- {envPath}\n",
   "runtime.wizard.not_configured_starting":
     "لم يتم إعداد التطبيق بعد. جارٍ تشغيل معالج الإعداد...\n",
   "runtime.wizard.tty_required":
-    "يتطلب معالج الإعداد التفاعلي طرفية TTY. شغّل `opencode-telegram config` في shell تفاعلية.",
+    "يتطلب معالج الإعداد التفاعلي طرفية TTY. شغّل `opencode-max config` في shell تفاعلية.",
   "runtime.container.command_unavailable":
     "⚠️ هذا الأمر غير متاح في صورة Docker.",
 

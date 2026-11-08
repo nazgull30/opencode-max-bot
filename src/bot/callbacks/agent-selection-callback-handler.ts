@@ -1,4 +1,4 @@
-import { Context } from "grammy";
+import { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import {
   applyAgentConfiguredSettings,
@@ -15,7 +15,7 @@ import { clearActiveInlineMenu, ensureActiveInlineMenu } from "../menus/inline-m
 
 /**
  * Handle agent selection callback
- * @param ctx grammY context
+ * @param ctx MAX context
  * @returns true if handled, false otherwise
  */
 export type AgentSelectDeps = Pick<

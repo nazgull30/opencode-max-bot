@@ -3,15 +3,15 @@
 ## 1. Install and configure the bot
 
 ```bash
-npm install -g @grinev/opencode-telegram-bot@latest
-opencode-telegram config
+npm install -g opencode-max-bot@latest
+opencode-max config
 ```
 
 ## 2. Get the required paths
 
 ```bash
 which node
-which opencode-telegram
+which opencode-max
 dirname "$(which node)"
 ```
 
@@ -19,23 +19,23 @@ Use these values in the service file:
 
 - `<USER>`: your Linux user
 - `<NODE_PATH>`: output of `which node`
-- `<OPENCODE_TELEGRAM_PATH>`: output of `which opencode-telegram`
+- `<OPENCODE_MAX_PATH>`: output of `which opencode-max`
 - `<NODE_BIN_DIR>`: output of `dirname "$(which node)"`
 
 ## 3. Create the service file
 
-Create `/etc/systemd/system/opencode-telegram-bot.service`:
+Create `/etc/systemd/system/opencode-max-bot.service`:
 
 ```ini
 [Unit]
-Description=OpenCode Telegram Bot
+Description=OpenCode MAX Bot
 After=network.target
 
 [Service]
 Type=simple
 User=<USER>
 Environment=PATH=<NODE_BIN_DIR>:/usr/local/bin:/usr/bin:/bin
-ExecStart=<NODE_PATH> <OPENCODE_TELEGRAM_PATH> start
+ExecStart=<NODE_PATH> <OPENCODE_MAX_PATH> start
 Restart=on-failure
 RestartSec=5
 
@@ -61,9 +61,9 @@ value is ignored, and the search above applies.
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable opencode-telegram-bot
-sudo systemctl start opencode-telegram-bot
-sudo systemctl status opencode-telegram-bot
+sudo systemctl enable opencode-max-bot
+sudo systemctl start opencode-max-bot
+sudo systemctl status opencode-max-bot
 ```
 
 ## 5. Optional: auto-restart local OpenCode server
@@ -80,7 +80,7 @@ This only works when `OPENCODE_API_URL` points to a local address, for example `
 ## 6. View logs
 
 ```bash
-sudo journalctl -u opencode-telegram-bot -f
+sudo journalctl -u opencode-max-bot -f
 ```
 
 ## Example
@@ -91,14 +91,14 @@ This is a working example for an `nvm`-based setup:
 
 ```ini
 [Unit]
-Description=OpenCode Telegram Bot
+Description=OpenCode MAX Bot
 After=network.target
 
 [Service]
 Type=simple
 User=admin
 Environment=PATH=/home/admin/.nvm/versions/node/v20.20.2/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=/home/admin/.nvm/versions/node/v20.20.2/bin/node /home/admin/.nvm/versions/node/v20.20.2/bin/opencode-telegram
+ExecStart=/home/admin/.nvm/versions/node/v20.20.2/bin/node /home/admin/.nvm/versions/node/v20.20.2/bin/opencode-max
 Restart=on-failure
 RestartSec=5
 

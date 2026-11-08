@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import { config } from "../../config.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { t } from "../../i18n/index.js";
@@ -97,7 +97,7 @@ export function registerMessageRouter(bot: Bot<Context>, deps: MessageRouterDeps
       return;
     }
 
-    // The queue was drained or cleared after Telegram rendered the keyboard the
+    // The queue was drained or cleared after MAX rendered the keyboard the
     // user pressed. Never fall through to the prompt handler: that would send
     // the button label itself to OpenCode as a prompt.
     const keyboard = container.keyboardManager.getKeyboard();
@@ -179,13 +179,13 @@ export function registerMessageRouter(bot: Bot<Context>, deps: MessageRouterDeps
 
   bot.on("message:voice", async (ctx) => {
     logger.debug(`[Bot] Received voice message, chatId=${ctx.chat.id}`);
-    container.setTelegramContext(bot, ctx.chat.id);
+    container.setMAXContext(bot, ctx.chat.id);
     await handleVoiceMessage(ctx, botDeps);
   });
 
   bot.on("message:audio", async (ctx) => {
     logger.debug(`[Bot] Received audio message, chatId=${ctx.chat.id}`);
-    container.setTelegramContext(bot, ctx.chat.id);
+    container.setMAXContext(bot, ctx.chat.id);
     await handleVoiceMessage(ctx, botDeps);
   });
 
@@ -196,13 +196,13 @@ export function registerMessageRouter(bot: Bot<Context>, deps: MessageRouterDeps
 
   bot.on("message:photo", async (ctx) => {
     logger.debug(`[Bot] Received photo message, chatId=${ctx.chat.id}`);
-    container.setTelegramContext(bot, ctx.chat.id);
+    container.setMAXContext(bot, ctx.chat.id);
     await handlePhotoMessage(ctx, botDeps);
   });
 
   bot.on("message:document", async (ctx) => {
     logger.debug(`[Bot] Received document message, chatId=${ctx.chat.id}`);
-    container.setTelegramContext(bot, ctx.chat.id);
+    container.setMAXContext(bot, ctx.chat.id);
     await handleDocumentMessage(ctx, botDeps);
   });
 
@@ -213,7 +213,7 @@ export function registerMessageRouter(bot: Bot<Context>, deps: MessageRouterDeps
     }
     const { text } = input;
 
-    container.setTelegramContext(bot, ctx.chat.id);
+    container.setMAXContext(bot, ctx.chat.id);
 
     if (text.startsWith("/")) {
       return;

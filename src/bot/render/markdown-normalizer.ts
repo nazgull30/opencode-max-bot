@@ -118,10 +118,10 @@ function normalizeMarkdown(text: string, options: NormalizeMarkdownOptions): str
   return output.join("\n");
 }
 
-export function normalizeMarkdownForTelegramRendering(text: string): string {
+export function normalizeMarkdownForMAXRendering(text: string): string {
   return normalizeMarkdown(text, { preserveBlockMarkup: false });
 }
 
-export function normalizeMarkdownForTelegramBlockParsing(text: string): string {
+export function normalizeMarkdownForMAXBlockParsing(text: string): string {
   return normalizeMarkdown(text, { preserveBlockMarkup: true });
 }

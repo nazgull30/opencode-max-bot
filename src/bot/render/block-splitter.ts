@@ -9,7 +9,7 @@ import {
   toRichBlock,
 } from "./rich-blocks.js";
 import { splitTextIntoChunks } from "./text-splitter.js";
-import type { TableColumnAlign, TelegramBlock, TelegramListItem } from "./types.js";
+import type { TableColumnAlign, MAXBlock, MAXListItem } from "./types.js";
 
 export interface BlockSplitLimits {
   maxChars: number;
@@ -23,7 +23,7 @@ export function normalizeBlockSplitLimits(limits?: Partial<BlockSplitLimits>): B
   };
 }
 
-function fitsLimits(block: TelegramBlock, limits: BlockSplitLimits): boolean {
+function fitsLimits(block: MAXBlock, limits: BlockSplitLimits): boolean {
   const richBlock = toRichBlock(block);
   return (
     countRichChars(richBlock) <= limits.maxChars && countRichBlocks(richBlock) <= limits.maxBlocks
@@ -68,12 +68,12 @@ function groupItems<T>(
   return groups;
 }
 
-function measureItem(item: TelegramListItem): number {
+function measureItem(item: MAXListItem): number {
   return item.blocks.reduce((total, block) => total + toBlockPlainText(block).length + 1, 0);
 }
 
 /** Block units a native list item costs: the item itself plus its content. */
-function measureItemUnits(item: TelegramListItem): number {
+function measureItemUnits(item: MAXListItem): number {
   return item.blocks.reduce((total, block) => total + countRichBlocks(toRichBlock(block)), 1);
 }
 
@@ -82,7 +82,7 @@ function splitCodeBlock(
   text: string,
   language: string | undefined,
   limits: BlockSplitLimits,
-): TelegramBlock[] {
+): MAXBlock[] {
   const lines = text.split("\n");
   const groups = groupItems(lines, limits.maxChars, Number.MAX_SAFE_INTEGER, (line) => line.length + 1);
 
@@ -101,7 +101,7 @@ function splitTableBlock(
   rows: string[][],
   align: TableColumnAlign[] | undefined,
   limits: BlockSplitLimits,
-): TelegramBlock[] {
+): MAXBlock[] {
   const [header, ...bodyRows] = rows;
   if (!header) {
     return [];
@@ -128,25 +128,25 @@ function splitTableBlock(
 
 /** Rich quote units: the quote block itself plus whatever its content costs. */
 function splitBlockquoteBlock(
-  blocks: TelegramBlock[],
+  blocks: MAXBlock[],
   limits: BlockSplitLimits,
-): TelegramBlock[] {
+): MAXBlock[] {
   const innerLimits = { maxChars: limits.maxChars, maxBlocks: Math.max(1, limits.maxBlocks - 1) };
-  const innerBlocks = blocks.flatMap((inner) => splitOversizeTelegramBlock(inner, innerLimits));
+  const innerBlocks = blocks.flatMap((inner) => splitOversizeMAXBlock(inner, innerLimits));
 
   return groupItems(innerBlocks, innerLimits.maxChars, innerLimits.maxBlocks, (inner) =>
     countRichChars(toRichBlock(inner)),
   ).map((group) => ({ type: "blockquote" as const, blocks: group }));
 }
 
-function splitToPlainBlocks(block: TelegramBlock, limits: BlockSplitLimits): TelegramBlock[] {
+function splitToPlainBlocks(block: MAXBlock, limits: BlockSplitLimits): MAXBlock[] {
   return splitTextIntoChunks(toBlockPlainText(block), limits.maxChars).map((text) => ({
     type: "plain" as const,
     text,
   }));
 }
 
-function splitByType(block: TelegramBlock, limits: BlockSplitLimits): TelegramBlock[] {
+function splitByType(block: MAXBlock, limits: BlockSplitLimits): MAXBlock[] {
   switch (block.type) {
     case "code":
       return splitCodeBlock(block.text, block.language, limits);
@@ -200,15 +200,15 @@ function splitByType(block: TelegramBlock, limits: BlockSplitLimits): TelegramBl
  * header repeated, lists by items, quotes by lines); anything that still does
  * not fit degrades to plain text.
  */
-export function splitOversizeTelegramBlock(
-  block: TelegramBlock,
+export function splitOversizeMAXBlock(
+  block: MAXBlock,
   limits: BlockSplitLimits,
-): TelegramBlock[] {
+): MAXBlock[] {
   if (fitsLimits(block, limits)) {
     return [block];
   }
 
-  logger.debug("[TelegramRender] Splitting oversize block", {
+  logger.debug("[MAXRender] Splitting oversize block", {
     blockType: block.type,
     maxChars: limits.maxChars,
     maxBlocks: limits.maxBlocks,
@@ -219,10 +219,10 @@ export function splitOversizeTelegramBlock(
   );
 }
 
-export function splitOversizeTelegramBlocks(
-  blocks: TelegramBlock[],
+export function splitOversizeMAXBlocks(
+  blocks: MAXBlock[],
   limits?: Partial<BlockSplitLimits>,
-): TelegramBlock[] {
+): MAXBlock[] {
   const normalizedLimits = normalizeBlockSplitLimits(limits);
-  return blocks.flatMap((block) => splitOversizeTelegramBlock(block, normalizedLimits));
+  return blocks.flatMap((block) => splitOversizeMAXBlock(block, normalizedLimits));
 }

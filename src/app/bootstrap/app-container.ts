@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import { createEventSubscriptionService } from "../../bot/services/event-subscription-service.js";
 import { KeyboardManager } from "../../bot/keyboards/keyboard-manager.js";
 import { PinnedMessageManager } from "../../bot/pinned/pinned-message-manager.js";
@@ -58,7 +58,7 @@ export interface AppContainer {
   readonly taskCreationManager: TaskCreationManager;
 
   ensureEventSubscription(directory: string): Promise<void>;
-  setTelegramContext(bot: Bot<Context> | null, chatId: number | null): void;
+  setMAXContext(bot: Bot<Context> | null, chatId: number | null): void;
   /** Replaces any running heartbeat. */
   startHeartbeat(): void;
   /** Replaces any registered ready-restore handler. */
@@ -138,7 +138,7 @@ export function createAppContainer(): AppContainer {
     taskCreationManager: new TaskCreationManager(interactionManager),
 
     ensureEventSubscription: (directory) => eventSubscriptionService.ensureEventSubscription(directory),
-    setTelegramContext: (bot, chatId) => eventSubscriptionService.setTelegramContext(bot, chatId),
+    setMAXContext: (bot, chatId) => eventSubscriptionService.setMAXContext(bot, chatId),
 
     startHeartbeat: () => {
       stopHeartbeat();

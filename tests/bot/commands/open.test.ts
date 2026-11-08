@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { t } from "../../../src/i18n/index.js";
 import { defined } from "../../helpers/defined.js";
 
@@ -86,7 +86,7 @@ import { createTestAppContainer } from "../../helpers/app-container.js";
 function createCommandContext(): Context {
   return {
     chat: { id: 123 },
-    reply: vi.fn().mockResolvedValue({ message_id: 42 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "42" }),
   } as unknown as Context;
 }
 
@@ -95,7 +95,7 @@ function createCallbackContext(data: string, messageId: number = 42): Context {
     chat: { id: 123 },
     callbackQuery: {
       data,
-      message: { message_id: messageId },
+      message: { message_id: String(messageId) },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
@@ -194,7 +194,7 @@ describe("open command", () => {
     });
 
     it("should warn instead of browsing when running in a container", async () => {
-      vi.stubEnv("OPENCODE_TELEGRAM_CONTAINER", "1");
+      vi.stubEnv("OPENCODE_MAX_CONTAINER", "1");
 
       const ctx = createCommandContext();
       await openCommand(ctx as never, createDeps());

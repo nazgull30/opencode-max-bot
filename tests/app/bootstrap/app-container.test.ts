@@ -59,7 +59,7 @@ describe("app/bootstrap/app-container", () => {
         metadata: {},
         always: [],
       },
-      101,
+      "101",
     );
     expect(container.interactionManager.getSnapshot()?.kind).toBe("permission");
     container.interactionManager.reset("test_reset");

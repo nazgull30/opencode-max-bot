@@ -330,7 +330,7 @@ export async function subscribeToEvents(
             const event = readResult.result.value;
 
             // CRITICAL: Explicitly yield to the event loop BEFORE processing the event
-            // This allows grammY to handle getUpdates between SSE events
+            // This allows MAX polling to run between SSE events
             await new Promise<void>((resolve) => setImmediate(resolve));
 
             const normalizedEvent = normalizeEvent(event, subscription.source, directory);
@@ -369,7 +369,7 @@ export async function subscribeToEvents(
 
             if (eventCallback) {
               // Use setImmediate to avoid blocking the event loop
-              // and let grammY process incoming Telegram updates
+              // and let the MAX polling loop process incoming updates
               const callbackSnapshot = eventCallback;
               setImmediate(() => {
                 if (

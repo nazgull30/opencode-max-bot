@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { handleTaskTextInput, taskCommand } from "../../../src/bot/commands/task-command.js";
 import { handleTaskCallback } from "../../../src/bot/callbacks/scheduled-task-callback-handler.js";
 import { t } from "../../../src/i18n/index.js";
@@ -31,7 +31,7 @@ vi.mock("../../../src/app/services/missing-folder-notice-service.js", () => ({
 
 vi.mock("../../../src/config.js", () => ({
   config: {
-    telegram: {
+    max: {
       token: "test-token",
       allowedUserId: 777,
       proxyUrl: "",
@@ -93,14 +93,14 @@ vi.mock("../../../src/app/stores/scheduled-task-store.js", () => ({
 function createCommandContext(): Context {
   return {
     chat: { id: 777 },
-    reply: vi.fn().mockResolvedValue({ message_id: 100 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "100" }),
   } as unknown as Context;
 }
 
 function createTextContext(text: string, messageIds: number[]): Context {
   const reply = vi.fn();
   for (const messageId of messageIds) {
-    reply.mockResolvedValueOnce({ message_id: messageId });
+    reply.mockResolvedValueOnce({ message_id: String(messageId) });
   }
 
   return {
@@ -118,11 +118,11 @@ function createCallbackContext(data: string, messageId: number): Context {
     chat: { id: 777 },
     callbackQuery: {
       data,
-      message: { message_id: messageId },
+      message: { message_id: String(messageId) },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
-    reply: vi.fn().mockResolvedValue({ message_id: 500 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "500" }),
     api: {
       deleteMessage: vi.fn().mockResolvedValue(true),
     },
@@ -250,7 +250,7 @@ describe("bot/commands/task", () => {
       metadata: {
         flow: "task",
         stage: "awaiting_prompt",
-        previewMessageId: 202,
+        previewMessageId: "202",
       },
     });
   });

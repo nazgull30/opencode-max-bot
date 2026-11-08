@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { promptAttachment } from "../../../src/app/managers/prompt-attachment-manager.js";
 import {
   ATTACHMENT_CANCEL_CALLBACK,

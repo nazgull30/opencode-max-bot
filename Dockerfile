@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV NODE_ENV=production
 
 # Set persistent home for the bot
-ENV OPENCODE_TELEGRAM_HOME=/app/data
+ENV OPENCODE_MAX_HOME=/app/data
 
 # Create data directories with correct ownership for node user
 RUN mkdir -p /app/data/logs /app/data/run && \

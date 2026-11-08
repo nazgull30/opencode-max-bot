@@ -100,7 +100,7 @@ Manual checks:
 
 1. Set `BOT_LOCALE=<locale-code>` in `.env` and start the bot.
 2. Confirm command descriptions and user-facing texts use the new language.
-3. Run the setup wizard (`opencode-telegram config`) and verify:
+3. Run the setup wizard (`opencode-max config`) and verify:
    - new language appears in selection list
    - selection by number and by locale code works.
 4. Check date rendering in session/project related messages.
@@ -112,7 +112,7 @@ By default, adding a new locale dictionary and registering it does not require n
 Two existing tests keep a hand-written list of locales and must get the new one, otherwise they silently skip it:
 
 - `tests/i18n/placeholders.test.ts` - placeholders match `en`
-- `tests/i18n/callback-answer-length.test.ts` - callback answers fit Telegram's limit
+- `tests/i18n/callback-answer-length.test.ts` - callback answers fit MAX's limit
 
 Add or update tests only if you change locale resolution/normalization behavior (for example alias handling).
 

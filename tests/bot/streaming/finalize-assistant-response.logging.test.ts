@@ -22,13 +22,13 @@ describe("bot/streaming/finalize-assistant-response logging", () => {
       messageId: "m1",
       messageText: "raw model output",
       responseStreamer: {
-        complete: vi.fn().mockResolvedValue({ streamed: false, telegramMessageIds: [] }),
+        complete: vi.fn().mockResolvedValue({ streamed: false, messageIds: [] }),
       },
       flushPendingServiceMessages: vi.fn().mockResolvedValue(undefined),
       prepareStreamingPayload: vi.fn(() => null),
       renderFinalParts: vi.fn(() => [
         {
-          blocks: [],
+          html: "",
           fallbackText: "raw model output",
           source: "plain" as const,
         },

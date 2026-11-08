@@ -1,9 +1,9 @@
 import path from "node:path";
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import { config } from "../../config.js";
 import { processUserPrompt, type ProcessPromptDeps } from "./prompt.js";
 import {
-  downloadTelegramFile,
+  downloadMAXFile,
   toDataUri,
   isTextMimeType,
   isFileSizeAllowed,
@@ -68,7 +68,7 @@ export async function handleDocumentMessage(
   ctx: Context,
   deps: DocumentHandlerDeps,
 ): Promise<void> {
-  const downloadFile = deps.downloadFile ?? downloadTelegramFile;
+  const downloadFile = deps.downloadFile ?? downloadMAXFile;
   const getCapabilities = deps.getModelCapabilities ?? getModelCapabilities;
   const getStored = deps.getStoredModel ?? getStoredModel;
   const processPrompt = deps.processPrompt ?? processUserPrompt;

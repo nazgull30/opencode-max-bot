@@ -76,7 +76,7 @@ export class QuestionManager {
         messageIds: [],
         requestID,
         sessionId,
-        answeredFromTelegram: false,
+        answeredFromMAX: false,
         dismissing: false,
         settledWhileSending: null,
         lastCancelFailed: false,
@@ -94,13 +94,13 @@ export class QuestionManager {
   }
 
   /**
-   * The poll's answers are being sent from Telegram: OpenCode's own reply event is ours.
+   * The poll's answers are being sent from MAX: OpenCode's own reply event is ours.
    * A custom-text wait ends here, so text typed afterwards is never taken as an answer.
    */
   startAnswer(): void {
     const state = this.state;
     if (state) {
-      state.answeredFromTelegram = true;
+      state.answeredFromMAX = true;
       state.settledWhileSending = null;
       state.lastCancelFailed = false;
       state.customInputQuestionIndex = null;
@@ -108,7 +108,7 @@ export class QuestionManager {
   }
 
   isAnswering(): boolean {
-    return this.state?.answeredFromTelegram ?? false;
+    return this.state?.answeredFromMAX ?? false;
   }
 
   /**
@@ -121,7 +121,7 @@ export class QuestionManager {
       return;
     }
 
-    state.answeredFromTelegram = false;
+    state.answeredFromMAX = false;
     state.settledWhileSending = null;
     if (!state.questions[state.currentIndex]?.multiple) {
       state.customAnswers.delete(state.currentIndex);
@@ -160,7 +160,7 @@ export class QuestionManager {
   noteSettledWhileSending(outcome: QuestionSettledOutcome): void {
     const state = this.state;
     if (
-      (state?.dismissing || state?.answeredFromTelegram) &&
+      (state?.dismissing || state?.answeredFromMAX) &&
       state.settledWhileSending !== "answered"
     ) {
       state.settledWhileSending = outcome;
@@ -182,10 +182,10 @@ export class QuestionManager {
     }
   }
 
-  /** Answers or a dismissal are being sent from Telegram: the poll is left to that send. */
-  isSettlingFromTelegram(): boolean {
+  /** Answers or a dismissal are being sent from MAX: the poll is left to that send. */
+  isSettlingFromMAX(): boolean {
     const state = this.state;
-    return (state?.answeredFromTelegram ?? false) || (state?.dismissing ?? false);
+    return (state?.answeredFromMAX ?? false) || (state?.dismissing ?? false);
   }
 
   /** The question's poll message is on its way to the chat; an entry already there is kept. */
@@ -417,22 +417,22 @@ export class QuestionManager {
     return this.state?.questions.length ?? 0;
   }
 
-  addMessageId(messageId: number): void {
+  addMessageId(messageId: string): void {
     this.state?.messageIds.push(messageId);
   }
 
-  setActiveMessageId(messageId: number): void {
+  setActiveMessageId(messageId: string): void {
     const state = this.state;
     if (state) {
       state.activeMessageId = messageId;
     }
   }
 
-  getActiveMessageId(): number | null {
+  getActiveMessageId(): string | null {
     return this.state?.activeMessageId ?? null;
   }
 
-  isActiveMessage(messageId: number | null): boolean {
+  isActiveMessage(messageId: string | null): boolean {
     const activeMessageId = this.getActiveMessageId();
     return activeMessageId !== null && messageId === activeMessageId;
   }
@@ -457,7 +457,7 @@ export class QuestionManager {
     return this.state?.customInputQuestionIndex === questionIndex;
   }
 
-  getMessageIds(): number[] {
+  getMessageIds(): string[] {
     return [...(this.state?.messageIds ?? [])];
   }
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { taskListCommand } from "../../../src/bot/commands/tasklist-command.js";
 import { handleTaskListCallback } from "../../../src/bot/callbacks/scheduled-task-callback-handler.js";
 import { t } from "../../../src/i18n/index.js";
@@ -53,7 +53,7 @@ function createTask(id: string, overrides: Partial<Record<string, unknown>> = {}
 function createCommandContext(messageId: number = 100): Context {
   return {
     chat: { id: 777 },
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
   } as unknown as Context;
 }
 
@@ -63,7 +63,7 @@ function createCallbackContext(data: string, messageId: number): Context {
     callbackQuery: {
       data,
       message: {
-        message_id: messageId,
+        message_id: String(messageId),
       },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
@@ -150,7 +150,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "list",
-        messageId: 123,
+        messageId: "123",
       },
     });
   });
@@ -187,7 +187,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "list",
-        messageId: 300,
+        messageId: "300",
       },
     });
 
@@ -236,7 +236,7 @@ describe("bot/commands/tasklist", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "tasklist", stage: "detail", messageId: 300, taskId: "task-1" },
+      metadata: { flow: "tasklist", stage: "detail", messageId: "300", taskId: "task-1" },
     });
     mocked.toggleScheduledTaskMock.mockResolvedValue(
       createTask("task-1", { enabled: false, nextRunAt: null }),
@@ -255,7 +255,7 @@ describe("bot/commands/tasklist", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "tasklist", stage: "detail", messageId: 300, taskId: "task-1" },
+      metadata: { flow: "tasklist", stage: "detail", messageId: "300", taskId: "task-1" },
     });
     mocked.toggleScheduledTaskMock.mockRejectedValue(new Error("disk error"));
     const ctx = createCallbackContext("tasklist:toggle:off:task-1", 300);
@@ -269,7 +269,7 @@ describe("bot/commands/tasklist", () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
-      metadata: { flow: "tasklist", stage: "detail", messageId: 300, taskId: "task-1" },
+      metadata: { flow: "tasklist", stage: "detail", messageId: "300", taskId: "task-1" },
     });
     mocked.toggleScheduledTaskMock.mockResolvedValue(null);
     mocked.getScheduledTaskMock.mockReturnValue(createTask("task-1", { enabled: false }));
@@ -292,7 +292,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "detail",
-        messageId: 400,
+        messageId: "400",
         taskId: "task-1",
       },
     });
@@ -315,7 +315,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "detail",
-        messageId: 500,
+        messageId: "500",
         taskId: "task-2",
       },
     });
@@ -340,7 +340,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "list",
-        messageId: 600,
+        messageId: "600",
       },
     });
 
@@ -354,14 +354,14 @@ describe("bot/commands/tasklist", () => {
     });
   });
 
-  it("truncates long ASCII prompt by byte length to fit Telegram limit", async () => {
+  it("truncates long ASCII prompt by byte length to fit MAX limit", async () => {
     container.interactionManager.start({
       kind: "custom",
       expectedInput: "callback",
       metadata: {
         flow: "tasklist",
         stage: "list",
-        messageId: 700,
+        messageId: "700",
       },
     });
 
@@ -389,7 +389,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "list",
-        messageId: 800,
+        messageId: "800",
       },
     });
 
@@ -417,7 +417,7 @@ describe("bot/commands/tasklist", () => {
       metadata: {
         flow: "tasklist",
         stage: "list",
-        messageId: 900,
+        messageId: "900",
       },
     });
 

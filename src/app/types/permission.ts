@@ -15,10 +15,10 @@ export interface PermissionRequest {
 }
 
 /**
- * A visible Telegram permission prompt that groups equivalent OpenCode requests
+ * A visible MAX permission prompt that groups equivalent OpenCode requests
  */
 export interface GroupedPermissionMessage {
-  messageId: number; // Telegram message ID showing the prompt
+  messageId: string; // MAX message ID showing the prompt
   request: PermissionRequest; // The request the visible prompt was rendered from
   count: number; // Number of OpenCode requests grouped behind the prompt
 }
@@ -29,8 +29,8 @@ export interface GroupedPermissionMessage {
 export type PermissionReply = "once" | "always" | "reject";
 
 /**
- * How a permission prompt ended: answered (here or outside Telegram), settled outside
- * Telegram with the decision unknown, or dropped without an answer
+ * How a permission prompt ended: answered (here or outside MAX), settled outside
+ * MAX with the decision unknown, or dropped without an answer
  */
 export type PermissionOutcome =
   | { kind: "replied"; reply: PermissionReply; outside: boolean }
@@ -42,14 +42,14 @@ export type PermissionOutcome =
  * stays open with fewer grouped requests
  */
 export interface PermissionPromptChange {
-  messageId: number;
+  messageId: string;
   request: PermissionRequest;
   openCount: number;
   outcome: PermissionOutcome | null;
 }
 
 /**
- * An answer tapped in Telegram that is on its way to OpenCode
+ * An answer tapped in MAX that is on its way to OpenCode
  */
 export interface PermissionSend {
   reply: PermissionReply;
@@ -61,8 +61,8 @@ export interface PermissionSend {
  * State for active permission requests
  */
 export interface PermissionState {
-  requestsByMessageId: Map<number, PermissionRequest>; // Telegram message ID -> request
-  requestIdsByMessageId: Map<number, string[]>; // Telegram message ID -> open OpenCode request IDs
-  messageIdBySignature: Map<string, number>; // Equivalent permission signature -> Telegram message ID
-  sendsByMessageId: Map<number, PermissionSend>; // Telegram message ID -> answer being sent
+  requestsByMessageId: Map<string, PermissionRequest>; // MAX message ID -> request
+  requestIdsByMessageId: Map<string, string[]>; // MAX message ID -> open OpenCode request IDs
+  messageIdBySignature: Map<string, string>; // Equivalent permission signature -> MAX message ID
+  sendsByMessageId: Map<string, PermissionSend>; // MAX message ID -> answer being sent
 }

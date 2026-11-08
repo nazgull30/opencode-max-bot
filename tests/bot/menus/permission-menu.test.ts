@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import type { PermissionRequest } from "../../../src/app/types/permission.js";
 import {
   applyPermissionPromptChanges,
@@ -27,7 +27,7 @@ function createApi(onSend: () => void): {
 } {
   const sendMessage = vi.fn().mockImplementation(async () => {
     onSend();
-    return { message_id: 201 };
+    return { message_id: "201" };
   });
   const deleteMessage = vi.fn().mockResolvedValue(true);
   return {
@@ -53,12 +53,12 @@ describe("bot/menus/permission-menu", () => {
     await applyPermissionPromptChanges(
       api,
       42,
-      [{ messageId: 201, request: PERMISSION, openCount: 0, outcome: { kind: "not_answered" } }],
+      [{ messageId: "201", request: PERMISSION, openCount: 0, outcome: { kind: "not_answered" } }],
       deps,
     );
 
     const [, messageId, text, options] = editMessageText.mock.calls[0] ?? [];
-    expect(messageId).toBe(201);
+    expect(messageId).toBe("201");
     expect(text).toBe(
       `${t("permission.header", { emoji: "⚡", name: t("permission.name.bash") })}• npm test\n\n${t("permission.outcome.not_answered")}`,
     );
@@ -74,7 +74,7 @@ describe("bot/menus/permission-menu", () => {
       42,
       [
         {
-          messageId: 201,
+          messageId: "201",
           request: { ...PERMISSION, patterns: [command] },
           openCount: 0,
           outcome: { kind: "not_answered" },
@@ -96,7 +96,7 @@ describe("bot/menus/permission-menu", () => {
     await applyPermissionPromptChanges(
       api,
       42,
-      [{ messageId: 201, request: PERMISSION, openCount: 2, outcome: null }],
+      [{ messageId: "201", request: PERMISSION, openCount: 2, outcome: null }],
       deps,
     );
 
@@ -117,7 +117,7 @@ describe("bot/menus/permission-menu", () => {
       42,
       [
         {
-          messageId: 201,
+          messageId: "201",
           request: { ...PERMISSION, patterns },
           openCount: 0,
           outcome: { kind: "replied", reply: "reject", outside: true },
@@ -140,7 +140,7 @@ describe("bot/menus/permission-menu", () => {
 
     await showPermissionRequest(api, 42, PERMISSION, deps);
 
-    expect(deps.permissionManager.getRequestID(201)).toBe("perm-1");
+    expect(deps.permissionManager.getRequestID("201")).toBe("perm-1");
     expect(deps.interactionManager.getSnapshot()?.kind).toBe("permission");
     expect(deleteMessage).not.toHaveBeenCalled();
   });
@@ -156,7 +156,7 @@ describe("bot/menus/permission-menu", () => {
 
     await showPermissionRequest(api, 42, PERMISSION, deps);
 
-    expect(deleteMessage).toHaveBeenCalledWith(42, 201);
+    expect(deleteMessage).toHaveBeenCalledWith(42, "201");
     expect(deps.permissionManager.isActive()).toBe(false);
     expect(deps.questionManager.isActive()).toBe(true);
     expect(deps.interactionManager.getWaitingKind()).toBe("permission");
@@ -174,7 +174,7 @@ describe("bot/menus/permission-menu", () => {
 
     await showPermissionRequest(api, 42, PERMISSION, deps);
 
-    expect(deleteMessage).toHaveBeenCalledWith(42, 201);
+    expect(deleteMessage).toHaveBeenCalledWith(42, "201");
     expect(deps.permissionManager.isActive()).toBe(false);
     expect(deps.interactionManager.getWaitingKind()).toBeNull();
   });
@@ -191,7 +191,7 @@ describe("bot/menus/permission-menu", () => {
 
     await showPermissionRequest(api, 42, PERMISSION, deps);
 
-    expect(deleteMessage).toHaveBeenCalledWith(42, 201);
+    expect(deleteMessage).toHaveBeenCalledWith(42, "201");
     expect(deps.interactionManager.getWaitingKind()).toBeNull();
   });
 
@@ -215,13 +215,13 @@ describe("bot/menus/permission-menu", () => {
     ]);
 
     expect(sendMessage).toHaveBeenCalledTimes(1);
-    expect(deps.permissionManager.getMessageIds()).toEqual([201]);
-    expect(deps.permissionManager.getRequestIDs(201)).toEqual(["perm-1"]);
+    expect(deps.permissionManager.getMessageIds()).toEqual(["201"]);
+    expect(deps.permissionManager.getRequestIDs("201")).toEqual(["perm-1"]);
   });
 
   it("groups an equivalent request shown while the first prompt is being sent", async () => {
     const { api, sendMessage } = createApi(() => {});
-    vi.mocked(api.editMessageText).mockResolvedValue(true);
+    vi.mocked(api.editMessageText).mockResolvedValue(undefined);
 
     await Promise.all([
       showPermissionRequest(api, 42, PERMISSION, deps),
@@ -229,12 +229,12 @@ describe("bot/menus/permission-menu", () => {
     ]);
 
     expect(sendMessage).toHaveBeenCalledTimes(1);
-    expect(deps.permissionManager.getRequestIDs(201)).toEqual(["perm-1", "perm-2"]);
+    expect(deps.permissionManager.getRequestIDs("201")).toEqual(["perm-1", "perm-2"]);
   });
 
   it("lets a waiting show go on when the first send fails", async () => {
     const { api, sendMessage } = createApi(() => {});
-    sendMessage.mockRejectedValueOnce(new Error("telegram down"));
+    sendMessage.mockRejectedValueOnce(new Error("max down"));
 
     const results = await Promise.allSettled([
       showPermissionRequest(api, 42, PERMISSION, deps),
@@ -243,6 +243,6 @@ describe("bot/menus/permission-menu", () => {
 
     expect(results.map((result) => result.status)).toEqual(["rejected", "fulfilled"]);
     expect(sendMessage).toHaveBeenCalledTimes(2);
-    expect(deps.permissionManager.getMessageIds()).toEqual([201]);
+    expect(deps.permissionManager.getMessageIds()).toEqual(["201"]);
   });
 });

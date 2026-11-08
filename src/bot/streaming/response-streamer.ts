@@ -1,28 +1,28 @@
-import type { Api, RawApi } from "grammy";
+import type { Api } from "../../max/compat.js";
 import { logger } from "../../utils/logger.js";
 import { chunkPlainText } from "../render/chunker.js";
-import { getTelegramRenderedPartSignature } from "../render/part-signature.js";
-import type { TelegramRenderedPart } from "../render/types.js";
+import { getMAXRenderedPartSignature } from "../render/part-signature.js";
+import type { MAXRenderedPart } from "../render/types.js";
 import {
   resolveStreamThrottleMs,
   type StreamThrottleMs,
 } from "./stream-throttle.js";
 
-type SendMessageApi = Pick<Api<RawApi>, "sendMessage">;
-type EditMessageApi = Pick<Api<RawApi>, "editMessageText">;
+type SendMessageApi = Pick<Api, "sendMessage">;
+type EditMessageApi = Pick<Api, "editMessageText">;
 
-type TelegramSendMessageOptions = Parameters<SendMessageApi["sendMessage"]>[2];
-type TelegramEditMessageOptions = Parameters<EditMessageApi["editMessageText"]>[3];
+type MAXSendMessageOptions = Parameters<SendMessageApi["sendMessage"]>[2];
+type MAXEditMessageOptions = Parameters<EditMessageApi["editMessageText"]>[3];
 
 export interface StreamingMessagePayload {
-  parts: TelegramRenderedPart[];
-  sendOptions?: TelegramSendMessageOptions;
-  editOptions?: TelegramEditMessageOptions;
+  parts: MAXRenderedPart[];
+  sendOptions?: MAXSendMessageOptions;
+  editOptions?: MAXEditMessageOptions;
 }
 
 export interface StreamCompleteResult {
   streamed: boolean;
-  telegramMessageIds: number[];
+  messageIds: string[];
 }
 
 interface ResponseStreamerCompleteOptions {
@@ -34,22 +34,22 @@ interface ResponseStreamerOptions {
   throttleMs: StreamThrottleMs;
   // Each transport callback also receives the session the stream belongs to.
   sendPart: (
-    part: TelegramRenderedPart,
-    options: TelegramSendMessageOptions | undefined,
+    part: MAXRenderedPart,
+    options: MAXSendMessageOptions | undefined,
     sessionId: string,
-  ) => Promise<{ messageId: number; deliveredSignature: string; degradedToPlain?: boolean }>;
+  ) => Promise<{ messageId: string; deliveredSignature: string; degradedToPlain?: boolean }>;
   editPart: (
-    messageId: number,
-    part: TelegramRenderedPart,
-    options: TelegramEditMessageOptions | undefined,
+    messageId: string,
+    part: MAXRenderedPart,
+    options: MAXEditMessageOptions | undefined,
     sessionId: string,
   ) => Promise<{ deliveredSignature: string; degradedToPlain?: boolean }>;
-  deleteText: (messageId: number, sessionId: string) => Promise<void>;
+  deleteText: (messageId: string, sessionId: string) => Promise<void>;
   completePart?: (
-    part: TelegramRenderedPart,
-    options: TelegramSendMessageOptions | undefined,
+    part: MAXRenderedPart,
+    options: MAXSendMessageOptions | undefined,
     sessionId: string,
-  ) => Promise<{ messageId: number; deliveredSignature: string }>;
+  ) => Promise<{ messageId: string; deliveredSignature: string }>;
 }
 
 interface StreamState {
@@ -58,7 +58,7 @@ interface StreamState {
   messageId: string;
   latestPayload: StreamingMessagePayload | null;
   lastSentSignatures: string[];
-  telegramMessageIds: number[];
+  messageIds: string[];
   timer: ReturnType<typeof setTimeout> | null;
   task: Promise<boolean>;
   cancelled: boolean;
@@ -72,17 +72,17 @@ function buildStateKey(sessionId: string, messageId: string): string {
   return `${sessionId}:${messageId}`;
 }
 
-function clonePart(part: TelegramRenderedPart): TelegramRenderedPart {
+function clonePart(part: MAXRenderedPart): MAXRenderedPart {
   return {
-    blocks: [...part.blocks],
+    html: part.html,
     fallbackText: part.fallbackText,
     source: part.source,
     ...(part.entities ? { entities: [...part.entities] } : {}),
   };
 }
 
-function isEmptyPart(part: TelegramRenderedPart): boolean {
-  return part.blocks.length === 0 && part.fallbackText.length === 0;
+function isEmptyPart(part: MAXRenderedPart): boolean {
+  return !part.html && part.fallbackText.length === 0;
 }
 
 /**
@@ -93,7 +93,7 @@ function isEmptyPart(part: TelegramRenderedPart): boolean {
 function toPlainPayload(payload: StreamingMessagePayload): StreamingMessagePayload {
   // Nothing native to degrade: re-chunking here would only invalidate the
   // entity offsets a plain part carries.
-  if (payload.parts.every((part) => part.blocks.length === 0)) {
+  if (payload.parts.every((part) => !part.html)) {
     return payload;
   }
 
@@ -160,18 +160,18 @@ function delay(ms: number): Promise<void> {
 }
 
 function enableNotificationForOptions(
-  options: TelegramSendMessageOptions | undefined,
-): TelegramSendMessageOptions | undefined {
+  options: MAXSendMessageOptions | undefined,
+): MAXSendMessageOptions | undefined {
   if (!options) {
     return options;
   }
 
   const nextOptions = {
     ...options,
-  } as NonNullable<TelegramSendMessageOptions> & { disable_notification?: unknown };
+  } as NonNullable<MAXSendMessageOptions> & { disable_notification?: unknown };
   delete nextOptions.disable_notification;
 
-  return nextOptions as TelegramSendMessageOptions;
+  return nextOptions as MAXSendMessageOptions;
 }
 
 export class ResponseStreamer {
@@ -215,7 +215,7 @@ export class ResponseStreamer {
     payload?: StreamingMessagePayload,
     options?: ResponseStreamerCompleteOptions,
   ): Promise<StreamCompleteResult> {
-    const notStreamed: StreamCompleteResult = { streamed: false, telegramMessageIds: [] };
+    const notStreamed: StreamCompleteResult = { streamed: false, messageIds: [] };
 
     const state = this.states.get(buildStateKey(sessionId, messageId));
     if (!state) {
@@ -243,7 +243,7 @@ export class ResponseStreamer {
       return notStreamed;
     }
 
-    if (state.telegramMessageIds.length === 0) {
+    if (state.messageIds.length === 0) {
       logger.debug(
         `[ResponseStreamer] Complete returned not streamed: session=${sessionId}, message=${messageId}, reason=no_visible_partials`,
       );
@@ -264,7 +264,7 @@ export class ResponseStreamer {
         const completionPayload = state.plainOnly
           ? toPlainPayload(state.latestPayload)
           : state.latestPayload;
-        const realMessageIds: number[] = [];
+        const realMessageIds: string[] = [];
         let notifyNextCompletePart = options?.notifyFirstCompletePart === true;
         for (const part of completionPayload.parts) {
           if (isEmptyPart(part)) {
@@ -277,7 +277,7 @@ export class ResponseStreamer {
           const result = await this.completePart(part, completeOptions, sessionId);
           realMessageIds.push(result.messageId);
         }
-        state.telegramMessageIds = realMessageIds;
+        state.messageIds = realMessageIds;
       } catch (error) {
         logger.error(
           `[ResponseStreamer] Failed to persist draft message: session=${sessionId}, message=${messageId}`,
@@ -287,10 +287,10 @@ export class ResponseStreamer {
       }
     }
 
-    const messageIds = [...state.telegramMessageIds];
+    const messageIds = [...state.messageIds];
     this.cancelState(state);
     this.states.delete(state.key);
-    return { streamed: synced, telegramMessageIds: messageIds };
+    return { streamed: synced, messageIds: messageIds };
   }
 
   /**
@@ -299,7 +299,7 @@ export class ResponseStreamer {
    */
   async flushPending(sessionId: string, messageId: string): Promise<void> {
     const state = this.states.get(buildStateKey(sessionId, messageId));
-    if (!state || state.cancelled || state.isBroken || state.telegramMessageIds.length > 0) {
+    if (!state || state.cancelled || state.isBroken || state.messageIds.length > 0) {
       return;
     }
 
@@ -376,7 +376,7 @@ export class ResponseStreamer {
       messageId,
       latestPayload: null,
       lastSentSignatures: [],
-      telegramMessageIds: [],
+      messageIds: [],
       timer: null,
       task: Promise.resolve(true),
       cancelled: false,
@@ -451,14 +451,14 @@ export class ResponseStreamer {
     while (!state.cancelled) {
       const latestPayload = state.latestPayload;
       if (!latestPayload) {
-        return state.telegramMessageIds.length > 0;
+        return state.messageIds.length > 0;
       }
 
       // Signatures must describe what actually goes out, otherwise the
       // "unchanged" checks below compare two different representations.
       const payload = state.plainOnly ? toPlainPayload(latestPayload) : latestPayload;
       const targetSignatures = payload.parts.map((part) =>
-        getTelegramRenderedPartSignature(part),
+        getMAXRenderedPartSignature(part),
       );
       const unchanged =
         targetSignatures.length === state.lastSentSignatures.length &&
@@ -468,7 +468,7 @@ export class ResponseStreamer {
         logger.debug(
           `[ResponseStreamer] Skipped unchanged payload: session=${state.sessionId}, message=${state.messageId}, parts=${payload.parts.length}`,
         );
-        return state.telegramMessageIds.length > 0;
+        return state.messageIds.length > 0;
       }
 
       try {
@@ -492,7 +492,7 @@ export class ResponseStreamer {
         // First native failure: fall back to plain text for the rest of this
         // message instead of tearing the stream down. A payload that is already
         // plain has nothing left to degrade to, so it breaks straight away.
-        if (!state.plainOnly && payload.parts.some((part) => part.blocks.length > 0)) {
+        if (!state.plainOnly && payload.parts.some((part) => part.html.length > 0)) {
           this.markStreamPlainOnly(state, error, reason);
           continue;
         }
@@ -533,12 +533,12 @@ export class ResponseStreamer {
   }
 
   private async cleanupBrokenStream(state: StreamState, reason: string): Promise<void> {
-    if (state.telegramMessageIds.length === 0) {
+    if (state.messageIds.length === 0) {
       return;
     }
 
-    for (let index = state.telegramMessageIds.length - 1; index >= 0; index--) {
-      const messageId = state.telegramMessageIds[index];
+    for (let index = state.messageIds.length - 1; index >= 0; index--) {
+      const messageId = state.messageIds[index];
       if (!messageId) {
         continue;
       }
@@ -547,13 +547,13 @@ export class ResponseStreamer {
         await this.deleteText(messageId, state.sessionId);
       } catch (error) {
         logger.warn(
-          `[ResponseStreamer] Failed to delete broken stream message: session=${state.sessionId}, message=${state.messageId}, telegramMessageId=${messageId}, reason=${reason}`,
+          `[ResponseStreamer] Failed to delete broken stream message: session=${state.sessionId}, message=${state.messageId}, messageId=${messageId}, reason=${reason}`,
           error,
         );
       }
     }
 
-    state.telegramMessageIds = [];
+    state.messageIds = [];
     state.lastSentSignatures = [];
     logger.debug(
       `[ResponseStreamer] Cleaned up broken stream messages: session=${state.sessionId}, message=${state.messageId}, reason=${reason}`,
@@ -571,7 +571,7 @@ export class ResponseStreamer {
         continue;
       }
       const nextSignature = targetSignatures[index];
-      const currentMessageId = state.telegramMessageIds[index];
+      const currentMessageId = state.messageIds[index];
 
       if (currentMessageId) {
         if (state.lastSentSignatures[index] === nextSignature) {
@@ -587,19 +587,19 @@ export class ResponseStreamer {
       }
 
       const result = await this.sendPart(part, payload.sendOptions, state.sessionId);
-      state.telegramMessageIds[index] = result.messageId;
+      state.messageIds[index] = result.messageId;
       state.lastSentSignatures[index] = result.deliveredSignature;
       if (result.degradedToPlain) {
         this.markStreamPlainOnly(state, null, "transport_degraded_to_plain");
       }
     }
 
-    for (let index = state.telegramMessageIds.length - 1; index >= payload.parts.length; index--) {
-      const messageId = state.telegramMessageIds[index];
+    for (let index = state.messageIds.length - 1; index >= payload.parts.length; index--) {
+      const messageId = state.messageIds[index];
       if (messageId) {
         await this.deleteText(messageId, state.sessionId);
       }
-      state.telegramMessageIds.pop();
+      state.messageIds.pop();
       state.lastSentSignatures.pop();
     }
   }

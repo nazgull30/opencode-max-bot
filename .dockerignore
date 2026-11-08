@@ -39,4 +39,4 @@ settings.json.*
 npm-debug.log*
 
 # Local systemd service file
-opencode-telegram-bot.service
+opencode-max-bot.service

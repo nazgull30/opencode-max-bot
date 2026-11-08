@@ -4,7 +4,7 @@ import { finalizeAssistantResponse } from "../../../src/bot/streaming/finalize-a
 describe("bot/streaming/finalize-assistant-response", () => {
   it("completes the response stream and sends final text when streamer reports not streamed", async () => {
     const responseStreamer = {
-      complete: vi.fn().mockResolvedValue({ streamed: false, telegramMessageIds: [] }),
+      complete: vi.fn().mockResolvedValue({ streamed: false, messageIds: [] }),
     };
     const flushPendingServiceMessages = vi.fn().mockResolvedValue(undefined);
     const sendRenderedPart = vi.fn().mockResolvedValue(undefined);
@@ -19,7 +19,7 @@ describe("bot/streaming/finalize-assistant-response", () => {
       prepareStreamingPayload: vi.fn(() => ({
         parts: [
           {
-            blocks: [],
+            html: "",
             fallbackText: "final reply",
             source: "plain" as const,
           },
@@ -27,14 +27,12 @@ describe("bot/streaming/finalize-assistant-response", () => {
       })),
       renderFinalParts: vi.fn(() => [
         {
-          blocks: [
-            { type: "paragraph" as const, text: { type: "bold" as const, text: "part 1" } },
-          ],
+          html: "<b>part 1</b>",
           fallbackText: "part 1",
-          source: "blocks" as const,
+          source: "html" as const,
         },
         {
-          blocks: [],
+          html: "",
           fallbackText: "part 2",
           source: "plain" as const,
         },
@@ -46,7 +44,7 @@ describe("bot/streaming/finalize-assistant-response", () => {
     expect(responseStreamer.complete).toHaveBeenCalledWith("s1", "m1", {
       parts: [
         {
-          blocks: [],
+          html: "",
           fallbackText: "final reply",
           source: "plain",
         },
@@ -59,16 +57,16 @@ describe("bot/streaming/finalize-assistant-response", () => {
     expect(sendRenderedPart).toHaveBeenNthCalledWith(
       1,
       {
-        blocks: [{ type: "paragraph", text: { type: "bold", text: "part 1" } }],
+        html: "<b>part 1</b>",
         fallbackText: "part 1",
-        source: "blocks",
+        source: "html",
       },
       { disable_notification: true, reply_markup: keyboard },
     );
     expect(sendRenderedPart).toHaveBeenNthCalledWith(
       2,
       {
-        blocks: [],
+        html: "",
         fallbackText: "part 2",
         source: "plain",
       },
@@ -78,14 +76,14 @@ describe("bot/streaming/finalize-assistant-response", () => {
 
   it("finalizes streamed messages in place without re-sending", async () => {
     const responseStreamer = {
-      complete: vi.fn().mockResolvedValue({ streamed: true, telegramMessageIds: [101] }),
+      complete: vi.fn().mockResolvedValue({ streamed: true, messageIds: [101] }),
     };
     const flushPendingServiceMessages = vi.fn().mockResolvedValue(undefined);
     const sendRenderedPart = vi.fn().mockResolvedValue(undefined);
     const prepareStreamingPayload = vi.fn(() => ({
       parts: [
         {
-          blocks: [],
+          html: "",
           fallbackText: "reply",
           source: "plain" as const,
         },
@@ -102,7 +100,7 @@ describe("bot/streaming/finalize-assistant-response", () => {
       prepareStreamingPayload,
       renderFinalParts: vi.fn(() => [
         {
-          blocks: [],
+          html: "",
           fallbackText: "reply",
           source: "plain" as const,
         },
@@ -114,7 +112,7 @@ describe("bot/streaming/finalize-assistant-response", () => {
     expect(responseStreamer.complete).toHaveBeenCalledWith("s1", "m1", {
       parts: [
         {
-          blocks: [],
+          html: "",
           fallbackText: "reply",
           source: "plain",
         },
@@ -128,14 +126,14 @@ describe("bot/streaming/finalize-assistant-response", () => {
 
   it("still sends rendered parts with keyboard when streamer reports not streamed", async () => {
     const responseStreamer = {
-      complete: vi.fn().mockResolvedValue({ streamed: false, telegramMessageIds: [] }),
+      complete: vi.fn().mockResolvedValue({ streamed: false, messageIds: [] }),
     };
     const flushPendingServiceMessages = vi.fn().mockResolvedValue(undefined);
     const sendRenderedPart = vi.fn().mockResolvedValue(undefined);
     const prepareStreamingPayload = vi.fn(() => ({
       parts: [
         {
-          blocks: [],
+          html: "",
           fallbackText: "reply",
           source: "plain" as const,
         },
@@ -151,7 +149,7 @@ describe("bot/streaming/finalize-assistant-response", () => {
       prepareStreamingPayload,
       renderFinalParts: vi.fn(() => [
         {
-          blocks: [],
+          html: "",
           fallbackText: "reply",
           source: "plain" as const,
         },
@@ -163,7 +161,7 @@ describe("bot/streaming/finalize-assistant-response", () => {
     expect(sendRenderedPart).toHaveBeenCalledTimes(1);
     expect(sendRenderedPart).toHaveBeenCalledWith(
       {
-        blocks: [],
+        html: "",
         fallbackText: "reply",
         source: "plain",
       },

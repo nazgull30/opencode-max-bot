@@ -1,4 +1,4 @@
-import { CommandContext, Context } from "grammy";
+import { CommandContext, Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { getCurrentSession } from "../../app/services/session-service.js";
@@ -120,7 +120,7 @@ export async function abortCurrentOperation(
     );
     const withPause = (text: string) => formatAbortWithGoalPause(text, pauseOutcome);
 
-    let waitingMessageId: number | null = null;
+    let waitingMessageId: string | null = null;
     let chatId: number | null = null;
 
     const finishReply = async (text: string): Promise<void> => {
@@ -142,7 +142,7 @@ export async function abortCurrentOperation(
     };
 
     if (notifyUser) {
-      // No reply_markup here: this message is edited below, and Telegram
+      // No reply_markup here: this message is edited below, and MAX
       // refuses to edit a message that carries a custom reply keyboard.
       const waitingMessage = await ctx.reply(t("stop.in_progress"));
       waitingMessageId = waitingMessage.message_id;

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { defined } from "../../helpers/defined.js";
 
 const mocked = vi.hoisted(() => ({
@@ -302,7 +302,7 @@ function registerAndGetCallback() {
   registerCallbackRouter(bot as never, {
     container: createTestAppContainer({
       ensureEventSubscription: vi.fn(),
-      setTelegramContext: vi.fn(),
+      setMAXContext: vi.fn(),
       resetInteractionError: mocked.resetInteractionError,
     }),
   });

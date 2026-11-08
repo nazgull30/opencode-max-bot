@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  normalizeMarkdownForTelegramBlockParsing,
-  normalizeMarkdownForTelegramRendering,
+  normalizeMarkdownForMAXBlockParsing,
+  normalizeMarkdownForMAXRendering,
 } from "../../../src/bot/render/markdown-normalizer.js";
 
 describe("bot/render/markdown-normalizer", () => {
@@ -19,7 +19,7 @@ describe("bot/render/markdown-normalizer", () => {
       "---",
     ].join("\n");
 
-    expect(normalizeMarkdownForTelegramRendering(input)).toBe(
+    expect(normalizeMarkdownForMAXRendering(input)).toBe(
       [
         "**Main heading**",
         "",
@@ -38,7 +38,7 @@ describe("bot/render/markdown-normalizer", () => {
   it("normalizes checklists inside quotes and preserves quote mode", () => {
     const input = ["> - [ ] Review", "Follow-up line", "- [x] Outside quote"].join("\n");
 
-    expect(normalizeMarkdownForTelegramRendering(input)).toBe(
+    expect(normalizeMarkdownForMAXRendering(input)).toBe(
       ["> 🔲 Review", "> Follow-up line", "> ✅ Outside quote"].join("\n"),
     );
   });
@@ -46,7 +46,7 @@ describe("bot/render/markdown-normalizer", () => {
   it("resets quote mode after an empty line", () => {
     const input = ["> quoted line", "", "Plain line"].join("\n");
 
-    expect(normalizeMarkdownForTelegramRendering(input)).toBe(
+    expect(normalizeMarkdownForMAXRendering(input)).toBe(
       ["> quoted line", "", "Plain line"].join("\n"),
     );
   });
@@ -61,13 +61,13 @@ describe("bot/render/markdown-normalizer", () => {
       "```",
     ].join("\n");
 
-    expect(normalizeMarkdownForTelegramRendering(input)).toBe(input);
+    expect(normalizeMarkdownForMAXRendering(input)).toBe(input);
   });
 
   it("preserves malformed emphasis text without dropping content", () => {
     const input = "*text: *value**";
 
-    expect(normalizeMarkdownForTelegramRendering(input)).toBe(input);
+    expect(normalizeMarkdownForMAXRendering(input)).toBe(input);
   });
 
   it("keeps structural markdown for parser-safe normalization", () => {
@@ -82,7 +82,7 @@ describe("bot/render/markdown-normalizer", () => {
       "---",
     ].join("\n");
 
-    expect(normalizeMarkdownForTelegramBlockParsing(input)).toBe(
+    expect(normalizeMarkdownForMAXBlockParsing(input)).toBe(
       [
         "# Main heading",
         "",

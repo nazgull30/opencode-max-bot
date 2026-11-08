@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context, NextFunction } from "grammy";
+import type { Context, NextFunction } from "../../../src/max/compat.js";
 
 const flushPendingPromptMock = vi.hoisted(() => vi.fn());
 
@@ -24,7 +24,7 @@ function createBaseContext(message: Record<string, unknown>): {
   ctx: Context;
   replyMock: ReturnType<typeof vi.fn>;
 } {
-  const replyMock = vi.fn().mockResolvedValue({ message_id: 100 });
+  const replyMock = vi.fn().mockResolvedValue({ message_id: "100" });
 
   const ctx = {
     chat: { id: 777 },
@@ -41,7 +41,7 @@ function createBaseContext(message: Record<string, unknown>): {
 }
 
 function createDocumentContext(options: {
-  messageId: number;
+  messageId: string;
   fileId: string;
   filename: string;
   mimeType: string;
@@ -62,7 +62,7 @@ function createDocumentContext(options: {
 }
 
 function createPhotoContext(options: {
-  messageId: number;
+  messageId: string;
   smallFileId: string;
   largeFileId: string;
   fileSize?: number;
@@ -89,12 +89,12 @@ function createPhotoContext(options: {
   });
 }
 
-function createUnsupportedMediaContext(messageId: number): {
+function createUnsupportedMediaContext(messageId: string): {
   ctx: Context;
   replyMock: ReturnType<typeof vi.fn>;
 } {
   return createBaseContext({
-    message_id: messageId,
+    message_id: String(messageId),
     video: {
       file_id: "video-file-id",
       file_unique_id: "video-unique",
@@ -161,13 +161,13 @@ describe("bot/handlers/media-group", () => {
 
   it("sends multiple image documents as one prompt", async () => {
     const first = createDocumentContext({
-      messageId: 10,
+      messageId: "10",
       fileId: "image-1",
       filename: "first.png",
       mimeType: "image/png",
     });
     const second = createDocumentContext({
-      messageId: 11,
+      messageId: "11",
       fileId: "image-2",
       filename: "second.png",
       mimeType: "image/png",
@@ -208,13 +208,13 @@ describe("bot/handlers/media-group", () => {
     vi.spyOn(settingsStore, "getPromptQueueMode").mockReturnValue("queue");
     container.foregroundSessionState.markBusy("session-1", "/repo");
     const first = createPhotoContext({
-      messageId: 20,
+      messageId: "20",
       smallFileId: "small-1",
       largeFileId: "large-1",
       caption: "Compare these photos",
     });
     const second = createPhotoContext({
-      messageId: 21,
+      messageId: "21",
       smallFileId: "small-2",
       largeFileId: "large-2",
     });
@@ -242,13 +242,13 @@ describe("bot/handlers/media-group", () => {
     vi.spyOn(settingsStore, "getPromptQueueMode").mockReturnValue("queue");
     container.foregroundSessionState.markBusy("session-1", "/repo");
     const first = createPhotoContext({
-      messageId: 20,
+      messageId: "20",
       smallFileId: "small-1",
       largeFileId: "large-1",
       fileSize: MAX_QUEUED_MEDIA_BYTES,
     });
     const second = createPhotoContext({
-      messageId: 21,
+      messageId: "21",
       smallFileId: "small-2",
       largeFileId: "large-2",
       fileSize: 1,
@@ -267,13 +267,13 @@ describe("bot/handlers/media-group", () => {
 
   it("uses the largest photo from each media group item", async () => {
     const first = createPhotoContext({
-      messageId: 20,
+      messageId: "20",
       smallFileId: "small-1",
       largeFileId: "large-1",
       caption: "Compare these photos",
     });
     const second = createPhotoContext({
-      messageId: 21,
+      messageId: "21",
       smallFileId: "small-2",
       largeFileId: "large-2",
     });
@@ -299,19 +299,19 @@ describe("bot/handlers/media-group", () => {
 
   it("combines image, PDF, and text documents into one prompt", async () => {
     const image = createDocumentContext({
-      messageId: 30,
+      messageId: "30",
       fileId: "image-file",
       filename: "screen.png",
       mimeType: "image/png",
     });
     const pdf = createDocumentContext({
-      messageId: 31,
+      messageId: "31",
       fileId: "pdf-file",
       filename: "spec.pdf",
       mimeType: "application/pdf",
     });
     const text = createDocumentContext({
-      messageId: 32,
+      messageId: "32",
       fileId: "text-file",
       filename: "notes.txt",
       mimeType: "text/plain",
@@ -338,14 +338,14 @@ describe("bot/handlers/media-group", () => {
 
   it("keeps captions in message order", async () => {
     const laterMessage = createDocumentContext({
-      messageId: 42,
+      messageId: "42",
       fileId: "image-later",
       filename: "later.png",
       mimeType: "image/png",
       caption: "Second caption",
     });
     const earlierMessage = createDocumentContext({
-      messageId: 41,
+      messageId: "41",
       fileId: "image-earlier",
       filename: "earlier.png",
       mimeType: "image/png",
@@ -368,13 +368,13 @@ describe("bot/handlers/media-group", () => {
 
   it("rejects the whole media group when any file is unsupported", async () => {
     const image = createDocumentContext({
-      messageId: 50,
+      messageId: "50",
       fileId: "image-file",
       filename: "screen.png",
       mimeType: "image/png",
     });
     const archive = createDocumentContext({
-      messageId: 51,
+      messageId: "51",
       fileId: "archive-file",
       filename: "archive.zip",
       mimeType: "application/zip",
@@ -393,7 +393,7 @@ describe("bot/handlers/media-group", () => {
 
   it("rejects the whole media group when the model lacks image support", async () => {
     const image = createDocumentContext({
-      messageId: 60,
+      messageId: "60",
       fileId: "image-file",
       filename: "screen.png",
       mimeType: "image/png",
@@ -412,7 +412,7 @@ describe("bot/handlers/media-group", () => {
   });
 
   it("rejects unsupported non-document media in a media group", async () => {
-    const unsupported = createUnsupportedMediaContext(70);
+    const unsupported = createUnsupportedMediaContext("70");
     const { deps, processPromptMock, downloadMock } = createDeps();
     const handler = new MediaGroupAttachmentHandler(deps, { debounceMs: 10_000 });
 
@@ -427,7 +427,7 @@ describe("bot/handlers/media-group", () => {
   it("waits for the debounce window before sending the prompt", async () => {
     vi.useFakeTimers();
     const image = createDocumentContext({
-      messageId: 80,
+      messageId: "80",
       fileId: "image-file",
       filename: "screen.png",
       mimeType: "image/png",

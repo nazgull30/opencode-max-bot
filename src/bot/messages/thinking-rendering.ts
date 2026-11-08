@@ -1,9 +1,9 @@
-import type { MessageEntity } from "grammy/types";
+import type { MessageEntity } from "../../max/compat.js";
 
 import { t } from "../../i18n/index.js";
 import { PLAIN_MAX_PART_CHARS } from "../render/limits.js";
 import { splitTextIntoChunks } from "../render/text-splitter.js";
-import type { TelegramRenderedPart } from "../render/types.js";
+import type { MAXRenderedPart } from "../render/types.js";
 import type { StreamingMessagePayload } from "../streaming/response-streamer.js";
 
 export interface ThinkingSection {
@@ -34,9 +34,9 @@ function createThinkingPart(
   header: string,
   text: string,
   collapsed: boolean,
-): TelegramRenderedPart {
+): MAXRenderedPart {
   if (!text) {
-    return { blocks: [], fallbackText: header, source: "plain" };
+    return { html: "", fallbackText: header, source: "plain" };
   }
 
   const entity: MessageEntity = {
@@ -46,7 +46,7 @@ function createThinkingPart(
   };
 
   return {
-    blocks: [],
+    html: "",
     fallbackText: `${header}\n${text}`,
     source: "plain",
     entities: [entity],
@@ -58,7 +58,7 @@ export function prepareThinkingPayload(
   options: ThinkingPayloadOptions = {},
 ): StreamingMessagePayload | null {
   const collapsed = options.final ?? false;
-  const parts: TelegramRenderedPart[] = [];
+  const parts: MAXRenderedPart[] = [];
 
   for (const section of sections) {
     const header = formatHeader(section.title);

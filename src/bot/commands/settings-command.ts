@@ -1,4 +1,4 @@
-import type { CommandContext, Context } from "grammy";
+import type { CommandContext, Context } from "../../max/compat.js";
 import { buildSettingsMenuView } from "../menus/settings-menu.js";
 import { replyWithInlineMenu, type InlineMenuDeps } from "../menus/inline-menu.js";
 

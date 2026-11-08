@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context, Keyboard } from "grammy";
+import type { Context, Keyboard } from "../../../src/max/compat.js";
 import {
   alert,
   cancelMenu,
@@ -134,7 +134,7 @@ describe("callback feedback helpers", () => {
     expect(ctx.deleteMessage).not.toHaveBeenCalled();
   });
 
-  it("truncates an answer longer than the Telegram limit and warns", async () => {
+  it("truncates an answer longer than the MAX limit and warns", async () => {
     const ctx = createContext();
     const warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
     const longName = "x".repeat(300);

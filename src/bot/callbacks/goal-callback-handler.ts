@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import { formatGoalStatusText } from "../../app/formatters/goal-text.js";
 import { isForegroundBusy } from "../../app/services/run-control-service.js";
 import { getCurrentSession } from "../../app/services/session-service.js";
@@ -19,7 +19,7 @@ import {
 type GoalCallbackDeps = GoalCommandDeps;
 
 interface GoalConfirmation {
-  messageId: number;
+  messageId: string;
   sessionId: string;
   directory: string;
   goalId: string | null;
@@ -200,7 +200,7 @@ function readConfirmation(deps: GoalCallbackDeps): GoalConfirmation | null {
     return null;
   }
   if (
-    typeof metadata.messageId !== "number" ||
+    typeof metadata.messageId !== "string" ||
     typeof metadata.sessionId !== "string" ||
     typeof metadata.directory !== "string" ||
     typeof metadata.objective !== "string" ||
@@ -222,7 +222,7 @@ function readConfirmation(deps: GoalCallbackDeps): GoalConfirmation | null {
   };
 }
 
-function callbackMessageId(ctx: Context): number | null {
+function callbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;

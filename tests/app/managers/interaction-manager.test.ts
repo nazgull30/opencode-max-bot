@@ -193,7 +193,7 @@ describe("interactionManager waiting request", () => {
   it("keeps only the latest waiting poll", async () => {
     const listener = vi.fn();
     interactionManager.setOnWaitingRequestReady(listener);
-    permissionManager.startPermission(permission("perm-1"), 101);
+    permissionManager.startPermission(permission("perm-1"), "101");
     interactionManager.waitQuestion(QUESTIONS, "req-old", "session-1");
     interactionManager.waitQuestion(QUESTIONS, "req-new", "session-1");
 
@@ -217,7 +217,7 @@ describe("interactionManager waiting request", () => {
     expect(interactionManager.getWaitingKind()).toBeNull();
 
     interactionManager.clear("question_completed");
-    permissionManager.startPermission(permission("perm-3"), 103);
+    permissionManager.startPermission(permission("perm-3"), "103");
     interactionManager.waitQuestion(QUESTIONS, "req-1", "session-1");
     expect(interactionManager.dropWaitingQuestion("req-other")).toBe(false);
     expect(interactionManager.dropWaitingQuestion("req-1")).toBe(true);
@@ -230,7 +230,7 @@ describe("interactionManager waiting request", () => {
       if (request.kind === "question") {
         questionManager.startQuestions(request.questions, request.requestID, request.sessionId);
       } else {
-        permissionManager.startPermission(defined(request.requests[0]), 101);
+        permissionManager.startPermission(defined(request.requests[0]), "101");
       }
     });
     interactionManager.setOnWaitingRequestReady(listener);
@@ -363,15 +363,15 @@ describe("interactionManager waiting request", () => {
     const listener = vi.fn();
     interactionManager.setOnPermissionPromptsDropped(listener);
 
-    permissionManager.startPermission(permission("perm-1"), 101);
-    permissionManager.endPrompt(101, { kind: "replied", reply: "once", outside: false });
+    permissionManager.startPermission(permission("perm-1"), "101");
+    permissionManager.endPrompt("101", { kind: "replied", reply: "once", outside: false });
     interactionManager.clearKind("permission", "permission_replied");
     expect(listener).not.toHaveBeenCalled();
 
-    permissionManager.startPermission(permission("perm-2"), 102);
+    permissionManager.startPermission(permission("perm-2"), "102");
     interactionManager.reset("abort_command");
     expect(listener).toHaveBeenCalledTimes(1);
-    expect([...listener.mock.calls[0]![0].requestsByMessageId.keys()]).toEqual([102]);
+    expect([...listener.mock.calls[0]![0].requestsByMessageId.keys()]).toEqual(["102"]);
   });
 
   it("reports a poll dropped by a reset or an error cleanup, not by its own close", () => {
@@ -391,7 +391,7 @@ describe("interactionManager waiting request", () => {
     expect(listener).toHaveBeenCalledTimes(2);
     expect(listener.mock.calls[1]![0].sessionId).toBe("session-1");
 
-    permissionManager.startPermission(permission("perm-1"), 101);
+    permissionManager.startPermission(permission("perm-1"), "101");
     interactionManager.reset("abort_command");
     expect(listener).toHaveBeenCalledTimes(2);
   });
@@ -433,7 +433,7 @@ describe("stateful managers on the shared slot", () => {
   };
 
   it("refuses to start a poll while permissions are on screen", () => {
-    permissionManager.startPermission(PERMISSION, 101);
+    permissionManager.startPermission(PERMISSION, "101");
 
     expect(questionManager.startQuestions(QUESTIONS, "req-1", "session-1")).toBe(false);
     expect(questionManager.isActive()).toBe(false);
@@ -443,7 +443,7 @@ describe("stateful managers on the shared slot", () => {
   it("refuses to register a permission while a poll is on screen", () => {
     questionManager.startQuestions(QUESTIONS, "req-1", "session-1");
 
-    expect(permissionManager.startPermission(PERMISSION, 101)).toBe("question_active");
+    expect(permissionManager.startPermission(PERMISSION, "101")).toBe("question_active");
     expect(permissionManager.isActive()).toBe(false);
     expect(questionManager.isActive()).toBe(true);
   });
@@ -453,10 +453,10 @@ describe("stateful managers on the shared slot", () => {
     const generation = permissionManager.getGeneration();
 
     permissionManager.settleRequest("perm-1", null);
-    expect(permissionManager.startPermission(PERMISSION, 101)).toBe("resolved");
+    expect(permissionManager.startPermission(PERMISSION, "101")).toBe("resolved");
 
     interactionManager.bumpGeneration();
-    expect(permissionManager.startPermission({ ...PERMISSION, id: "perm-2" }, 102, generation)).toBe(
+    expect(permissionManager.startPermission({ ...PERMISSION, id: "perm-2" }, "102", generation)).toBe(
       "stale",
     );
   });
@@ -464,21 +464,21 @@ describe("stateful managers on the shared slot", () => {
   it("lets an agent request preempt a user flow", () => {
     renameManager.startWaiting("session-1", "D:/repo", "Old title");
 
-    expect(permissionManager.startPermission(PERMISSION, 101)).toBe("started");
+    expect(permissionManager.startPermission(PERMISSION, "101")).toBe("started");
     expect(renameManager.isWaitingForName()).toBe(false);
     expect(interactionManager.getSnapshot()?.kind).toBe("permission");
   });
 
   it("does not bump the generation when the last permission ends normally", () => {
-    permissionManager.startPermission(PERMISSION, 101);
+    permissionManager.startPermission(PERMISSION, "101");
     const generation = permissionManager.getGeneration();
 
-    permissionManager.endPrompt(101, { kind: "replied", reply: "once", outside: false });
+    permissionManager.endPrompt("101", { kind: "replied", reply: "once", outside: false });
     interactionManager.clearKind("permission", "permission_replied");
 
     expect(permissionManager.getGeneration()).toBe(generation);
 
-    permissionManager.startPermission(PERMISSION, 102);
+    permissionManager.startPermission(PERMISSION, "102");
     permissionManager.clear();
     expect(permissionManager.getGeneration()).toBe(generation + 1);
   });

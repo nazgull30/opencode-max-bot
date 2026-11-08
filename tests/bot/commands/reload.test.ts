@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { CommandContext, Context } from "grammy";
+import type { CommandContext, Context } from "../../../src/max/compat.js";
 import { t } from "../../../src/i18n/index.js";
 
 const mocked = vi.hoisted(() => ({
@@ -18,7 +18,7 @@ vi.mock("../../../src/bot/services/model-views.js", () => ({
   refreshModelViewsAfterLateCatalogSettle: mocked.refreshModelViewsAfterLateCatalogSettle,
 }));
 
-vi.mock("../../../src/bot/messages/telegram-text.js", () => ({
+vi.mock("../../../src/bot/messages/max-text.js", () => ({
   editBotText: mocked.editBotText,
 }));
 
@@ -29,7 +29,7 @@ function createContext(messageId = 10): CommandContext<Context> {
   return {
     chat: { id: 42, type: "private" },
     api: {},
-    reply: vi.fn().mockResolvedValue({ message_id: messageId }),
+    reply: vi.fn().mockResolvedValue({ message_id: String(messageId) }),
   } as unknown as CommandContext<Context>;
 }
 
@@ -54,7 +54,7 @@ describe("bot/commands/reload-command", () => {
     expect(mocked.editBotText).toHaveBeenCalledWith({
       api: ctx.api,
       chatId: 42,
-      messageId: 10,
+      messageId: "10",
       text: t("reload.success"),
     });
     expect(mocked.refreshModelViews).not.toHaveBeenCalled();
@@ -117,6 +117,6 @@ describe("bot/commands/reload-command", () => {
     await reloadCommand(createContext(11), createTestAppContainer());
     await vi.waitFor(() => expect(mocked.editBotText).toHaveBeenCalledTimes(2));
 
-    expect(mocked.editBotText.mock.calls.map(([options]) => options.messageId)).toEqual([10, 11]);
+    expect(mocked.editBotText.mock.calls.map(([options]) => options.messageId)).toEqual(["10", "11"]);
   });
 });

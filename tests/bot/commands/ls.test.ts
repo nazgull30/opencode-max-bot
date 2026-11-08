@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { t } from "../../../src/i18n/index.js";
 
 const mocked = vi.hoisted(() => ({
@@ -69,7 +69,7 @@ function createCommandContext(): Context {
     chat: { id: 123 },
     from: { id: 42 },
     match: "",
-    reply: vi.fn().mockResolvedValue({ message_id: 77 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "77" }),
   } as unknown as Context;
 }
 
@@ -79,7 +79,7 @@ function createCallbackContext(data: string, messageId: number = 77): Context {
     from: { id: 42 },
     callbackQuery: {
       data,
-      message: { message_id: messageId },
+      message: { message_id: String(messageId) },
     } as Context["callbackQuery"],
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
     editMessageText: vi.fn().mockResolvedValue(undefined),
@@ -133,7 +133,7 @@ describe("bot/commands/ls", () => {
   });
 
   it("warns instead of listing when running in a container", async () => {
-    vi.stubEnv("OPENCODE_TELEGRAM_CONTAINER", "1");
+    vi.stubEnv("OPENCODE_MAX_CONTAINER", "1");
     const ctx = createCommandContext();
 
     await lsCommand(ctx as never, createDeps());
@@ -156,7 +156,7 @@ describe("bot/commands/ls", () => {
       expect.objectContaining({
         kind: "inline",
         expectedInput: "callback",
-        metadata: expect.objectContaining({ menuKind: "ls", messageId: 77 }),
+        metadata: expect.objectContaining({ menuKind: "ls", messageId: "77" }),
       }),
     );
   });
@@ -198,7 +198,7 @@ describe("bot/commands/ls", () => {
       chat: { id: 123 },
       from: { id: 42 },
       match: "/repo/project/docs",
-      reply: vi.fn().mockResolvedValue({ message_id: 77 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "77" }),
     } as unknown as Context;
 
     await lsCommand(ctx as never, createDeps());
@@ -215,7 +215,7 @@ describe("bot/commands/ls", () => {
       chat: { id: 123 },
       from: { id: 42 },
       match: "/etc",
-      reply: vi.fn().mockResolvedValue({ message_id: 77 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "77" }),
     } as unknown as Context;
 
     await lsCommand(ctx as never, createDeps());
@@ -434,7 +434,7 @@ describe("bot/commands/ls", () => {
       chat: { id: 123 },
       from: { id: 42 },
       match: "/repo/project/docs",
-      reply: vi.fn().mockResolvedValue({ message_id: 77 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "77" }),
     } as unknown as Context;
 
     await lsCommand(ctx as never, createDeps());
@@ -465,7 +465,7 @@ describe("bot/commands/ls", () => {
       chat: { id: 123 },
       from: { id: 42 },
       match: "/repo/project/docs",
-      reply: vi.fn().mockResolvedValue({ message_id: 77 }),
+      reply: vi.fn().mockResolvedValue({ message_id: "77" }),
     } as unknown as Context;
 
     await lsCommand(firstCtx as never, createDeps());

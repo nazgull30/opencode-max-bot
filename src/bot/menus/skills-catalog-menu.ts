@@ -1,4 +1,4 @@
-import { InlineKeyboard } from "grammy";
+import { InlineKeyboard } from "../../max/compat.js";
 import type { SkillCatalogItem } from "../../app/services/skills-catalog-service.js";
 import { t } from "../../i18n/index.js";
 

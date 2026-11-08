@@ -46,8 +46,8 @@ interface WizardCollectedValues {
 
 export interface WizardEnvValues {
   BOT_LOCALE: Locale;
-  TELEGRAM_BOT_TOKEN: string;
-  TELEGRAM_ALLOWED_USER_ID: string;
+  MAX_BOT_TOKEN: string;
+  MAX_ALLOWED_USER_ID: string;
   OPENCODE_SERVER_VERSION: OpencodeServerVersion;
   OPENCODE_API_URL?: string | undefined;
   OPENCODE_SERVER_USERNAME: string;
@@ -65,8 +65,8 @@ interface ParsedEnvAssignmentLine {
 
 const WIZARD_ENV_KEYS: ReadonlyArray<keyof WizardEnvValues> = [
   "BOT_LOCALE",
-  "TELEGRAM_BOT_TOKEN",
-  "TELEGRAM_ALLOWED_USER_ID",
+  "MAX_BOT_TOKEN",
+  "MAX_ALLOWED_USER_ID",
   "OPENCODE_SERVER_VERSION",
   "OPENCODE_API_URL",
   "OPENCODE_SERVER_USERNAME",
@@ -89,12 +89,12 @@ function isValidHttpUrl(value: string): boolean {
 }
 
 export function validateRuntimeEnvValues(values: Record<string, string>): EnvValidationResult {
-  if (!values.TELEGRAM_BOT_TOKEN || values.TELEGRAM_BOT_TOKEN.trim().length === 0) {
-    return { isValid: false, reason: "Missing TELEGRAM_BOT_TOKEN" };
+  if (!values.MAX_BOT_TOKEN || values.MAX_BOT_TOKEN.trim().length === 0) {
+    return { isValid: false, reason: "Missing MAX_BOT_TOKEN" };
   }
 
-  if (!isPositiveInteger(values.TELEGRAM_ALLOWED_USER_ID || "")) {
-    return { isValid: false, reason: "Invalid TELEGRAM_ALLOWED_USER_ID" };
+  if (!isPositiveInteger(values.MAX_ALLOWED_USER_ID || "")) {
+    return { isValid: false, reason: "Invalid MAX_ALLOWED_USER_ID" };
   }
 
   if (!values.OPENCODE_MODEL_PROVIDER || values.OPENCODE_MODEL_PROVIDER.trim().length === 0) {
@@ -218,8 +218,8 @@ function buildFlatEnvFileContent(existingContent: string, values: WizardEnvValue
 
   const orderedUpdates: Array<[keyof WizardEnvValues, string | undefined]> = [
     ["BOT_LOCALE", values.BOT_LOCALE],
-    ["TELEGRAM_BOT_TOKEN", values.TELEGRAM_BOT_TOKEN],
-    ["TELEGRAM_ALLOWED_USER_ID", values.TELEGRAM_ALLOWED_USER_ID],
+    ["MAX_BOT_TOKEN", values.MAX_BOT_TOKEN],
+    ["MAX_ALLOWED_USER_ID", values.MAX_ALLOWED_USER_ID],
     ["OPENCODE_SERVER_VERSION", values.OPENCODE_SERVER_VERSION],
     ["OPENCODE_API_URL", values.OPENCODE_API_URL],
     ["OPENCODE_SERVER_USERNAME", values.OPENCODE_SERVER_USERNAME],
@@ -673,8 +673,8 @@ async function runWizardAndPersist(runtimePaths: RuntimePaths): Promise<void> {
 
   const envValues: WizardEnvValues = {
     BOT_LOCALE: wizardValues.locale,
-    TELEGRAM_BOT_TOKEN: wizardValues.token,
-    TELEGRAM_ALLOWED_USER_ID: wizardValues.allowedUserId,
+    MAX_BOT_TOKEN: wizardValues.token,
+    MAX_ALLOWED_USER_ID: wizardValues.allowedUserId,
     OPENCODE_SERVER_VERSION: wizardValues.serverVersion,
     OPENCODE_API_URL: wizardValues.apiUrl,
     OPENCODE_SERVER_USERNAME: wizardValues.serverUsername,

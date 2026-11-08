@@ -1,7 +1,7 @@
 import { projectSearchFallback, type I18nDictionary } from "./en.js";
 
 /**
- * Korean localization for OpenCode Telegram Bot.
+ * Korean localization for OpenCode MAX Bot.
  *
  * Keep upstream emoji and technical terms where they help recognition.
  * Prefer natural Korean wording over literal translation.
@@ -73,7 +73,7 @@ export const ko: I18nDictionary = {
   "common.unknown_error": "알 수 없는 오류",
 
   "start.welcome":
-    "👋 OpenCode Telegram Bot에 오신 것을 환영합니다!\n\n사용 가능한 명령어:\n/projects — 프로젝트 선택\n/sessions — 세션 목록\n/new — 새 세션\n/commands — 사용자 지정 명령어\n/skills — 스킬 카탈로그\n/task — 예약 작업\n/tasklist — 예약 작업 목록\n/status — 상태\n/help — 도움말\n\n아래 버튼으로 에이전트, 모델, 변형을 선택하세요.",
+    "👋 OpenCode MAX Bot에 오신 것을 환영합니다!\n\n사용 가능한 명령어:\n/projects — 프로젝트 선택\n/sessions — 세션 목록\n/new — 새 세션\n/commands — 사용자 지정 명령어\n/skills — 스킬 카탈로그\n/task — 예약 작업\n/tasklist — 예약 작업 목록\n/status — 상태\n/help — 도움말\n\n아래 버튼으로 에이전트, 모델, 변형을 선택하세요.",
   "help.keyboard_hint":
     "💡 아래 키보드 버튼으로 에이전트, 모델, 변형 및 컨텍스트 작업을 사용할 수 있습니다.",
   "help.text":
@@ -112,7 +112,7 @@ export const ko: I18nDictionary = {
   "bot.assistant_reply_undelivered":
     "⚠️ The last assistant reply could not be delivered. Send your message again if you still need it.",
   "bot.stale_messages_skipped":
-    "⚠️ Some messages were skipped while Telegram was unreachable. Please send them again.",
+    "⚠️ Some messages were skipped while MAX was unreachable. Please send them again.",
   "bot.session_retry":
     "🔁 {message}\n\n재시도할 때마다 동일한 오류가 반복됩니다. /abort로 중단하세요.",
   "bot.external_user_input": "외부 사용자 입력",
@@ -415,8 +415,8 @@ export const ko: I18nDictionary = {
   "permission.outcome.once": "✅ Allowed once",
   "permission.outcome.always": "🔓 Allowed always",
   "permission.outcome.reject": "❌ Rejected",
-  "permission.outcome.outside_suffix": " · answered outside Telegram",
-  "permission.outcome.settled_outside": "☑️ Answered outside Telegram",
+  "permission.outcome.outside_suffix": " · answered outside MAX",
+  "permission.outcome.settled_outside": "☑️ Answered outside MAX",
   "permission.outcome.not_answered": "⏹ Not answered",
   "permission.delivery_failed": "⚠️ The answer did not reach OpenCode — tap again",
   "permission.name.bash": "Bash",
@@ -437,8 +437,8 @@ export const ko: I18nDictionary = {
   "question.select_one_required_callback": "옵션을 하나 이상 선택해 주세요",
   "question.enter_custom_callback": "직접 입력한 답변을 메시지로 보내 주세요",
   "question.cancelled": "❌ 설문이 취소되었습니다",
-  "question.settled_outside.answered": "☑️ Answered outside Telegram",
-  "question.settled_outside.cancelled": "❌ Cancelled outside Telegram",
+  "question.settled_outside.answered": "☑️ Answered outside MAX",
+  "question.settled_outside.cancelled": "❌ Cancelled outside MAX",
   "question.not_answered": "⏹ Not answered",
   "question.answer_already_received": "답변이 이미 접수되었습니다. 잠시만 기다려 주세요...",
   "question.completed_no_answers": "✅ 설문 완료 (답변 없음)",
@@ -502,7 +502,7 @@ export const ko: I18nDictionary = {
   "tool.file_header.edit":
     "파일 편집 경로: {path}\n============================================================\n\n",
 
-  "runtime.wizard.ask_token": "텔레그램 봇 토큰을 입력하세요 (@BotFather에서 발급).\n> ",
+  "runtime.wizard.ask_token": "MAX 봇 토큰을 입력하세요 (MAX Business에서 발급).\n> ",
   "runtime.wizard.ask_language":
     "인터페이스 언어를 선택하세요.\n목록의 번호 또는 로케일 코드를 입력하세요.\nEnter를 누르면 기본 언어({defaultLocale})가 유지됩니다.\n{options}\n> ",
   "runtime.wizard.language_invalid":
@@ -512,7 +512,7 @@ export const ko: I18nDictionary = {
   "runtime.wizard.token_invalid":
     "토큰이 잘못된 것 같습니다 (<id>:<secret> 형식이어야 합니다). 다시 시도해 주세요.\n",
   "runtime.wizard.ask_user_id":
-    "텔레그램 사용자 ID를 입력하세요 (@userinfobot에서 확인할 수 있습니다).\n> ",
+    "MAX 사용자 ID를 입력하세요 (MAX profile에서 확인할 수 있습니다).\n> ",
   "runtime.wizard.user_id_invalid": "양의 정수를 입력하세요 (> 0).\n",
   "runtime.wizard.ask_api_url":
     "OpenCode API URL을 입력하세요 (선택 사항).\nEnter를 누르면 기본값({defaultUrl})이 사용됩니다.\n> ",
@@ -531,12 +531,12 @@ export const ko: I18nDictionary = {
     "Enter OpenCode server password.\nPress Enter to keep the saved password.\n> ",
   "runtime.wizard.api_url_invalid":
     "유효한 URL(http/https)을 입력하거나 Enter를 눌러 기본값을 사용하세요.\n",
-  "runtime.wizard.start": "OpenCode Telegram Bot 설정을 시작합니다.\n",
+  "runtime.wizard.start": "OpenCode MAX Bot 설정을 시작합니다.\n",
   "runtime.wizard.saved": "설정이 저장되었습니다:\n- {envPath}\n",
   "runtime.wizard.not_configured_starting":
     "아직 구성되지 않았습니다. 설정 마법사를 시작합니다...\n",
   "runtime.wizard.tty_required":
-    "대화형 마법사에는 TTY 터미널이 필요합니다. 대화형 셸에서 `opencode-telegram config`를 실행해 주세요.",
+    "대화형 마법사에는 TTY 터미널이 필요합니다. 대화형 셸에서 `opencode-max config`를 실행해 주세요.",
   "runtime.container.command_unavailable":
     "⚠️ 이 명령은 Docker 이미지에서 사용할 수 없습니다.",
 

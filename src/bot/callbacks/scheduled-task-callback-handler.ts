@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import { getDateLocale, t } from "../../i18n/index.js";
 import type { InteractionState } from "../../app/types/interaction.js";
@@ -26,33 +26,33 @@ import {
 interface TaskListListMetadata {
   flow: "tasklist";
   stage: "list";
-  messageId: number;
+  messageId: string;
 }
 
 interface TaskListDetailMetadata {
   flow: "tasklist";
   stage: "detail";
-  messageId: number;
+  messageId: string;
   taskId: string;
 }
 
 type TaskListMetadata = TaskListListMetadata | TaskListDetailMetadata;
 
-function getCallbackMessageId(ctx: Context): number | null {
+function getCallbackMessageId(ctx: Context): string | null {
   const message = ctx.callbackQuery?.message;
   if (!message || !("message_id" in message)) {
     return null;
   }
 
-  const messageId = (message as { message_id?: number }).message_id;
-  return typeof messageId === "number" ? messageId : null;
+  const messageId = (message as { message_id?: string }).message_id;
+  return typeof messageId === "string" ? messageId : null;
 }
 
 async function deleteMessageIfPresent(
   ctx: Context,
-  messageId: number | null | undefined,
+  messageId: string | null | undefined,
 ): Promise<void> {
-  if (!ctx.chat || typeof messageId !== "number") {
+  if (!ctx.chat || typeof messageId !== "string") {
     return;
   }
 
@@ -63,7 +63,7 @@ function buildTaskInteractionMetadata(
   stage: "awaiting_schedule" | "parsing_schedule" | "awaiting_prompt",
   projectId: string,
   projectWorktree: string,
-  previewMessageId?: number,
+  previewMessageId?: string,
 ): Record<string, unknown> {
   return {
     flow: "task",
@@ -96,7 +96,7 @@ function clearTaskFlow(deps: TaskCallbackDeps, reason: string): void {
   deps.taskCreationManager.clear();
 }
 
-function isTaskCallbackActive(flowState: TaskCreationState, messageId: number): boolean {
+function isTaskCallbackActive(flowState: TaskCreationState, messageId: string): boolean {
   return [
     flowState.scheduleRequestMessageId,
     flowState.previewMessageId,
@@ -113,7 +113,7 @@ function parseTaskListMetadata(state: InteractionState | null): TaskListMetadata
   const stage = state.metadata.stage;
   const messageId = state.metadata.messageId;
 
-  if (flow !== "tasklist" || typeof messageId !== "number") {
+  if (flow !== "tasklist" || typeof messageId !== "string") {
     return null;
   }
 

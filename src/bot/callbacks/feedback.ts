@@ -1,4 +1,4 @@
-import type { Context, Keyboard } from "grammy";
+import type { Context, Keyboard } from "../../max/compat.js";
 import type { I18nKey } from "../../i18n/en.js";
 import { t } from "../../i18n/index.js";
 import { logger } from "../../utils/logger.js";
@@ -7,7 +7,7 @@ import { logger } from "../../utils/logger.js";
  * Feedback rules for callback handlers:
  *
  * 1. An action that changes the reply keyboard answers the callback without text
- *    and sends a message carrying the new keyboard (`switched`) - Telegram cannot
+ *    and sends a message carrying the new keyboard (`switched`) - MAX cannot
  *    update a reply keyboard any other way.
  * 2. An action inside a menu that leaves the keyboard alone shows a toast and
  *    edits the menu in place.
@@ -17,7 +17,7 @@ import { logger } from "../../utils/logger.js";
  * 5. A handler that answered the callback returns `true`.
  */
 
-// Telegram rejects callback answers longer than this.
+// MAX rejects callback answers longer than this.
 const CALLBACK_ANSWER_MAX_LENGTH = 200;
 
 type FeedbackParams = Record<string, string | number | boolean | null | undefined>;

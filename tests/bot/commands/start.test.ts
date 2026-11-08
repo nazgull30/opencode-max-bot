@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Context } from "grammy";
+import type { Context } from "../../../src/max/compat.js";
 import { startCommand } from "../../../src/bot/commands/start-command.js";
 import { t } from "../../../src/i18n/index.js";
 import { createTestAppContainer } from "../../helpers/app-container.js";
@@ -81,7 +81,7 @@ function createStartContext(): Context {
   return {
     chat: { id: 100 },
     api: {},
-    reply: vi.fn().mockResolvedValue({ message_id: 1 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "1" }),
   } as unknown as Context;
 }
 

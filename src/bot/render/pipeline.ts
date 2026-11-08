@@ -1,36 +1,31 @@
-import { parseTelegramBlocks } from "./block-parser.js";
-import { toBlockPlainText } from "./block-plain-text.js";
-import { splitOversizeTelegramBlocks, type BlockSplitLimits } from "./block-splitter.js";
-import { chunkTelegramRenderedBlocks, type TelegramChunkerOptions } from "./chunker.js";
-import { liftTextListContent, toRichBlock } from "./rich-blocks.js";
-import type { TelegramBlock, TelegramRenderedBlock } from "./types.js";
-import type { TelegramRenderedPart } from "./types.js";
+import { parseMAXBlocks } from "./block-parser.js";
+import { splitOversizeMAXBlocks, type BlockSplitLimits } from "./block-splitter.js";
+import { chunkMAXRenderedBlocks, type MAXChunkerOptions } from "./chunker.js";
+import { liftTextListContent } from "./rich-blocks.js";
+import { toBlockHtml } from "./blocks-to-html.js";
+import type { MAXBlock, MAXRenderedBlock } from "./types.js";
+import type { MAXRenderedPart } from "./types.js";
 
-/**
- * Lifts native content out of lists that are written as text, splits blocks
- * that exceed the per-message budgets, then pairs every block with its native
- * rich form and its plain-text projection.
- */
+/** Pairs every parsed block with its MAX HTML form and its plain projection. */
 export function toRenderedBlocks(
-  blocks: TelegramBlock[],
+  blocks: MAXBlock[],
   limits?: Partial<BlockSplitLimits>,
-): TelegramRenderedBlock[] {
-  return splitOversizeTelegramBlocks(liftTextListContent(blocks), limits).map((block) => ({
-    block: toRichBlock(block),
-    plainText: toBlockPlainText(block),
-  }));
+): MAXRenderedBlock[] {
+  return splitOversizeMAXBlocks(liftTextListContent(blocks), limits).map((block) =>
+    toBlockHtml(block),
+  );
 }
 
-export function renderTelegramBlocks(
+export function renderMAXBlocks(
   markdown: string,
   limits?: Partial<BlockSplitLimits>,
-): TelegramRenderedBlock[] {
-  return toRenderedBlocks(parseTelegramBlocks(markdown), limits);
+): MAXRenderedBlock[] {
+  return toRenderedBlocks(parseMAXBlocks(markdown), limits);
 }
 
-export function renderTelegramParts(
+export function renderMAXParts(
   markdown: string,
-  options?: TelegramChunkerOptions,
-): TelegramRenderedPart[] {
-  return chunkTelegramRenderedBlocks(renderTelegramBlocks(markdown, options), options);
+  options?: MAXChunkerOptions,
+): MAXRenderedPart[] {
+  return chunkMAXRenderedBlocks(renderMAXBlocks(markdown, options), options);
 }

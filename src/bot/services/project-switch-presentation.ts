@@ -1,4 +1,4 @@
-import type { Context } from "grammy";
+import type { Context } from "../../max/compat.js";
 import type { AppContainer } from "../../app/bootstrap/app-container.js";
 import type { ProjectSwitchPresentation } from "../../app/services/project-switch-service.js";
 import { createMainKeyboard } from "../keyboards/main-reply-keyboard.js";

@@ -9,7 +9,7 @@ async function loadAssistantRendering(mode: "raw" | "markdown") {
 
   vi.doMock("../../../src/config.js", () => ({
     config: {
-      telegram: {
+      max: {
         token: "test-token",
         allowedUserId: 123456789,
         proxyUrl: "",
@@ -54,7 +54,7 @@ describe("bot/messages/assistant-rendering", () => {
 
     expect(module.renderAssistantFinalPartsSafe("hello **raw**")).toEqual([
       {
-        blocks: [],
+        html: "",
         fallbackText: "hello **raw**",
         source: "plain",
       },
@@ -84,7 +84,7 @@ describe("bot/messages/assistant-rendering", () => {
     expect(module.prepareAssistantStreamingPayload("partial **text")).toEqual({
       parts: [
         {
-          blocks: [],
+          html: "",
           fallbackText: "partial **text",
           source: "plain",
         },
@@ -103,8 +103,8 @@ describe("bot/messages/assistant-rendering", () => {
     const parts = module.renderAssistantFinalPartsSafe("# Title\n\nSome **bold** text");
 
     expect(parts).toHaveLength(1);
-    expect(defined(parts[0]).source).toBe("blocks");
-    expect(defined(parts[0]).blocks.map((block) => block.type)).toEqual(["heading", "paragraph"]);
+    expect(defined(parts[0]).source).toBe("html");
+    expect(defined(parts[0]).html).toBe("<h3>Title</h3>\n\nSome <b>bold</b> text");
   });
 
   it("parses the stable prefix and keeps the streaming tail literal", async () => {
@@ -113,10 +113,7 @@ describe("bot/messages/assistant-rendering", () => {
     const payload = module.prepareAssistantStreamingPayload("## Done\n\n| unfinished |");
 
     expect(payload?.parts).toHaveLength(1);
-    expect(defined(payload?.parts[0]).blocks).toEqual([
-      { type: "heading", text: "Done", size: 2 },
-      { type: "paragraph", text: "| unfinished |" },
-    ]);
+    expect(defined(payload?.parts[0]).html).toBe("<h3>Done</h3>\n\n| unfinished |");
   });
 
   it("treats text without a completed block as an entirely literal tail", async () => {
@@ -124,7 +121,7 @@ describe("bot/messages/assistant-rendering", () => {
 
     const payload = module.prepareAssistantStreamingPayload("# still typing");
 
-    expect(defined(payload?.parts[0]).blocks).toEqual([{ type: "paragraph", text: "# still typing" }]);
+    expect(defined(payload?.parts[0]).html).toBe("# still typing");
   });
 
   it("returns no payload for empty text", async () => {
@@ -138,17 +135,8 @@ describe("bot/messages/assistant-rendering", () => {
     const { module } = await loadAssistantRendering("markdown");
 
     expect(module.buildStreamingBlocks("- one\n- two\n\ntail")).toEqual([
-      {
-        block: {
-          type: "list",
-          items: [
-            { blocks: [{ type: "paragraph", text: "one" }] },
-            { blocks: [{ type: "paragraph", text: "two" }] },
-          ],
-        },
-        plainText: "- one\n- two",
-      },
-      { block: { type: "paragraph", text: "tail" }, plainText: "tail" },
+      { block: { html: "• one\n• two" }, plainText: "- one\n- two" },
+      { block: { html: "tail" }, plainText: "tail" },
     ]);
   });
 });

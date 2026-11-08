@@ -1,4 +1,4 @@
-import type { Bot, Context } from "grammy";
+import type { Bot, Context } from "../../max/compat.js";
 import { opencodeClient } from "../../opencode/client.js";
 import { isOpencodeServerHealthy } from "../../opencode/ready-refresh.js";
 import type { AppContainer } from "../bootstrap/app-container.js";
@@ -254,11 +254,11 @@ function snapshotTrackedRequests(deps: RestoreAfterReconnectDeps): TrackedReques
 
 /**
  * After a reconnect, prompts on screen that OpenCode no longer has pending were settled
- * while the stream was down: they end as answered outside Telegram — or as not answered
+ * while the stream was down: they end as answered outside MAX — or as not answered
  * when the server restarted, since they went with it — and waiting requests that are gone
  * leave the queue. Only requests tracked before the lists were requested are checked — one
  * that arrived meanwhile is missing from the lists without being settled. Answers or a
- * dismissal being sent from Telegram are left to that send.
+ * dismissal being sent from MAX are left to that send.
  */
 async function settleRequestsGoneWhileDisconnected(
   deps: RestoreAfterReconnectDeps,
@@ -278,7 +278,7 @@ async function settleRequestsGoneWhileDisconnected(
       shownId &&
       !pendingIds.has(shownId) &&
       deps.questionManager.getRequestID() === shownId &&
-      !deps.questionManager.isSettlingFromTelegram() &&
+      !deps.questionManager.isSettlingFromMAX() &&
       attachPresentation
     ) {
       if (serverRestarted) {
@@ -423,7 +423,7 @@ export async function attachToSession(deps: AttachSessionDeps): Promise<AttachSe
 
 /**
  * Restores the followed session, joining a restore already in progress: the OpenCode ready
- * notification and the Telegram polling start both restore at startup, and running both in
+ * notification and the MAX polling start both restore at startup, and running both in
  * parallel draws two dashboards (two pinned messages) for the same session. A joined restore
  * that failed (for example, the server was not ready yet) is attempted once more, so the
  * caller whose condition just changed still gets its own attempt.

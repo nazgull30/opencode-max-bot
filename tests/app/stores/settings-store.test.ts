@@ -35,8 +35,8 @@ describe("app/stores/settings-store", () => {
 
   beforeEach(async () => {
     delete process.env.INITIAL_SETTINGS_PRESET;
-    tempHome = await createTestHome("opencode-telegram-settings-store-");
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", tempHome);
+    tempHome = await createTestHome("opencode-max-settings-store-");
+    vi.stubEnv("OPENCODE_MAX_HOME", tempHome);
     setRuntimeMode("installed");
     __resetSettingsForTests();
   });
@@ -243,7 +243,7 @@ describe("app/stores/settings-store", () => {
     );
     vi.resetModules();
     vi.stubEnv("INITIAL_SETTINGS_PRESET", '{"showAssistantRunFooter":false}');
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", tempHome);
+    vi.stubEnv("OPENCODE_MAX_HOME", tempHome);
 
     const store = await import("../../../src/app/stores/settings-store.js");
     await store.loadSettings();
@@ -262,7 +262,7 @@ describe("app/stores/settings-store", () => {
     );
     vi.resetModules();
     vi.stubEnv("INITIAL_SETTINGS_PRESET", '{"showBackgroundSessionNotifications":false}');
-    vi.stubEnv("OPENCODE_TELEGRAM_HOME", tempHome);
+    vi.stubEnv("OPENCODE_MAX_HOME", tempHome);
 
     const store = await import("../../../src/app/stores/settings-store.js");
     await store.loadSettings();
@@ -500,7 +500,7 @@ describe("app/stores/settings-store", () => {
         } else {
           void setScheduledTasksConfirmed([]);
         }
-        vi.stubEnv("OPENCODE_TELEGRAM_HOME", otherHome);
+        vi.stubEnv("OPENCODE_MAX_HOME", otherHome);
         __resetSettingsForTests();
         await flushSettings();
 
@@ -527,7 +527,7 @@ describe("app/stores/settings-store", () => {
       writeFile: async (...args: Parameters<typeof originalFs.writeFile>) => {
         await originalFs.writeFile(...args);
         if (args[0] === path.join(tempHome, "settings.json.tmp")) {
-          vi.stubEnv("OPENCODE_TELEGRAM_HOME", otherHome);
+          vi.stubEnv("OPENCODE_MAX_HOME", otherHome);
         }
       },
     }));
@@ -535,7 +535,7 @@ describe("app/stores/settings-store", () => {
       await loadSettings();
       setCompactOutputMode(true);
       await flushSettings();
-      expect(process.env.OPENCODE_TELEGRAM_HOME).toBe(otherHome);
+      expect(process.env.OPENCODE_MAX_HOME).toBe(otherHome);
       expect(await readFile(path.join(tempHome, "settings.json.bak"), "utf8")).toBe(original);
       expect(await readFile(path.join(otherHome, "settings.json.bak"), "utf8")).toBe(sentinel);
       expect(

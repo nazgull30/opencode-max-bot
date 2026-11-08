@@ -1,11 +1,11 @@
 {
-  "name": "@grinev/opencode-telegram-bot",
+  "name": "opencode-max-bot",
   "version": "0.27.0",
-  "description": "Telegram bot client for OpenCode to run and monitor coding tasks from chat.",
+  "description": "MAX bot client for OpenCode to run and monitor coding tasks from chat.",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "opencode-telegram": "dist/cli.js"
+    "opencode-max": "dist/cli.js"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -35,36 +35,32 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grinev/opencode-telegram-bot.git"
+    "url": "git+https://github.com/grinev/opencode-max-bot.git"
   },
   "keywords": [
     "opencode",
-    "telegram",
-    "telegram-bot",
-    "grammy",
+    "max",
+    "max-bot",
+    "max-messenger",
     "developer-tools",
     "cli"
   ],
   "author": "grinev",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/grinev/opencode-telegram-bot/issues"
+    "url": "https://github.com/grinev/opencode-max-bot/issues"
   },
-  "homepage": "https://github.com/grinev/opencode-telegram-bot#readme",
+  "homepage": "https://github.com/grinev/opencode-max-bot#readme",
   "dependencies": {
     "@google-cloud/text-to-speech": "^6.4.0",
-    "@grammyjs/menu": "^1.3.1",
+    "@maxhub/max-bot-api": "^1.1.0",
     "@opencode-ai/sdk": "^1.18.8",
     "@opencode/client": "^2.0.16",
     "better-sqlite3": "^13.0.1",
     "dotenv": "^17.4.2",
-    "grammy": "^1.45.1",
-    "https-proxy-agent": "^7.0.6",
     "mdast-util-to-string": "^4.0.0",
-    "node-fetch": "^2.7.0",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
-    "socks-proxy-agent": "^8.0.5",
     "unified": "^11.0.5",
     "ws": "^8.21.1"
   },
@@ -80,7 +76,6 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.20.1",
-    "@types/node-fetch": "^2.6.13",
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",

@@ -1,6 +1,6 @@
 ﻿import { beforeEach, describe, expect, it, vi } from "vitest";
-import { InlineKeyboard } from "grammy";
-import type { InlineKeyboardButton } from "grammy/types";
+import { InlineKeyboard } from "../../../src/max/compat.js";
+import type { InlineKeyboardButton } from "../../../src/max/compat.js";
 
 const mocked = vi.hoisted(() => ({
   getModelSelectionListsMock: vi.fn(),
@@ -105,10 +105,10 @@ function mockContext(overrides: Record<string, unknown> = {}) {
     message: undefined,
     chat: { id: 123 },
     answerCallbackQuery: vi.fn().mockResolvedValue(undefined),
-    reply: vi.fn().mockResolvedValue({ message_id: 999 }),
+    reply: vi.fn().mockResolvedValue({ message_id: "999" }),
     deleteMessage: vi.fn().mockResolvedValue(undefined),
     ...overrides,
-  } as unknown as import("grammy").Context;
+  } as unknown as import("../../../src/max/compat.js").Context;
 }
 
 function getCallbackData(button: InlineKeyboardButton): string | undefined {
@@ -235,7 +235,7 @@ describe("bot model selection", () => {
         kind: "inline",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           modelLists: {
             favorites: [],
             recent: [{ providerID: "fireworks", modelID: longModelID }],
@@ -250,7 +250,7 @@ describe("bot model selection", () => {
       const ctx = mockContext({
         callbackQuery: {
           data: "model:list:recent:0",
-          message: { message_id: 999 },
+          message: { message_id: "999" },
         },
         api: {},
       });
@@ -288,7 +288,7 @@ describe("bot model selection", () => {
         kind: "inline",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           modelLists: {
             favorites: [{ providerID: "opencode-go", modelID: "glm-5.3-flash" }],
             recent: [],
@@ -303,7 +303,7 @@ describe("bot model selection", () => {
       mocked.getModelSelectionListsMock.mockResolvedValue(freshLists);
 
       const ctx = mockContext({
-        callbackQuery: { data: "model:list:favorites:0", message: { message_id: 999 } },
+        callbackQuery: { data: "model:list:favorites:0", message: { message_id: "999" } },
         editMessageText: vi.fn().mockResolvedValue(undefined),
         api: {},
       });
@@ -317,7 +317,7 @@ describe("bot model selection", () => {
       expect(ctx.editMessageText).toHaveBeenCalledTimes(1);
       expect(mocked.interactionManagerTransitionMock).toHaveBeenCalledWith({
         expectedInput: "callback",
-        metadata: { menuKind: "model", messageId: 999, modelLists: freshLists },
+        metadata: { menuKind: "model", messageId: "999", modelLists: freshLists },
       });
     });
 
@@ -326,7 +326,7 @@ describe("bot model selection", () => {
         kind: "inline",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           modelLists: {
             favorites: [{ providerID: "opencode-go", modelID: "glm-5.3-flash" }],
             recent: [],
@@ -337,7 +337,7 @@ describe("bot model selection", () => {
       mocked.getModelSelectionListsMock.mockResolvedValue({ favorites: [], recent: [] });
 
       const ctx = mockContext({
-        callbackQuery: { data: "model:list:favorites:0", message: { message_id: 999 } },
+        callbackQuery: { data: "model:list:favorites:0", message: { message_id: "999" } },
         editMessageText: vi.fn().mockRejectedValue(new Error("message is not modified")),
         api: {},
       });
@@ -354,7 +354,7 @@ describe("bot model selection", () => {
         kind: "inline",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           modelLists: {
             favorites: [{ providerID: "openai", modelID: "gpt-4o" }],
             recent: [],
@@ -364,7 +364,7 @@ describe("bot model selection", () => {
       mocked.getModelAvailabilityMock.mockResolvedValue("unknown");
 
       const ctx = mockContext({
-        callbackQuery: { data: "model:list:favorites:0", message: { message_id: 999 } },
+        callbackQuery: { data: "model:list:favorites:0", message: { message_id: "999" } },
         api: {},
       });
 
@@ -381,7 +381,7 @@ describe("bot model selection", () => {
       const ctx = mockContext({
         callbackQuery: {
           data: "model:result:0",
-          message: { message_id: 999 },
+          message: { message_id: "999" },
         },
         api: {},
       });
@@ -398,7 +398,7 @@ describe("bot model selection", () => {
         kind: "inline",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           modelLists: { favorites: [], recent: [] },
         },
       });
@@ -406,7 +406,7 @@ describe("bot model selection", () => {
       const ctx = mockContext({
         callbackQuery: {
           data: "model:list:recent:0",
-          message: { message_id: 999 },
+          message: { message_id: "999" },
         },
         api: {},
       });
@@ -423,7 +423,7 @@ describe("bot model selection", () => {
         kind: "inline",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           modelLists: {
             favorites: [],
             recent: [{ providerID: "openai", modelID: "gpt-5" }],
@@ -437,7 +437,7 @@ describe("bot model selection", () => {
       const ctx = mockContext({
         callbackQuery: {
           data: "model:list:recent:0",
-          message: { message_id: 999 },
+          message: { message_id: "999" },
         },
         api: {},
       });
@@ -623,7 +623,7 @@ describe("bot model selection", () => {
         metadata: {
           flow: "model-search",
           stage: "results",
-          messageId: 999,
+          messageId: "999",
           models: [{ providerID: "fireworks", modelID: longModelID, variant: "default" }],
         },
       });
@@ -631,7 +631,7 @@ describe("bot model selection", () => {
       const ctx = mockContext({
         callbackQuery: {
           data: "model:result:0",
-          message: { message_id: 999 },
+          message: { message_id: "999" },
         },
         api: {},
       });
@@ -659,7 +659,7 @@ describe("bot model selection", () => {
         metadata: {
           flow: "model-search",
           stage: "results",
-          messageId: 999,
+          messageId: "999",
           query: "glm",
           models: [
             { providerID: "opencode-go", modelID: "glm-5.3-flash", variant: "default" },
@@ -671,7 +671,7 @@ describe("bot model selection", () => {
       mocked.searchModelsMock.mockResolvedValue([{ providerID: "zai", modelID: "glm-5" }]);
 
       const ctx = mockContext({
-        callbackQuery: { data: "model:result:0", message: { message_id: 999 } },
+        callbackQuery: { data: "model:result:0", message: { message_id: "999" } },
         editMessageText: vi.fn().mockResolvedValue(undefined),
         api: {},
       });
@@ -692,7 +692,7 @@ describe("bot model selection", () => {
         metadata: {
           flow: "model-search",
           stage: "results",
-          messageId: 999,
+          messageId: "999",
           query: "glm",
           models: [{ providerID: "zai", modelID: "glm-5", variant: "default" }],
         },
@@ -705,7 +705,7 @@ describe("bot model selection", () => {
         metadata: {
           flow: "model-search",
           stage: "results",
-          messageId: 999,
+          messageId: "999",
           models: [],
         },
       });
@@ -713,7 +713,7 @@ describe("bot model selection", () => {
       const ctx = mockContext({
         callbackQuery: {
           data: "model:list:recent:0",
-          message: { message_id: 999 },
+          message: { message_id: "999" },
         },
         api: {},
       });
@@ -822,12 +822,12 @@ describe("bot model selection", () => {
   describe("handleModelProvidersCallback", () => {
     const activeMenuSnapshot = (metadata: Record<string, unknown>) => ({
       kind: "inline",
-      metadata: { menuKind: "model", messageId: 999, ...metadata },
+      metadata: { menuKind: "model", messageId: "999", ...metadata },
     });
 
     function providerMenuContext(data: string) {
       return mockContext({
-        callbackQuery: { data, message: { message_id: 999 } },
+        callbackQuery: { data, message: { message_id: "999" } },
         editMessageText: vi.fn().mockResolvedValue(undefined),
         api: {},
       });
@@ -856,7 +856,7 @@ describe("bot model selection", () => {
         expectedInput: "callback",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           providers,
           providersPage: 0,
         },
@@ -886,7 +886,7 @@ describe("bot model selection", () => {
         expectedInput: "callback",
         metadata: {
           menuKind: "model",
-          messageId: 999,
+          messageId: "999",
           providers,
           providersPage: 1,
           providerIndex: 0,
@@ -916,7 +916,7 @@ describe("bot model selection", () => {
       expect(ctx.editMessageText).toHaveBeenCalled();
       expect(mocked.interactionManagerTransitionMock).toHaveBeenCalledWith({
         expectedInput: "callback",
-        metadata: { menuKind: "model", messageId: 999, modelLists },
+        metadata: { menuKind: "model", messageId: "999", modelLists },
       });
     });
 
@@ -1013,7 +1013,7 @@ describe("bot model selection", () => {
   describe("handleModelSelect with provider browser callbacks", () => {
     it("does not touch the active menu state for provider browser callbacks", async () => {
       const ctx = mockContext({
-        callbackQuery: { data: "model:providers:0", message: { message_id: 999 } },
+        callbackQuery: { data: "model:providers:0", message: { message_id: "999" } },
       });
 
       const result = await handleModelSelect(ctx, createDeps());
