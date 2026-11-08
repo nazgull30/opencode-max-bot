@@ -24,6 +24,7 @@ import {
   ensureCommandsInitialized,
   registerCommandRouter,
 } from "./routers/command-router.js";
+import { BOT_COMMANDS } from "./commands/definitions.js";
 import { registerMessageRouter } from "./routers/message-router.js";
 import { createAttachPresentation } from "./services/attach-presentation.js";
 import { createMaxBotOptions } from "./max-client-options.js";
@@ -37,7 +38,11 @@ export function createBot(
   container.resetRuntimeStreams("bot_startup");
 
   const bot = new Bot(config.max.token, createMaxBotOptions(config.max));
-  bot.api.registerDialogId(config.max.allowedUserId);
+  bot.api.registerDialogUserId(config.max.allowedUserId);
+
+  void bot.api
+    .setMyCommands([...BOT_COMMANDS, ...localCommandRegistry.definitions()])
+    .catch((error) => logger.error("[Bot] Failed to initialize commands at startup:", error));
 
   configureAttachPresentation(createAttachPresentation(container));
 

@@ -239,8 +239,7 @@ function toUser(user: MaxUser | null | undefined): User | undefined {
 
 function toChat(message: MaxMessage): Chat {
   const recipient = message.recipient;
-  const isDialog = recipient.chat_type === "dialog";
-  const id = isDialog ? (recipient.user_id ?? recipient.chat_id ?? 0) : (recipient.chat_id ?? 0);
+  const id = recipient.chat_id ?? recipient.user_id ?? 0;
   const chat: Chat = {
     id,
     type:
@@ -584,7 +583,7 @@ export class Api {
         signal?: AbortSignal,
       ) => Promise<unknown>)
     | null = null;
-  private readonly dialogIds = new Set<number>();
+  private readonly dialogUserIds = new Set<number>();
 
   constructor(max: MaxApiClass) {
     this.max = max;
@@ -595,8 +594,8 @@ export class Api {
     };
   }
 
-  registerDialogId(id: number): void {
-    this.dialogIds.add(id);
+  registerDialogUserId(id: number): void {
+    this.dialogUserIds.add(id);
   }
 
   async getMe(): Promise<BotInfo> {
@@ -753,7 +752,7 @@ export class Api {
     text: string,
     extra: MaxSendExtra,
   ): Promise<MaxMessage> {
-    if (this.dialogIds.has(chatId)) {
+    if (this.dialogUserIds.has(chatId)) {
       return this.call("sendMessageToUser", { userId: chatId, text, extra });
     }
     return this.call("sendMessageToChat", { chatId, text, extra });
@@ -859,7 +858,6 @@ export class Context<U extends MaxUpdate = MaxUpdate> {
       this.msg = this.message;
       this.chat = this.message.chat;
       this.from = this.message.from;
-      this.api.registerDialogId(this.chat.id);
       return;
     }
 
@@ -869,7 +867,6 @@ export class Context<U extends MaxUpdate = MaxUpdate> {
         this.message = toMessage(callbackUpdate.message);
         this.msg = this.message;
         this.chat = this.message.chat;
-        this.api.registerDialogId(this.chat.id);
       }
       const from = toUser(callbackUpdate.callback.user);
       this.from = from ?? this.message?.from;
@@ -970,6 +967,9 @@ export class Context<U extends MaxUpdate = MaxUpdate> {
     const payload: MaxCallbackAnswer = {};
     if (extra?.text) {
       payload.notification = extra.text;
+    } else {
+      // MAX rejects an answer without a message or notification.
+      payload.notification = "\u200B";
     }
     await this.api.max.answerOnCallback(this.callbackQuery.id, payload);
     return undefined;
@@ -1041,7 +1041,6 @@ export class Bot<C extends Context = Context> {
 
     this.max.use(async (maxCtx, next) => {
       const ctx = normalizeUpdate(maxCtx.update, this.api, this.botInfo) as C;
-      ctx.api.registerDialogId(ctx.chat?.id ?? 0);
       await this.run(ctx as Context);
       await next();
     });
@@ -1121,6 +1120,8 @@ export class Bot<C extends Context = Context> {
   }): Promise<void> {
     const info = await this.api.getMe();
     this.botInfo = info;
+    // MaxBot.startPolling logs its own botInfo; this wrapper bypasses MaxBot.start().
+    this.max.botInfo = await this.max.api.getMyInfo();
     options?.onStart?.(info);
     await this.max.startPolling({ retry: true });
   }
